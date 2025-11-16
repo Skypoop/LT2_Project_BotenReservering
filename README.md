@@ -6,7 +6,7 @@ Dit is een applicatie in ontwikkeling voor het beheren van een roeivereniging. H
 
 Het doel van dit project is om een alles-in-één oplossing te bieden voor de administratieve en organisatorische taken van een watersportvereniging. De applicatie wordt gebouwd met een focus op gebruiksvriendelijkheid en een moderne architectuur.
 
-### Gebouwde Met
+### Gebouwd Met
 
 *   **C#**
 *   **.NET MAUI**
