@@ -9,7 +9,8 @@ Het doel van dit project is om een alles-in-één oplossing te bieden voor de ad
 ### Gebouwde Met
 
 *   **C#**
-*   **.NET MAUI:** 
+*   **.NET MAUI**
+*   **MVVM:** Voor frontend
 *   **SQLite:** Als lokale database voor dataopslag.
 
 ## Functionaliteiten
