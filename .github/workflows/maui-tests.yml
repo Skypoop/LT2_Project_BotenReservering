@@ -8,7 +8,6 @@ on:
       - feature/*
       - hotfix/*
       - release/*
-      - infra/runner-toevoegen
   pull_request:
     branches:
       - main
@@ -19,41 +18,39 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest  # Of windows-latest/macOS-latest als specifiek platform nodig is
+    runs-on: windows-latest
     steps:
-      - name: Haal de repository op
+      - name: Checkout repository
         uses: actions/checkout@v4
- 
-      - name: Installeer .NET SDK
+
+      - name: Install .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'  # Gebruik de juiste versie voor MAUI
- 
-      - name: Installeer MAUI workloads
-        run: dotnet workload install maui-android
- 
-      - name: Herstel afhankelijkheden
-        run: dotnet restore
- 
-      - name: Bouw de applicatie
-        run: dotnet build --configuration Release --no-restore
-        
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: GroceryApp-build
-          path: |
-            **/bin/Release/net8.0-windows10.0.19041.0/win-x64/
-            !**/*.pdb   # (optioneel: exclude symbol files)
-        
-      - name: Voer unit tests uit
-        run: dotnet test --configuration Release --no-restore --no-build --verbosity normal
+          dotnet-version: '8.0.x'
 
-      - name: Upload testresultaten
-        if: always()   # ook uploaden als tests falen
+      - name: Install MAUI workloads
+        run: dotnet workload install maui-windows
+
+      - name: Restore all required .NET workloads
+        run: dotnet workload restore
+
+      - name: Restore dependencies including win-x64 runtime pack
+        run: dotnet restore -r win-x64
+
+      - name: List installed .NET runtimes
+        run: dotnet --list-runtimes
+
+      - name: List installed workloads
+        run: dotnet workload list
+
+      - name: Build the application (uses restored runtime pack)
+        run: dotnet build ProjectBotenReservering.App/ProjectBotenReservering.App.csproj --configuration Release --framework net8.0-windows10.0.19041.0 -r win-x64
+
+      - name: Run unit tests and generate report
+        run: dotnet test --configuration Release --verbosity normal --results-directory "TestResults" --logger "trx;LogFileName=testresults.trx"
+
+      - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
-          name: TestResults
-          path: |
-            **/TestResults/
-            **/test_results.trx
+          name: test-results-windows
+          path: TestResults/testresults.trx
