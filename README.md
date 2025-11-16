@@ -17,7 +17,7 @@ Het doel van dit project is om een alles-in-één oplossing te bieden voor de ad
 
 De volgende functionaliteiten zijn geïdentificeerd en worden (mogelijk) geïmplementeerd. Deze lijst is onderhevig aan verandering en kan in de toekomst worden uitgebreid.
 
-*   **Botenreservering:** Een systeem voor leden om boten te reserveren.
+*   **Botenreservering:** Een systeem voor leden om boten te reserveren en de reserveringen te kunnen inzien.
 *   **Ledenbeheer:** Administratie van lidmaatschappen en persoonsgegevens.
 *   **Schadebeheer:** Melden en opvolgen van schade aan materieel.
 *   **Wedstrijdfunctionaliteit:** Organiseren van wedstrijden en bijhouden van resultaten.
