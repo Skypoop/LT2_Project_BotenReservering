@@ -21,7 +21,7 @@
     <ApplicationVersion>1</ApplicationVersion>
 
     <WindowsPackageType>None</WindowsPackageType>
-
+    <GenerateAppxPackageOnBuild>false</GenerateAppxPackageOnBuild>
     <SupportedOSPlatformVersion
       Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
     <SupportedOSPlatformVersion
