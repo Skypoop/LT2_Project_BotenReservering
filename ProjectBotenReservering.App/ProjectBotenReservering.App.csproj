@@ -22,6 +22,8 @@
 
     <WindowsPackageType>None</WindowsPackageType>
     <GenerateAppxPackageOnBuild>false</GenerateAppxPackageOnBuild>
+
+    <EnableMsixTooling>false</EnableMsixTooling>
     <SupportedOSPlatformVersion
       Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
     <SupportedOSPlatformVersion
