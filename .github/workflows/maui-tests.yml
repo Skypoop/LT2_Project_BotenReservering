@@ -27,6 +27,8 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
+      - name: Forceer .NET 8 versie
+        run: dotnet new globaljson --sdk-version 8.0.100 --roll-forward latestFeature
  
       - name: Installeer MAUI workloads
         run: dotnet workload install maui-android
