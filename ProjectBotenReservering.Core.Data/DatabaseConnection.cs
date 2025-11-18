@@ -1,17 +1,16 @@
 ﻿
-using Grocery.Core.Data.Helpers;
+using ProjectBotenReservering.Core.Data.Helpers;
 using Microsoft.Data.Sqlite;
 
-namespace Grocery.Core.Data
+namespace ProjectBotenReservering.Core.Data
 {
     public abstract class DatabaseConnection : IDisposable
     {
         protected SqliteConnection Connection { get; }
-        string databaseName;
 
         public DatabaseConnection()
         {
-            databaseName = ConnectionHelper.ConnectionStringValue("GroceryAppDb");
+            string? databaseName = ConnectionHelper.ConnectionStringValue("RoeiverenigingDB");
 
 #if MACCATALYST
             string writableDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);

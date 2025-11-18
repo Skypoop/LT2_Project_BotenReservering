@@ -2,7 +2,7 @@
 using System.Data.Common;
 
 
-namespace Grocery.Core.Data.Helpers
+namespace ProjectBotenReservering.Core.Data.Helpers
 {
     public static class DbConnectionExtensions
     {

@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
 
-namespace Grocery.Core.Data.Helpers
+namespace ProjectBotenReservering.Core.Data.Helpers
 {
     public static class ConnectionHelper
     {
