@@ -3,12 +3,12 @@
     x:Class="ProjectBotenReservering.App.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:ProjectBotenReservering.App"
+    xmlns:local="clr-namespace:ProjectBotenReservering.App.Views"
     Title="ProjectBotenReservering.App">
 
     <ShellContent
         Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
+        ContentTemplate="{DataTemplate local:HomePageView}"
         Route="MainPage" />
 
 </Shell>

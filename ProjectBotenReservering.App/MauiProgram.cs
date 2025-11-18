@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using CommunityToolkit.Maui;
+using ProjectBotenReservering.App.ViewModels;
+using ProjectBotenReservering.App.Views;
 
 namespace ProjectBotenReservering.App
 {
@@ -17,6 +19,7 @@ namespace ProjectBotenReservering.App
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+            builder.Services.AddTransient<HomePageView>().AddTransient<HomePageViewModel>();
 #if DEBUG
     		builder.Logging.AddDebug();
 #endif
