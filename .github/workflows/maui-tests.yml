@@ -32,10 +32,11 @@ jobs:
         run: dotnet workload install maui-android
  
       - name: Herstel afhankelijkheden
-        run: dotnet restore
+        run: dotnet restore -p:CheckEolWorkloads=false
  
+      # FIX: Added -p:CheckEolWorkloads=false here as well
       - name: Bouw de applicatie
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build --configuration Release --no-restore -p:CheckEolWorkloads=false
  
       - name: Voer unit tests uit en genereer rapport + logs
         run: |
