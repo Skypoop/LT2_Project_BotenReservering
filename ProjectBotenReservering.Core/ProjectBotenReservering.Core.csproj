@@ -5,7 +5,7 @@
       net8.0;net8.0-android</TargetFrameworks>
     <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('Windows'))">
       net8.0;net8.0-windows10.0.19041.0</TargetFrameworks>
-    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('OSX'))">
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('macOS'))">
       net8.0;net8.0-maccatalyst</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
