@@ -4,8 +4,8 @@ namespace ProjectBotenReservering.App.ViewModels;
 
 public class HomePageViewModel : BaseViewModel
 {
-    public HomePageViewModel(IMailService mailService)
+    public HomePageViewModel()
     {
-        IMailService _mailService = mailService;
+
     }
 }
