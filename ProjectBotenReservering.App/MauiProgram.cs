@@ -2,6 +2,9 @@
 using CommunityToolkit.Maui;
 using ProjectBotenReservering.App.ViewModels;
 using ProjectBotenReservering.App.Views;
+using ProjectBotenReservering.Core.Interfaces;
+using ProjectBotenReservering.Core.Interfaces.Repositories;
+using ProjectBotenReservering.Core.Data.Repositories;
 
 namespace ProjectBotenReservering.App
 {
@@ -19,9 +22,23 @@ namespace ProjectBotenReservering.App
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+            builder.Services.AddSingleton<IBoatRepository, BoatRepository>();
+            builder.Services.AddSingleton<IClientRepository, ClientRepository>();
+            builder.Services.AddSingleton<IReservationRepository, ReservationRepository>();
+            builder.Services.AddSingleton<IRoleRepository, RoleRepository>();
+            builder.Services.AddSingleton<IManagementTaskRepository, ManagementTaskRepository>();
+            builder.Services.AddSingleton<IDamageReportRepository, DamageReportRepository>();
+            builder.Services.AddSingleton<IDamageReportPhotoRepository, DamageReportPhotoRepository>();
+            builder.Services.AddSingleton<IWindConstraintRepository, WindConstraintRepository>();
+            builder.Services.AddSingleton<IClientReservationRepository, ClientReservationRepository>();
+            builder.Services.AddSingleton<IClientRoleRepository, ClientRoleRepository>();
+            builder.Services.AddSingleton<IClientManagementTaskRepository, ClientManagementTaskRepository>();
+            builder.Services.AddSingleton<IRoleManagementTaskRepository, RoleManagementTaskRepository>();
+
             builder.Services.AddTransient<HomePageView>().AddTransient<HomePageViewModel>();
+
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();
