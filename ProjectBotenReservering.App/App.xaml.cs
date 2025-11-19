@@ -9,8 +9,8 @@ namespace ProjectBotenReservering.App
         {
             InitializeComponent();
 
-            //MainPage = new AppShell();
-            MainPage = new HomePageView(viewModel);
+            MainPage = new AppShell();
+            //MainPage = new HomePageView(viewModel);
         }
     }
 }
