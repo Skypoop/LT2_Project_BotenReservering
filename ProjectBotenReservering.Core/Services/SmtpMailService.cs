@@ -1,6 +1,5 @@
 using ProjectBotenReservering.Core.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Services;
-using System.Diagnostics;
 using System.Net;
 using System.Net.Mail;
 
@@ -18,7 +17,7 @@ public class SmtpMailService : IMailService
         get { return _server; }
         set
         {
-            validate(value);
+            Validate(value, nameof(server));
 
             _server = value;
         }
@@ -29,7 +28,7 @@ public class SmtpMailService : IMailService
         get { return _port; }
         set
         {
-            validate(value);
+            Validate(value, nameof(port));
 
             _port = value;
         }
@@ -40,7 +39,7 @@ public class SmtpMailService : IMailService
         get { return _username; }
         set
         {
-            validate(value);
+            Validate(value, nameof(username));
 
             _username = value;
         }
@@ -51,7 +50,7 @@ public class SmtpMailService : IMailService
         get { return _password; }
         set
         {
-            validate(value);
+            Validate(value, nameof(password));
 
             _password = value;
         }
@@ -59,56 +58,42 @@ public class SmtpMailService : IMailService
 
     public SmtpMailService()
     {
-        server = MailConnectionHelper.mailConnectionStringValue("server");
-        port = "587";
-        username = "keyshawn42@ethereal.email";
-        password = "MHwe9Cr1zH23MDZw2Q";
+        server = MailConnectionHelper.MailConnectionStringValue("serverssssss");
+        port = MailConnectionHelper.MailConnectionStringValue("port");
+        username = MailConnectionHelper.MailConnectionStringValue("username");
+        password = MailConnectionHelper.MailConnectionStringValue("password");
     }
 
-    private void validate(string? value)
+    private void Validate(string? value, string parameter)
     {
-        try
+        if (string.IsNullOrEmpty(value))
         {
-            if (string.IsNullOrEmpty(value))
-            {
-                throw new ArgumentException("Can not find the SMTP args");
-            }
-        } catch(ArgumentException argsException)
-        {
-            Debug.WriteLine(argsException.Message);
-        }
-    }
-    public async Task sendMailAsync(List<string> receivers, string subject, string body)
-    {
-        try
-        {
-            var smtp = new SmtpClient(server) { Port = Int32.Parse(port), EnableSsl = true, Credentials = new NetworkCredential(username, password) };
-            var message = new MailMessage()
-            {
-                From = new MailAddress(username),
-                Subject = subject,
-                Body = body,
-                IsBodyHtml = false
-            };
-
-            if(receivers.Any(reciver => !isEmailValid(reciver) || string.IsNullOrEmpty(reciver)))
-            {
-                throw new ArgumentException("Reciver is no valid email adress");
-            }
-
-            receivers.ForEach(reciver => message.To.Add(reciver));
-
-            await smtp.SendMailAsync(message);
-        } catch(ArgumentException argsException)
-        {
-            Debug.WriteLine(argsException.Message);
-        } catch(Exception exception)
-        {
-            Debug.WriteLine($"{exception.Message}");
+            throw new Exception($"SMTP parameter '{parameter}' is missing or empty in appsettings.json");
         }
     }
 
-    public bool isEmailValid(string? email)
+    public async Task SendMailAsync(List<string> receivers, string subject, string body)
+    {
+        var smtp = new SmtpClient(server) { Port = Int32.Parse(port), EnableSsl = true, Credentials = new NetworkCredential(username, password) };
+        var message = new MailMessage()
+        {
+            From = new MailAddress(username),
+            Subject = subject,
+            Body = body,
+            IsBodyHtml = false
+        };
+
+        if(receivers.Any(reciver => !IsEmailValid(reciver) || string.IsNullOrEmpty(reciver)))
+        {
+            throw new ArgumentException("Reciver is no valid email adress, must contain @");
+        }
+
+        receivers.ForEach(reciver => message.To.Add(reciver));
+
+        await smtp.SendMailAsync(message);
+    }
+
+    public bool IsEmailValid(string? email)
     {
         if(email.Contains("@"))
         {

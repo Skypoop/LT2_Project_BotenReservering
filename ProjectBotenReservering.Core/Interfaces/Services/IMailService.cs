@@ -10,5 +10,5 @@ namespace ProjectBotenReservering.Core.Interfaces.Services;
 
 public interface IMailService
 {
-    public Task sendMailAsync(List<string> recivers, string subject, string body);
+    public Task SendMailAsync(List<string> recivers, string subject, string body);
 }
