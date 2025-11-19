@@ -1,7 +1,11 @@
 namespace ProjectBotenReservering.Core.Models;
 
-public enum Role
+public class Role
 {
-    None,
-    Admin
+    public string Name { get; set; }
+
+    public Role(string name)
+    {
+        Name = name;
+    }
 }
