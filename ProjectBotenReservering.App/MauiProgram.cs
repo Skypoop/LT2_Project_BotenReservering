@@ -2,6 +2,8 @@
 using CommunityToolkit.Maui;
 using ProjectBotenReservering.App.ViewModels;
 using ProjectBotenReservering.App.Views;
+using ProjectBotenReservering.Core.Services;
+using ProjectBotenReservering.Core.Interfaces.Services;
 
 namespace ProjectBotenReservering.App
 {
@@ -19,9 +21,14 @@ namespace ProjectBotenReservering.App
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
-            builder.Services.AddTransient<HomePageView>().AddTransient<HomePageViewModel>();
+            // Services registreren
+            builder.Services.AddSingleton<IMailService, SmtpMailService>();
+
+            // ViewModels en Views registreren
+            builder.Services.AddTransient<HomePageViewModel>();
+            builder.Services.AddTransient<HomePageView>();
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();
