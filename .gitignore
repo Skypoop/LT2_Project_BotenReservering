@@ -363,3 +363,6 @@ MigrationBackup/
 FodyWeavers.xsd
 
 .idea/
+/ProjectBotenReservering.App/ProjectBotenReservering.App.csproj
+/ProjectBotenReservering.Core/ProjectBotenReservering.Core.csproj
+/ProjectBotenReservering.Core.Data/ProjectBotenReservering.Core.Data.csproj
