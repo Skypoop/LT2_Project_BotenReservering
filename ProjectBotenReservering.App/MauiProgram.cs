@@ -2,6 +2,8 @@
 using CommunityToolkit.Maui;
 using ProjectBotenReservering.App.ViewModels;
 using ProjectBotenReservering.App.Views;
+using ProjectBotenReservering.Core.Interfaces.Services;
+using ProjectBotenReservering.Core.Services;
 
 namespace ProjectBotenReservering.App
 {
@@ -19,7 +21,10 @@ namespace ProjectBotenReservering.App
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+            builder.Services.AddSingleton<IBoatTypeService, BoatTypeService>();
+            
             builder.Services.AddTransient<HomePageView>().AddTransient<HomePageViewModel>();
+            builder.Services.AddTransient<BoatTypesView>().AddTransient<BoatTypesViewModel>();
 #if DEBUG
     		builder.Logging.AddDebug();
 #endif

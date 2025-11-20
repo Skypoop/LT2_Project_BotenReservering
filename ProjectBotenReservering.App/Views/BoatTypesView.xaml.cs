@@ -7,9 +7,9 @@ using ProjectBotenReservering.App.ViewModels;
 
 namespace ProjectBotenReservering.App.Views;
 
-public partial class BootTypesView : ContentPage
+public partial class BoatTypesView : ContentPage
 {
-    public BootTypesView(BootTypesViewModel viewModel)
+    public BoatTypesView(BoatTypesViewModel viewModel)
     {
         InitializeComponent();
 

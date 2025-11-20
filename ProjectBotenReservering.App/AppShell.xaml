@@ -7,8 +7,7 @@
     Title="ProjectBotenReservering.App">
 
     <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:HomePageView}"
-        Route="HomePageView" />
+        ContentTemplate="{DataTemplate local:BoatTypesView}"
+        Route="BoatTypesView" />
 
 </Shell>
