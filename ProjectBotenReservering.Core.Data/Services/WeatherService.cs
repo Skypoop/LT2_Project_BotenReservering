@@ -1,4 +1,4 @@
-﻿using ProjectBotenReservering.Core.Interfaces;
+﻿using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 using System.Text.Json;
 

@@ -1,4 +1,4 @@
-﻿namespace ProjectBotenReservering.Core.Interfaces
+﻿namespace ProjectBotenReservering.Core.Interfaces.Services
 {
     public interface IWeatherService
     {
