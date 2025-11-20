@@ -3,8 +3,10 @@ using CommunityToolkit.Maui;
 using ProjectBotenReservering.App.ViewModels;
 using ProjectBotenReservering.App.Views;
 using ProjectBotenReservering.Core.Interfaces;
+using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Data.Repositories;
+using ProjectBotenReservering.Core.Services;
 
 namespace ProjectBotenReservering.App
 {
@@ -35,8 +37,11 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IClientManagementTaskRepository, ClientManagementTaskRepository>();
             builder.Services.AddSingleton<IRoleManagementTaskRepository, RoleManagementTaskRepository>();
 
+            builder.Services.AddSingleton<IBoatTypeService, BoatTypeService>();
+            
             builder.Services.AddTransient<HomePageView>().AddTransient<HomePageViewModel>();
-
+            builder.Services.AddTransient<BoatTypesView>().AddTransient<BoatTypesViewModel>();
+          
 #if DEBUG
             builder.Logging.AddDebug();
 #endif
