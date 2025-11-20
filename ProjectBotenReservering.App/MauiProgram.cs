@@ -2,6 +2,8 @@
 using CommunityToolkit.Maui;
 using ProjectBotenReservering.App.ViewModels;
 using ProjectBotenReservering.App.Views;
+using ProjectBotenReservering.Core.Interfaces;
+using ProjectBotenReservering.Core.Service;
 
 namespace ProjectBotenReservering.App
 {
@@ -18,6 +20,8 @@ namespace ProjectBotenReservering.App
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
+
+            builder.Services.AddSingleton<IWeatherService, WeatherService>();
 
             builder.Services.AddTransient<HomePageView>().AddTransient<HomePageViewModel>();
 #if DEBUG
