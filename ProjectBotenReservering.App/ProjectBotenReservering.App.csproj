@@ -37,6 +37,12 @@
     </ItemGroup>
 
     <ItemGroup>
+        <MauiAsset Include="appsettings.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </MauiAsset>
+    </ItemGroup>
+    
+    <ItemGroup>
         <PackageReference Include="CommunityToolkit.Maui" Version="8.0.1" />
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
@@ -48,5 +54,10 @@
         <ProjectReference Include="..\ProjectBotenReservering.Core.Data\ProjectBotenReservering.Core.Data.csproj" />
         <ProjectReference Include="..\ProjectBotenReservering.Core\ProjectBotenReservering.Core.csproj" />
     </ItemGroup>
-
+    
+    <ItemGroup>
+        <None Update="Platforms\Windows\Package.appxmanifest">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
 </Project>
