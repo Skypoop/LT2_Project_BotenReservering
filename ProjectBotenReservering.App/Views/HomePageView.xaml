@@ -4,6 +4,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="ProjectBotenReservering.App.Views.HomePageView">
     <ContentPage.Content>
-        
+
     </ContentPage.Content>
 </ContentPage>
