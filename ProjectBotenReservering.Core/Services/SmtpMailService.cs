@@ -58,7 +58,7 @@ public class SmtpMailService : IMailService
 
     public SmtpMailService()
     {
-        server = MailConnectionHelper.MailConnectionStringValue("serverssssss");
+        server = MailConnectionHelper.MailConnectionStringValue("server");
         port = MailConnectionHelper.MailConnectionStringValue("port");
         username = MailConnectionHelper.MailConnectionStringValue("username");
         password = MailConnectionHelper.MailConnectionStringValue("password");

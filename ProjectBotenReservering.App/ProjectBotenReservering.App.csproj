@@ -31,27 +31,27 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<MauiAsset Include="appsettings.json">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</MauiAsset>
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Maui" Version="8.0.1" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
-
-		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="8.0.1" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.2" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\ProjectBotenReservering.Core.Data\ProjectBotenReservering.Core.Data.csproj" />
 		<ProjectReference Include="..\ProjectBotenReservering.Core\ProjectBotenReservering.Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\ProjectBotenReservering.Core.Data\ProjectBotenReservering.Core.Data.csproj" />
+		<ProjectReference Include="..\ProjectBotenReservering.Core\ProjectBotenReservering.Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<MauiAsset Include="appsettings.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</MauiAsset>
 	</ItemGroup>
 
 	<ItemGroup>

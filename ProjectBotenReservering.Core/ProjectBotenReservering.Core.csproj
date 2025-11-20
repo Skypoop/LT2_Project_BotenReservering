@@ -8,9 +8,4 @@
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
 	</ItemGroup>
-
-	<ItemGroup>
-		<Folder Include="Interfaces\Services\" />
-		<Folder Include="Helpers\" />
-	</ItemGroup>
 </Project>
