@@ -18,6 +18,23 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                             [Kg] INT NOT NULL,
                             [Operational] BOOLEAN NOT NULL,
                             [Club] VARCHAR)");
+
+            List<Boat> boats = GetAll();
+            bool anyBoatExists = boats.Count > 0;
+            
+            if (anyBoatExists == false)
+            {
+                // Add boats to database if none exist
+                Add(new Boat("Skiff van Kunststof", false, 2, 1, BoatType.S, 45, true,"Local Club"));
+                Add(new Boat("Dubbel Twee van Kunststof", false, 2, 1, BoatType.S, 46, true, "Local Club"));
+                Add(new Boat("Twee zonder van Kunststof", false, 2, 3, BoatType.B, 46, true,"Local Club"));
+                Add(new Boat("Twee met van Kunststof", true, 3, 3, BoatType.B, 46, true,"Local Club"));
+                Add(new Boat("Dubbel vier van Kunststof", false, 4, 3, BoatType.S, 50, true,"Local Club"));
+                Add(new Boat("Dubbel vier met van Kunststof", true, 5, 3, BoatType.B, 52, true,"Local Club"));
+                Add(new Boat("Vier zonder van Kunststof", false, 4, 3, BoatType.B, 50, true,"Local Club"));
+                Add(new Boat("Vier met van Kunststof", true, 5, 3, BoatType.B, 52, true,"Local Club"));
+                Add(new Boat("Acht van Kunststof", true, 9, 3, BoatType.B, 55, true,"Local Club"));
+            }
         }
 
         public Boat Add(Boat item)
@@ -46,7 +63,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         public Boat? Get(int id)
         {
             Boat? boat = null;
-            string selectQuery = "SELECT Id, Name, Steering_Wheel, Seats, Level, Type, Kg, Operational, Club FROM Boat WHERE Id = @Id";
+            string selectQuery = "SELECT Name, Steering_Wheel, Seats, Level, Type, Kg, Operational, Club, Id FROM Boat WHERE Id = @Id";
             OpenConnection();
 
             using (SqliteCommand command = new(selectQuery, Connection))
@@ -64,7 +81,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             CloseConnection();
             return boat;
         }
-
+        
         public void Delete(int boatId)
         {
             string deleteQuery = "DELETE FROM Boat WHERE Id = @Id";
@@ -77,10 +94,21 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             CloseConnection();
         }
         
+        public void DeleteAll()
+        {
+            string deleteQuery = "DELETE FROM Boat";
+            OpenConnection();
+            using (SqliteCommand command = new(deleteQuery, Connection))
+            {
+                command.ExecuteNonQuery();
+            }
+            CloseConnection();
+        }
+        
         public List<Boat> GetAll()
         {
             var boatList = new List<Boat>();
-            string selectQuery = "SELECT Id, Name, Steering_Wheel, Seats, Level, Type, Kg, Operational, Club FROM Boat";
+            string selectQuery = "SELECT * FROM Boat";
             OpenConnection();
 
             using (SqliteCommand command = new(selectQuery, Connection))
@@ -122,7 +150,6 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         private Boat MapReaderToBoat(SqliteDataReader reader)
         {
             return new Boat(
-                reader.GetInt32(0),
                 reader.GetString(1),
                 reader.GetBoolean(2),
                 reader.GetInt32(3),
@@ -130,7 +157,8 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                 Enum.Parse<BoatType>(reader.GetString(5)),
                 reader.GetInt32(6),
                 reader.GetBoolean(7),
-                reader.IsDBNull(8) ? null : reader.GetString(8)
+                reader.IsDBNull(8) ? null : reader.GetString(8),
+                reader.GetInt32(0)
             );
         }
     }

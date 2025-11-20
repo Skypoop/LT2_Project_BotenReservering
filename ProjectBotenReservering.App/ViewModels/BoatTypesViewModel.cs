@@ -10,7 +10,7 @@ namespace ProjectBotenReservering.App.ViewModels;
 public partial class BoatTypesViewModel : BaseViewModel
 {
     public ObservableCollection<BoatTypeUiItem> BoatTypeItems { get; set; } = new ObservableCollection<BoatTypeUiItem>();
-    public List<BoatTypeUiItem> AllBoatTypes { get; set; } = new List<BoatTypeUiItem>();
+    public List<BoatTypeUiItem> AllBoatTypes { get; set; }
 
     [ObservableProperty]
     public bool hasSteeringWheelFilter = false;
@@ -25,16 +25,9 @@ public partial class BoatTypesViewModel : BaseViewModel
     
     public BoatTypesViewModel(IBoatTypeService boatTypeService)
     {
-        // Dummy Data
-        AllBoatTypes.Add(new BoatTypeUiItem() { Id = BoatTypeItems.Count, Name = "Skiff", Weight = 45.3f, ImagePath = "dotnet_bot.png"});
-        AllBoatTypes.Add(new BoatTypeUiItem() { Id = BoatTypeItems.Count, Name = "Dubbel twee", Weight = 45.7f, ImagePath = "dotnet_bot.png"});
-        AllBoatTypes.Add(new BoatTypeUiItem() { Id = BoatTypeItems.Count, Name = "Twee zonder", Weight = 46.2f, ImagePath = "dotnet_bot.png"});
-        AllBoatTypes.Add(new BoatTypeUiItem() { Id = BoatTypeItems.Count, Name = "Twee met", Weight = 47.5f, ImagePath = "dotnet_bot.png"});
-        AllBoatTypes.Add(new BoatTypeUiItem() { Id = BoatTypeItems.Count, Name = "Dubbel vier", Weight = 48.27f, ImagePath = "dotnet_bot.png"});
-        AllBoatTypes.Add(new BoatTypeUiItem() { Id = BoatTypeItems.Count, Name = "Dubbel vier met", Weight = 49.92f, ImagePath = "dotnet_bot.png"});
-        AllBoatTypes.Add(new BoatTypeUiItem() { Id = BoatTypeItems.Count, Name = "Vier zonder", Weight = 52.27f, ImagePath = "dotnet_bot.png"});
-        AllBoatTypes.Add(new BoatTypeUiItem() { Id = BoatTypeItems.Count, Name = "Vier zonder met", Weight = 53.27f, ImagePath = "dotnet_bot.png"});
-        AllBoatTypes.Add(new BoatTypeUiItem() { Id = BoatTypeItems.Count, Name = "Acht", Weight = 55.27f, ImagePath = "dotnet_bot.png"});
+        BoatTypeService = boatTypeService;
+
+        AllBoatTypes = BoatTypeService.GetBoatTypes();
         
         ApplyFilterOption();
     }
@@ -56,6 +49,8 @@ public partial class BoatTypesViewModel : BaseViewModel
     public void SelectBoatType(BoatTypeUiItem boatType)
     {
         Console.WriteLine(boatType.Name);
+        // SET THE SERVICE VARIABLE FOR BOAT TYPE HERE
+        // SWAP SCREEN
     }
 
     // Filter callbacks

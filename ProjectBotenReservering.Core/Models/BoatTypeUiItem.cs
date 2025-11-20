@@ -8,4 +8,5 @@ public class BoatTypeUiItem
     public float Weight { get; set; }
     public bool SteeringSeatPresent { get; set; }
     public string ImagePath { get; set; }
+    public int Ammount { get; set; }
 }

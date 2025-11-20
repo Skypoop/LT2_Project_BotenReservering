@@ -18,7 +18,7 @@ public class Boat
     public bool Operational { get; set; }
     public string? Club { get; set; }
 
-    public Boat(int id, string name, bool steeringWheel, int seats, int level, BoatType type, int kg, bool operational, string? club)
+    public Boat(string name, bool steeringWheel, int seats, int level, BoatType type, int kg, bool operational, string? club, int id = 0)
     {
         Id = id;
         Name = name;

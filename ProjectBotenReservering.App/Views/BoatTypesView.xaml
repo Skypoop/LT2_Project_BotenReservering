@@ -109,7 +109,7 @@
                                            VerticalOptions="Center"
                                            TextColor="Black" />
 
-                                    <Label Text="{Binding SeatAmmount}"
+                                    <Label Text="{Binding Ammount}"
                                            FontSize="12"
                                            TextColor="Gray"
                                            HorizontalOptions="End"
