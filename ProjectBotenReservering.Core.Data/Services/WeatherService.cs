@@ -23,6 +23,9 @@ namespace ProjectBotenReservering.Core.Data.Services
 
             WeatherData? weatherData = JsonSerializer.Deserialize<WeatherData>(jsonResponse);
 
+            if (weatherData?.CurrentWeather == null)
+                throw new InvalidOperationException("Weather data is missing.");
+
             decimal windspeedKmh = weatherData.CurrentWeather.Windspeed;
 
             int windforce = WindforceService.GetWindforce(windspeedKmh);

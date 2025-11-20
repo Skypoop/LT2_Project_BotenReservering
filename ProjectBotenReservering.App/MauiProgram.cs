@@ -23,14 +23,13 @@ namespace ProjectBotenReservering.App
                 });
 
 
-            builder.Services.AddTransient<HomePageView>().AddTransient<HomePageViewModel>();
-            // Services registreren
+            // Register services
             builder.Services.AddSingleton<IMailService, SmtpMailService>();
             builder.Services.AddSingleton<IWeatherService, WeatherService>();
 
-            // ViewModels en Views registreren
-            builder.Services.AddTransient<HomePageViewModel>();
-            builder.Services.AddTransient<HomePageView>();
+            // Register ViewModels and Views
+            builder.Services.AddTransient<HomePageView>().AddTransient<HomePageViewModel>();
+
 #if DEBUG
             builder.Logging.AddDebug();
 #endif

@@ -5,7 +5,7 @@ namespace ProjectBotenReservering.Core.Models
     public class WeatherData
     {
         [JsonPropertyName("current_weather")]
-        public CurrentWeather CurrentWeather { get; set; }
+        public required CurrentWeather CurrentWeather { get; set; }
     }
 
     public class CurrentWeather
