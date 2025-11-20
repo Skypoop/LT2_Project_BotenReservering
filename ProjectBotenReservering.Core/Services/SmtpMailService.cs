@@ -74,8 +74,8 @@ public class SmtpMailService : IMailService
 
     public async Task SendMailAsync(List<string> receivers, string subject, string body)
     {
-        var smtp = new SmtpClient(server) { Port = Int32.Parse(port), EnableSsl = true, Credentials = new NetworkCredential(username, password) };
-        var message = new MailMessage()
+        SmtpClient smtp = new SmtpClient(server) { Port = Int32.Parse(port), EnableSsl = true, Credentials = new NetworkCredential(username, password) };
+        MailMessage message = new MailMessage()
         {
             From = new MailAddress(username),
             Subject = subject,
