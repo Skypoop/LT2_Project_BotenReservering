@@ -1,4 +1,4 @@
-﻿namespace ProjectBotenReservering.Core.Service
+﻿namespace ProjectBotenReservering.Core.Services
 {
     public class WindforceService
     {
