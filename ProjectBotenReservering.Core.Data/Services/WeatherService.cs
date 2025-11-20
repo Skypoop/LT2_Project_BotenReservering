@@ -2,7 +2,7 @@
 using ProjectBotenReservering.Core.Models;
 using System.Text.Json;
 
-namespace ProjectBotenReservering.Core.Service
+namespace ProjectBotenReservering.Core.Data.Services
 {
     public class WeatherService : IWeatherService
     {

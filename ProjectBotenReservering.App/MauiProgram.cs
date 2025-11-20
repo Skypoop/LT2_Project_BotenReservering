@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
-using CommunityToolkit.Maui;
+﻿using CommunityToolkit.Maui;
+using Microsoft.Extensions.Logging;
 using ProjectBotenReservering.App.ViewModels;
 using ProjectBotenReservering.App.Views;
-using ProjectBotenReservering.Core.Services;
+using ProjectBotenReservering.Core.Data.Services;
 using ProjectBotenReservering.Core.Interfaces.Services;
+using ProjectBotenReservering.Core.Services;
 
 namespace ProjectBotenReservering.App
 {
@@ -21,11 +22,11 @@ namespace ProjectBotenReservering.App
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
-            builder.Services.AddSingleton<IWeatherService, WeatherService>();
 
             builder.Services.AddTransient<HomePageView>().AddTransient<HomePageViewModel>();
             // Services registreren
             builder.Services.AddSingleton<IMailService, SmtpMailService>();
+            builder.Services.AddSingleton<IWeatherService, WeatherService>();
 
             // ViewModels en Views registreren
             builder.Services.AddTransient<HomePageViewModel>();
