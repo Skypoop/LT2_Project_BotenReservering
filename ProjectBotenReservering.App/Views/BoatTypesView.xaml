@@ -76,13 +76,13 @@
                 </Grid>
             </Grid>
 
-            <CollectionView Grid.Row="1" ItemsSource="{Binding BoatTypes}" SelectionMode="None" Margin="10">
+            <CollectionView Grid.Row="1" ItemsSource="{Binding BoatTypeItems}" SelectionMode="None" Margin="10">
                 <CollectionView.ItemsLayout>
                     <GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="10" VerticalItemSpacing="10" />
                 </CollectionView.ItemsLayout>
 
                 <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="models:BoatType">
+                    <DataTemplate x:DataType="models:BoatTypeUiItem">
 
                         <Frame BorderColor="Gray" CornerRadius="10" Padding="0" IsClippedToBounds="True">
                             <Frame.GestureRecognizers>

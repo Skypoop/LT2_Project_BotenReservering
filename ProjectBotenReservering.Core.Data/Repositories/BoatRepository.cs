@@ -65,6 +65,18 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return boat;
         }
 
+        public void Delete(int boatId)
+        {
+            string deleteQuery = "DELETE FROM Boat WHERE Id = @Id";
+            OpenConnection();
+            using (SqliteCommand command = new(deleteQuery, Connection))
+            {
+                command.Parameters.AddWithValue("@Id", boatId);
+                command.ExecuteNonQuery();
+            }
+            CloseConnection();
+        }
+        
         public List<Boat> GetAll()
         {
             var boatList = new List<Boat>();

@@ -5,9 +5,9 @@ namespace ProjectBotenReservering.Core.Services;
 
 public class BoatTypeService : IBoatTypeService
 {
-    public List<BoatType> FilterBoatTypes(List<BoatType> boatTypeList, bool hasSteeringWheel, string hasStringInName, int hasMinWeight)
+    public List<BoatTypeUiItem> FilterBoatTypes(List<BoatTypeUiItem> boatTypeList, bool hasSteeringWheel, string hasStringInName, int hasMinWeight)
     {
-        List<BoatType> newList = boatTypeList.Where(x => x.SteeringSeatPresent == hasSteeringWheel)
+        List<BoatTypeUiItem> newList = boatTypeList.Where(x => x.SteeringSeatPresent == hasSteeringWheel)
             .Where(x => x.Name.Contains(hasStringInName, StringComparison.CurrentCultureIgnoreCase))
             .Where(x => x.Weight > hasMinWeight).ToList();
         return newList;
