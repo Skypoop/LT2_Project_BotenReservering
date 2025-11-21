@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 
@@ -9,7 +8,7 @@ namespace ProjectBotenReservering.App.ViewModels;
 
 public partial class BoatTypesViewModel : BaseViewModel
 {
-    public ObservableCollection<BoatTypeUiItem> BoatTypeItems { get; set; } = new ObservableCollection<BoatTypeUiItem>();
+    public ObservableCollection<BoatTypeUiItem> BoatTypeItems { get; set; } = [];
     public List<BoatTypeUiItem> AllBoatTypes { get; set; }
 
     [ObservableProperty]

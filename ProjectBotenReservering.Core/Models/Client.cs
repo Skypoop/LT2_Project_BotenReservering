@@ -11,7 +11,7 @@ public class Client
     public bool Approved { get; set; }
     public string PasswordHash { get; set; }
 
-    public Client(int id, string fullName, string email, int scullLevel, int roeiLevel, string? club, bool approved, string passwordHash)
+    public Client(string fullName, string email, int scullLevel, int roeiLevel, string? club, bool approved, string passwordHash, int id = 0)
     {
         Id = id;
         FullName = fullName;
