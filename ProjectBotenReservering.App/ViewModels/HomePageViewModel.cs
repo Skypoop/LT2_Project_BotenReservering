@@ -5,9 +5,5 @@ namespace ProjectBotenReservering.App.ViewModels;
 
 public partial class HomePageViewModel : BaseViewModel
 {
-    [RelayCommand]
-    public async Task SwapToBootTypesPage()
-    {
-        await Shell.Current.GoToAsync(nameof(BoatTypesView));   
-    }
+
 }

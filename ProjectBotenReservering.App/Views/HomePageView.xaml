@@ -6,11 +6,6 @@
              x:Class="ProjectBotenReservering.App.Views.HomePageView"
              x:DataType="vm:HomePageViewModel">
     <ContentPage.Content>
-        <StackLayout>
-            <Button Text="Click swap page!"
-                    VerticalOptions="Center"
-                    HorizontalOptions="Center"
-                    Command="{Binding SwapToBootTypesPageCommand}" />
-        </StackLayout>
+
     </ContentPage.Content>
 </ContentPage>
