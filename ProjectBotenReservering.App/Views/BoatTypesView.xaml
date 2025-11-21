@@ -45,7 +45,7 @@
                                Keyboard="Numeric" 
                                TextColor="Black"
                                VerticalTextAlignment="Center"
-                               Text="{Binding HasMinWeightFilter, Mode=TwoWay}"/>
+                               Text="{Binding MinWeightFilter, Mode=TwoWay}"/>
                     </Border>
 
                     <!-- SearchBar -->
@@ -59,7 +59,7 @@
                                    VerticalTextAlignment="Center"
                                    TextColor="Black"
                                    PlaceholderColor="Gray"
-                                   Text="{Binding HasStringInNameFilter, Mode=TwoWay}"/>
+                                   Text="{Binding StringInNameFilter, Mode=TwoWay}"/>
                     </Border>
 
                     <!-- Checkbox for steering wheel -->

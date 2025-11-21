@@ -2,8 +2,8 @@ namespace ProjectBotenReservering.Core.Models;
 
 public enum BoatType
 {
-    B,
-    S
+    B, // Rowing boat
+    S  // Sculling boat
 }
 
 public class Boat

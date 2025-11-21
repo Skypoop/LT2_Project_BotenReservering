@@ -12,7 +12,7 @@ public static class BoatMapper
             Name = boat.Name,
             SeatAmmount = boat.Seats,
             Weight = boat.Kg,
-            Ammount = 1,
+            Amount = 1,
             SteeringSeatPresent = boat.SteeringWheel,
             ImagePath = "skiff.jpg" 
         };
@@ -25,7 +25,7 @@ public static class BoatMapper
         {
             if (boatTypeUiItems.Any(x => x.Name == boat.Name))
             {
-                boatTypeUiItems.First(x => x.Name == boat.Name).Ammount++;
+                boatTypeUiItems.First(x => x.Name == boat.Name).Amount++;
             }
             else
             {

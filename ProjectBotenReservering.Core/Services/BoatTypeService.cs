@@ -18,11 +18,11 @@ public class BoatTypeService : IBoatTypeService
         return BoatMapper.BoatsToBoatTypeUiItems(boatRepository.GetAll());
     }
     
-    public List<BoatTypeUiItem> FilterBoatTypes(List<BoatTypeUiItem> boatTypeList, bool hasSteeringWheel, string hasStringInName, int hasMinWeight)
+    public List<BoatTypeUiItem> FilterBoatTypes(List<BoatTypeUiItem> boatTypeList, bool hasSteeringWheel, string stringInName, int minWeight)
     {
         List<BoatTypeUiItem> newList = boatTypeList.Where(x => x.SteeringSeatPresent == hasSteeringWheel)
-            .Where(x => x.Name.Contains(hasStringInName, StringComparison.CurrentCultureIgnoreCase))
-            .Where(x => x.Weight > hasMinWeight).ToList();
+            .Where(x => x.Name.Contains(stringInName, StringComparison.CurrentCultureIgnoreCase))
+            .Where(x => x.Weight > minWeight).ToList();
         return newList;
     }
 }

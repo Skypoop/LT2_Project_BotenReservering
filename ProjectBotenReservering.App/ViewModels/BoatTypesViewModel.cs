@@ -16,10 +16,10 @@ public partial class BoatTypesViewModel : BaseViewModel
     public bool hasSteeringWheelFilter = false;
     
     [ObservableProperty]
-    public string hasStringInNameFilter = String.Empty;
+    public string stringInNameFilter = String.Empty;
     
     [ObservableProperty]
-    public int hasMinWeightFilter = 0;
+    public int minWeightFilter = 0;
     
     private readonly IBoatTypeService BoatTypeService;
     
@@ -34,11 +34,11 @@ public partial class BoatTypesViewModel : BaseViewModel
 
     private void ApplyFilterOption()
     {
-        List<BoatTypeUiItem> newList = BoatTypeService.FilterBoatTypes(AllBoatTypes, HasSteeringWheelFilter, HasStringInNameFilter, HasMinWeightFilter);
+        List<BoatTypeUiItem> boatTypeList = BoatTypeService.FilterBoatTypes(AllBoatTypes, HasSteeringWheelFilter, StringInNameFilter, MinWeightFilter);
         BoatTypeItems.Clear();
         
-        newList = newList.OrderBy(x => x.Weight).ToList();
-        foreach (var boatType in newList)
+        List<BoatTypeUiItem> orderedBoatTypeList = boatTypeList.OrderBy(x => x.Weight).ToList();
+        foreach (var boatType in orderedBoatTypeList)
         {
             BoatTypeItems.Add(boatType);
         }
@@ -55,7 +55,7 @@ public partial class BoatTypesViewModel : BaseViewModel
 
     // Filter callbacks
     partial void OnHasSteeringWheelFilterChanged(bool value) => ApplyFilterOption();
-    partial void OnHasStringInNameFilterChanged(string value) => ApplyFilterOption();
-    partial void OnHasMinWeightFilterChanged(int value) => ApplyFilterOption();
+    partial void OnStringInNameFilterChanged(string value) => ApplyFilterOption();
+    partial void OnMinWeightFilterChanged(int value) => ApplyFilterOption();
 
 }
