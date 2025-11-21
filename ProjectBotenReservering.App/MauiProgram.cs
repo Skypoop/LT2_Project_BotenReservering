@@ -2,9 +2,11 @@
 using Microsoft.Extensions.Logging;
 using ProjectBotenReservering.App.ViewModels;
 using ProjectBotenReservering.App.Views;
-using ProjectBotenReservering.Core.Data.Services;
 using ProjectBotenReservering.Core.Interfaces.Services;
+using ProjectBotenReservering.Core.Interfaces.Repositories;
+using ProjectBotenReservering.Core.Data.Repositories;
 using ProjectBotenReservering.Core.Services;
+using ProjectBotenReservering.Core.Data.Services;
 
 namespace ProjectBotenReservering.App
 {
@@ -22,13 +24,26 @@ namespace ProjectBotenReservering.App
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+            builder.Services.AddSingleton<IBoatRepository, BoatRepository>();
+            builder.Services.AddSingleton<IClientRepository, ClientRepository>();
+            builder.Services.AddSingleton<IReservationRepository, ReservationRepository>();
+            builder.Services.AddSingleton<IRoleRepository, RoleRepository>();
+            builder.Services.AddSingleton<IManagementTaskRepository, ManagementTaskRepository>();
+            builder.Services.AddSingleton<IDamageReportRepository, DamageReportRepository>();
+            builder.Services.AddSingleton<IDamageReportPhotoRepository, DamageReportPhotoRepository>();
+            builder.Services.AddSingleton<IWindConstraintRepository, WindConstraintRepository>();
+            builder.Services.AddSingleton<IClientReservationRepository, ClientReservationRepository>();
+            builder.Services.AddSingleton<IClientRoleRepository, ClientRoleRepository>();
+            builder.Services.AddSingleton<IClientManagementTaskRepository, ClientManagementTaskRepository>();
+            builder.Services.AddSingleton<IRoleManagementTaskRepository, RoleManagementTaskRepository>();
 
-            // Register services
             builder.Services.AddSingleton<IMailService, SmtpMailService>();
             builder.Services.AddSingleton<IWeatherService, WeatherService>();
-
-            // Register ViewModels and Views
+            builder.Services.AddSingleton<IBoatTypeService, BoatTypeService>();
+            
             builder.Services.AddTransient<HomePageView>().AddTransient<HomePageViewModel>();
+            builder.Services.AddTransient<BoatTypesView>().AddTransient<BoatTypesViewModel>();
+          
 
 #if DEBUG
             builder.Logging.AddDebug();
