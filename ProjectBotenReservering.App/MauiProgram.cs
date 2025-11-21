@@ -6,6 +6,7 @@ using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Data.Repositories;
 using ProjectBotenReservering.Core.Services;
+using ProjectBotenReservering.Core.Data.Services;
 
 namespace ProjectBotenReservering.App
 {

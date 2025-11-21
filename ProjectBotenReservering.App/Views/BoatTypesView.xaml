@@ -109,7 +109,7 @@
                                            VerticalOptions="Center"
                                            TextColor="Black" />
 
-                                    <Label Text="{Binding Ammount}"
+                                    <Label Text="{Binding Amount}"
                                            FontSize="12"
                                            TextColor="Gray"
                                            HorizontalOptions="End"
