@@ -6,14 +6,14 @@
              x:Class="ProjectBotenReservering.App.Views.BoatTypesView"
              x:DataType="vm:BoatTypesViewModel"
              BackgroundColor="White">
-    
+
     <ContentPage.Content>
         <Grid RowDefinitions="Auto, *">
 
             <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Padding="20">
-                
+
                 <VerticalStackLayout Grid.Column="0" VerticalOptions="Start">
-                    <Label Text="Reservatie" 
+                    <Label Text="Reservering" 
                            FontSize="24" 
                            FontAttributes="Bold" 
                            TextColor="Black" />
@@ -23,56 +23,66 @@
                            Margin="0,5,0,0"/>
                 </VerticalStackLayout>
 
-                <!-- Filter thingies-->
                 <Grid Grid.Column="1" 
-                      RowDefinitions="Auto, Auto, Auto" 
-                      ColumnDefinitions="Auto, Auto" 
+                      RowDefinitions="Auto, Auto" 
+                      ColumnDefinitions="Auto, Auto, Auto" 
                       ColumnSpacing="10"
                       RowSpacing="5">
 
                     <Label Grid.Row="0" Grid.Column="0" 
-                           Text="Minimale gewicht" 
+                           Text="Min. gewicht" 
                            FontSize="12" 
                            TextColor="Black" />
 
                     <Border Grid.Row="1" Grid.Column="0" 
                             Stroke="Gray" 
                             StrokeShape="RoundRectangle 5"
-                            HeightRequest="35"
-                            WidthRequest="60"
+                            HeightRequest="40"
+                            WidthRequest="80"
                             VerticalOptions="Start">
-                        <Entry Placeholder="" 
+                        <Entry Placeholder="0" 
                                Keyboard="Numeric" 
                                TextColor="Black"
                                VerticalTextAlignment="Center"
-                               Text="{Binding MinWeightFilter, Mode=TwoWay}"/>
+                               HorizontalTextAlignment="Center"
+                               Text="{Binding MinWeightFilter, Mode=TwoWay}"
+                               Margin="0"/>
                     </Border>
 
-                    <!-- SearchBar -->
-                    <Border Grid.Row="1" Grid.Column="1" 
+                    <Label Grid.Row="0" Grid.Column="1" 
+                           Text="Stuurtype" 
+                           FontSize="12" 
+                           TextColor="Black" />
+
+                    <Border Grid.Row="1" Grid.Column="1"
+                            Stroke="Gray"
+                            StrokeShape="RoundRectangle 5"
+                            HeightRequest="40"
+                            WidthRequest="160"
+                            VerticalOptions="Start">
+
+                        <Picker ItemsSource="{Binding SteeringOptions}"
+                                ItemDisplayBinding="{Binding DisplayName}"
+                                SelectedItem="{Binding SelectedSteeringOption, Mode=TwoWay}"
+                                TextColor="Black"
+                                BackgroundColor="Transparent"
+                                HorizontalOptions="Fill"
+                                VerticalOptions="Center"
+                                Margin="5,0" />
+                    </Border>
+
+                    <Border Grid.Row="1" Grid.Column="2" 
                             Stroke="Gray"
                             StrokeShape="RoundRectangle 20"
-                            HeightRequest="35"
+                            HeightRequest="40"
                             VerticalOptions="Start">
-                        <SearchBar Placeholder="Search" 
-                                   WidthRequest="200" 
+                        <SearchBar Placeholder="Zoeken..." 
+                                   WidthRequest="180" 
                                    VerticalTextAlignment="Center"
                                    TextColor="Black"
                                    PlaceholderColor="Gray"
                                    Text="{Binding StringInNameFilter, Mode=TwoWay}"/>
                     </Border>
-
-                    <!-- Checkbox for steering wheel -->
-                    <HorizontalStackLayout Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" 
-                                           Spacing="5" 
-                                           VerticalOptions="Start">
-                        <CheckBox Color="Black"
-                                  IsChecked="{Binding HasSteeringWheelFilter, Mode=TwoWay}"/>
-                        <Label Text="stuur" 
-                               VerticalOptions="Center" 
-                               TextColor="Black"
-                               FontSize="14"/>
-                    </HorizontalStackLayout>
                 </Grid>
             </Grid>
 

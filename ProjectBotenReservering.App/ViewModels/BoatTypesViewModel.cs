@@ -11,8 +11,21 @@ public partial class BoatTypesViewModel : BaseViewModel
     public ObservableCollection<BoatTypeUiItem> BoatTypeItems { get; set; } = [];
     public List<BoatTypeUiItem> AllBoatTypes { get; set; }
 
+    public class SteeringOption
+    {
+        public required string DisplayName { get; set; }
+        public bool? Value { get; set; }
+        //NULL = all, TRUE = With Steering, FALSE = Without Steering
+    }
+    public List<SteeringOption> SteeringOptions { get; } = new List<SteeringOption> 
+    { 
+    new SteeringOption {DisplayName = "Alles", Value = null},
+    new SteeringOption {DisplayName = "Met Stuur ", Value = true},
+    new SteeringOption {DisplayName = "Zonder Stuur", Value = false}
+    };
+
     [ObservableProperty]
-    public bool hasSteeringWheelFilter = false;
+    public SteeringOption selectedSteeringOption;
     
     [ObservableProperty]
     public string stringInNameFilter = String.Empty;
@@ -22,18 +35,20 @@ public partial class BoatTypesViewModel : BaseViewModel
     
     private readonly IBoatTypeService BoatTypeService;
     
+
     public BoatTypesViewModel(IBoatTypeService boatTypeService)
     {
         BoatTypeService = boatTypeService;
-
         AllBoatTypes = BoatTypeService.GetBoatTypes();
-        
+        SelectedSteeringOption = SteeringOptions.First();
         ApplyFilterOption();
     }
 
     private void ApplyFilterOption()
     {
-        List<BoatTypeUiItem> boatTypeList = BoatTypeService.FilterBoatTypes(AllBoatTypes, HasSteeringWheelFilter, StringInNameFilter, MinWeightFilter);
+        bool? steeringValue = SelectedSteeringOption?.Value;
+
+        List<BoatTypeUiItem> boatTypeList = BoatTypeService.FilterBoatTypes(AllBoatTypes, steeringValue, StringInNameFilter, MinWeightFilter);
         BoatTypeItems.Clear();
         
         List<BoatTypeUiItem> orderedBoatTypeList = boatTypeList.OrderBy(x => x.Weight).ToList();
@@ -42,7 +57,7 @@ public partial class BoatTypesViewModel : BaseViewModel
             BoatTypeItems.Add(boatType);
         }
     }
-    
+
     // Select a boat type
     [RelayCommand]
     public void SelectBoatType(BoatTypeUiItem boatType)
@@ -53,7 +68,7 @@ public partial class BoatTypesViewModel : BaseViewModel
     }
 
     // Filter callbacks
-    partial void OnHasSteeringWheelFilterChanged(bool value) => ApplyFilterOption();
+    partial void OnSelectedSteeringOptionChanged(SteeringOption value) => ApplyFilterOption(); 
     partial void OnStringInNameFilterChanged(string value) => ApplyFilterOption();
     partial void OnMinWeightFilterChanged(int value) => ApplyFilterOption();
 
