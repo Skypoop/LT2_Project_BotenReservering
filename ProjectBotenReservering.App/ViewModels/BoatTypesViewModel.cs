@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
+using ProjectBotenReservering.App.Views;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
@@ -45,11 +46,10 @@ public partial class BoatTypesViewModel : BaseViewModel
     
     // Select a boat type
     [RelayCommand]
-    public void SelectBoatType(BoatTypeUiItem boatType)
+    public async Task SelectBoatType(BoatTypeUiItem boatType)
     {
-        Console.WriteLine(boatType.Name);
-        // SET THE SERVICE VARIABLE FOR BOAT TYPE HERE
-        // SWAP SCREEN
+        string route = $"{nameof(ReservationFormView)}?Id={boatType.Id}";
+        await Shell.Current.GoToAsync(route);
     }
 
     // Filter callbacks

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ProjectBotenReservering.App.ViewModels"
+             xmlns:models="clr-namespace:ProjectBotenReservering.Core.Models;assembly=ProjectBotenReservering.Core"
+             x:Class="ProjectBotenReservering.App.Views.ReservationFormView"
+             x:DataType="vm:ReservationFormViewModel"
+             BackgroundColor="White">
+    <Label
+        Text="{Binding CurrentBoatType.Name}"
+        FontSize="28"
+        FontAttributes="Bold"
+        TextColor="Black" />
+    
+    
+</ContentPage>
