@@ -3,25 +3,17 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
-
 namespace ProjectBotenReservering.App.ViewModels;
 
 public partial class BoatTypesViewModel : BaseViewModel
 {
     public ObservableCollection<BoatTypeUiItem> BoatTypeItems { get; set; } = [];
     public List<BoatTypeUiItem> AllBoatTypes { get; set; }
-
-    public class SteeringOption
+    public IReadOnlyList<SteeringOption> SteeringOptions { get; } = new List<SteeringOption>
     {
-        public required string DisplayName { get; set; }
-        public bool? Value { get; set; }
-        //NULL = all, TRUE = With Steering, FALSE = Without Steering
-    }
-    public List<SteeringOption> SteeringOptions { get; } = new List<SteeringOption> 
-    { 
-    new SteeringOption {DisplayName = "Alles", Value = null},
-    new SteeringOption {DisplayName = "Met Stuur ", Value = true},
-    new SteeringOption {DisplayName = "Zonder Stuur", Value = false}
+        new("Alles", null),
+        new("Met Stuur", true),
+        new("Zonder Stuur", false)
     };
 
     [ObservableProperty]

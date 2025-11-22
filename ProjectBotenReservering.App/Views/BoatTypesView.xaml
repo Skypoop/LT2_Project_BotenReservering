@@ -8,27 +8,25 @@
              BackgroundColor="White">
 
     <ContentPage.Content>
-        <Grid RowDefinitions="Auto, *">
+        <Grid RowDefinitions="Auto,*" Padding="20">
 
-            <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Padding="20">
+            <!-- Header -->
+            <VerticalStackLayout Grid.Row="0" Orientation="Vertical" Spacing="5">
+                <Label Text="Reservering" 
+                       FontSize="24" 
+                       FontAttributes="Bold" 
+                       TextColor="Black" />
+                <Label Text="Selecteer een boot" 
+                       FontSize="16" 
+                       TextColor="Gray" />
+            </VerticalStackLayout>
 
-                <VerticalStackLayout Grid.Column="0" VerticalOptions="Start">
-                    <Label Text="Reservering" 
-                           FontSize="24" 
-                           FontAttributes="Bold" 
-                           TextColor="Black" />
-                    <Label Text="Selecteer een boot" 
-                           FontSize="16" 
-                           TextColor="Gray" 
-                           Margin="0,5,0,0"/>
-                </VerticalStackLayout>
+            <!-- Filters -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,60,0,0">
 
-                <Grid Grid.Column="1" 
-                      RowDefinitions="Auto, Auto" 
-                      ColumnDefinitions="Auto, Auto, Auto" 
-                      ColumnSpacing="10"
-                      RowSpacing="5">
+                <Grid Grid.Column="1" RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="5">
 
+                    <!-- Min. gewicht -->
                     <Label Grid.Row="0" Grid.Column="0" 
                            Text="Min. gewicht" 
                            FontSize="12" 
@@ -45,10 +43,10 @@
                                TextColor="Black"
                                VerticalTextAlignment="Center"
                                HorizontalTextAlignment="Center"
-                               Text="{Binding MinWeightFilter, Mode=TwoWay}"
-                               Margin="0"/>
+                               Text="{Binding MinWeightFilter, Mode=TwoWay}" />
                     </Border>
 
+                    <!-- Stuurtype -->
                     <Label Grid.Row="0" Grid.Column="1" 
                            Text="Stuurtype" 
                            FontSize="12" 
@@ -71,6 +69,7 @@
                                 Margin="5,0" />
                     </Border>
 
+                    <!-- Zoekbalk -->
                     <Border Grid.Row="1" Grid.Column="2" 
                             Stroke="Gray"
                             StrokeShape="RoundRectangle 20"
@@ -81,11 +80,13 @@
                                    VerticalTextAlignment="Center"
                                    TextColor="Black"
                                    PlaceholderColor="Gray"
-                                   Text="{Binding StringInNameFilter, Mode=TwoWay}"/>
+                                   Text="{Binding StringInNameFilter, Mode=TwoWay}" />
                     </Border>
+
                 </Grid>
             </Grid>
 
+            <!-- Boot types -->
             <CollectionView Grid.Row="1" ItemsSource="{Binding BoatTypeItems}" SelectionMode="None" Margin="10">
                 <CollectionView.ItemsLayout>
                     <GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="10" VerticalItemSpacing="10" />
@@ -93,14 +94,13 @@
 
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:BoatTypeUiItem">
-
                         <Frame BorderColor="Gray" CornerRadius="10" Padding="0" IsClippedToBounds="True">
                             <Frame.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoatTypesViewModel}}, Path=SelectBoatTypeCommand}"
-                                                      CommandParameter="{Binding }"/>
+                                                      CommandParameter="{Binding}" />
                             </Frame.GestureRecognizers>
 
-                            <Grid RowDefinitions="120, Auto">
+                            <Grid RowDefinitions="120,Auto">
 
                                 <Image Grid.Row="0"
                                        Source="{Binding ImagePath}"
