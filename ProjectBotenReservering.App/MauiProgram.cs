@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
+using ProjectBotenReservering.App.Context;
 using ProjectBotenReservering.App.ViewModels;
 using ProjectBotenReservering.App.Views;
 using ProjectBotenReservering.Core.Interfaces.Services;
@@ -7,6 +8,7 @@ using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Data.Repositories;
 using ProjectBotenReservering.Core.Services;
 using ProjectBotenReservering.Core.Data.Services;
+using ProjectBotenReservering.Core.Interfaces.Context;
 
 namespace ProjectBotenReservering.App
 {
@@ -40,6 +42,10 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IMailService, SmtpMailService>();
             builder.Services.AddSingleton<IWeatherService, WeatherService>();
             builder.Services.AddSingleton<IBoatTypeService, BoatTypeService>();
+            builder.Services.AddSingleton<IBoatAuthorizationService, BoatAuthorizationService>();
+            builder.Services.AddSingleton<IClientService, ClientService>();
+            
+            builder.Services.AddSingleton<IClientContext, HardcodedClientContext>();
             
             builder.Services.AddTransient<HomePageView>().AddTransient<HomePageViewModel>();
             builder.Services.AddTransient<BoatTypesView>().AddTransient<BoatTypesViewModel>();

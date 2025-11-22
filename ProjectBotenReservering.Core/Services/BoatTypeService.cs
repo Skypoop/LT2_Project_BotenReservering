@@ -7,15 +7,20 @@ namespace ProjectBotenReservering.Core.Services;
 
 public class BoatTypeService : IBoatTypeService
 {
-    private readonly IBoatRepository boatRepository;
-    public BoatTypeService(IBoatRepository boatRepository)
+    private readonly IBoatRepository _boatRepository;
+    private readonly IBoatAuthorizationService _boatAuthorizationService;
+    public BoatTypeService(IBoatRepository boatRepository, IBoatAuthorizationService boatAuthorizationService)
     {
-        this.boatRepository = boatRepository;
+        this._boatRepository = boatRepository;
+        this._boatAuthorizationService = boatAuthorizationService;
+        
     }
 
     public List<BoatTypeUiItem> GetBoatTypes()
     {
-        return BoatMapper.BoatsToBoatTypeUiItems(boatRepository.GetAll());
+        List<Boat> allBoats = _boatRepository.GetAll();
+        IEnumerable<Boat> authorizedBoats = _boatAuthorizationService.FilterAuthorized(allBoats, b => b.Type, b => b.Level);
+        return BoatMapper.BoatsToBoatTypeUiItems(authorizedBoats.ToList());
     }
     
     public List<BoatTypeUiItem> FilterBoatTypes(List<BoatTypeUiItem> boatTypeList, bool hasSteeringWheel, string stringInName, int minWeight)

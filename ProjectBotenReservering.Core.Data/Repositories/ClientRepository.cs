@@ -18,6 +18,19 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                             [Club] VARCHAR,
                             [Approved] BOOLEAN NOT NULL DEFAULT 0,
                             [Password_Hash] VARCHAR NOT NULL)");
+
+            List<Client> clients = GetAll();
+            bool anyClientExists = clients.Count > 0;
+            
+            if (!anyClientExists)
+            {
+                // demo clients to populate the database
+                Add(new Client("Joe Doe", "joe.doe@example.com", 1, 2, "River Club", true, "hash1", 0));
+                Add(new Client("Jane Smith", "jane.smith@example.com", 2, 1, "Lakeside Club", false, "hash2", 0));
+                Add(new Client("Bob Brown", "bob.brown@example.com", 3, 3, null, false, "hash3", 0));
+                Add(new Client("Alice Green", "alice.green@example.com", 0, 1, "Harbor Club", true, "hash4", 0));
+                Add(new Client("Eve White", "eve.white@example.com", 1, 0, "Coast Club", false, "hash5", 0));
+            }
         }
 
         public Client Add(Client item)
@@ -110,14 +123,14 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         private Client MapReaderToClient(SqliteDataReader reader)
         {
             return new Client(
-                reader.GetInt32(0),
                 reader.GetString(1),
                 reader.GetString(2),
                 reader.GetInt32(3),
                 reader.GetInt32(4),
                 reader.IsDBNull(5) ? null : reader.GetString(5),
                 reader.GetBoolean(6),
-                reader.GetString(7)
+                reader.GetString(7),
+                reader.GetInt32(0)
             );
         }
     }
