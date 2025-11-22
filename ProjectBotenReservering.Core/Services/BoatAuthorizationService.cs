@@ -17,7 +17,6 @@ public class BoatAuthorizationService : IBoatAuthorizationService
         Client? client = _clientService.GetCurrentClient();
         if (client == null) 
         {
-            Console.WriteLine("debug: No current client found.");
             return false;
         }
 
