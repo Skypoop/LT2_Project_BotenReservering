@@ -28,8 +28,9 @@ public partial class ReservationFormViewModel : BaseViewModel
         {
             if (SetProperty(ref _boatId, value))
             {
-                LoadBoatDataCommand.Execute(value);
             }
+            
+
         }
     }
 

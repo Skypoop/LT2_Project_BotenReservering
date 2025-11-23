@@ -9,5 +9,6 @@
     <ShellContent
         ContentTemplate="{DataTemplate local:BoatTypesView}"
         Route="BoatTypesView" />
+    
 
 </Shell>

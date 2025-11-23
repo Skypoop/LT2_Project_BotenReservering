@@ -42,7 +42,9 @@
 		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.120" />
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.120" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
+		<PackageReference Include="Plugin.Maui.Calendar" Version="1.1.9" />
 	</ItemGroup>
+	
 
 	<ItemGroup>
 		<ProjectReference Include="..\ProjectBotenReservering.Core.Data\ProjectBotenReservering.Core.Data.csproj" />
