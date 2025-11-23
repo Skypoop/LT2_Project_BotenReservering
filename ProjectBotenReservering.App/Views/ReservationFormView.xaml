@@ -33,14 +33,14 @@
             <!-- Time Inputs -->
             <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
                 <VerticalStackLayout Grid.Column="0">
-                    <Label Text="Start Time" TextColor="Gray"/>
+                    <Label Text="Start tijd" TextColor="Gray"/>
                     <TimePicker Time="{Binding StartTime}" 
                                 TextColor="Black"
                                 BackgroundColor="#F0F0F0"/>
                 </VerticalStackLayout>
 
                 <VerticalStackLayout Grid.Column="1">
-                    <Label Text="End Time" TextColor="Gray"/>
+                    <Label Text="Eind tijd" TextColor="Gray"/>
                     <TimePicker Time="{Binding EndTime}" 
                                 TextColor="Black"
                                 BackgroundColor="#F0F0F0"/>
@@ -48,7 +48,7 @@
             </Grid>
 
             <!-- Command Binding -->
-            <Button Text="Confirm Reservation"
+            <Button Text="Bevestig Reservering"
                     Command="{Binding SaveReservationCommand}"
                     BackgroundColor="#2196F3"
                     TextColor="White"
