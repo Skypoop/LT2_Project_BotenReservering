@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.Input;
-using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
@@ -14,13 +13,28 @@ public partial class ReservationFormViewModel : BaseViewModel
     public ReservationFormViewModel(IBoatTypeService boatTypeService)
     {
         _boatTypeService = boatTypeService;
+        
+        // standaard waardes voor kalander
+        SelectedDate = DateTime.Today;
+        StartTime = new TimeSpan(9, 0, 0);
+        EndTime = new TimeSpan(10, 0, 0);
     }
+
+    public DateTime MinDate => DateTime.Today;
 
     [ObservableProperty] 
     private BoatTypeUiItem _currentBoatType;
 
-    private int _boatId;
+    [ObservableProperty]
+    private DateTime _selectedDate;
 
+    [ObservableProperty]
+    private TimeSpan _startTime;
+
+    [ObservableProperty]
+    private TimeSpan _endTime;
+
+    private int _boatId;
     public int BoatId
     {
         get => _boatId;
@@ -28,9 +42,9 @@ public partial class ReservationFormViewModel : BaseViewModel
         {
             if (SetProperty(ref _boatId, value))
             {
+                // Fix: Ensure data loads when navigation happens
+                LoadBoatDataCommand.Execute(value);
             }
-            
-
         }
     }
 
@@ -39,6 +53,21 @@ public partial class ReservationFormViewModel : BaseViewModel
     {
         var boatType = _boatTypeService.GetBoatTypeById(id);
         CurrentBoatType = boatType;
-        Task.Delay(100);
+    }
+
+    [RelayCommand]
+    private async Task SaveReservation()
+    {
+        if (EndTime <= StartTime)
+        {
+            await Shell.Current.DisplayAlert("Error", "End time must be after start time.", "OK");
+            return;
+        }
+
+        DateTime startDateTime = SelectedDate.Date + StartTime;
+        DateTime endDateTime = SelectedDate.Date + EndTime;
+
+        await Shell.Current.DisplayAlert("Success", msg, "OK");
+        await Shell.Current.GoToAsync("..");
     }
 }

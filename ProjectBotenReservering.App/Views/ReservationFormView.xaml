@@ -1,24 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ProjectBotenReservering.App.ViewModels"
              xmlns:plugin="clr-namespace:Plugin.Maui.Calendar.Controls;assembly=Plugin.Maui.Calendar"
              x:Class="ProjectBotenReservering.App.Views.ReservationFormView"
-             Title="boot"
+             x:DataType="vm:ReservationFormViewModel"
+             Title="New Reservation"
              BackgroundColor="White">
 
     <ScrollView>
         <VerticalStackLayout Spacing="20" Padding="20">
 
-            <!-- Static Header -->
-            <Label Text="Resevering"
+            <!-- Header binding to Boat Name -->
+            <Label Text="{Binding CurrentBoatType.Name, StringFormat='Reserve: {0}'}"
                    FontSize="24"
                    FontAttributes="Bold"
                    TextColor="#2196F3"
                    HorizontalOptions="Center"/>
 
-            <!-- Calendar -->
             <Frame Padding="0" CornerRadius="10" BorderColor="Gray">
+                <!-- Removed invalid 'TextColor' property -->
                 <plugin:Calendar
+                    SelectedDate="{Binding SelectedDate}"
+                    MinimumDate="{Binding MinDate}"
                     SelectedDateColor="#2196F3"
                     TodayOutlineColor="Orange"
                     MonthLabelColor="Black"
@@ -28,25 +32,24 @@
 
             <!-- Time Inputs -->
             <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
-                <!-- Start Time -->
                 <VerticalStackLayout Grid.Column="0">
                     <Label Text="Start Time" TextColor="Gray"/>
-                    <TimePicker Time="09:00:00" 
+                    <TimePicker Time="{Binding StartTime}" 
                                 TextColor="Black"
                                 BackgroundColor="#F0F0F0"/>
                 </VerticalStackLayout>
 
-                <!-- End Time -->
                 <VerticalStackLayout Grid.Column="1">
                     <Label Text="End Time" TextColor="Gray"/>
-                    <TimePicker Time="12:00:00" 
+                    <TimePicker Time="{Binding EndTime}" 
                                 TextColor="Black"
                                 BackgroundColor="#F0F0F0"/>
                 </VerticalStackLayout>
             </Grid>
 
-            <!-- Static Button -->
+            <!-- Command Binding -->
             <Button Text="Confirm Reservation"
+                    Command="{Binding SaveReservationCommand}"
                     BackgroundColor="#2196F3"
                     TextColor="White"
                     HeightRequest="50"
