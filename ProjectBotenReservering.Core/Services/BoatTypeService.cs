@@ -33,7 +33,7 @@ public class BoatTypeService : IBoatTypeService
         return BoatMapper.BoatToBoatTypeUiItem(boat);
     }
     
-    public List<BoatTypeUiItem> FilterBoatTypes(List<BoatTypeUiItem> boatTypeList, bool hasSteeringWheel, string stringInName, int minWeight)
+    public List<BoatTypeUiItem> FilterBoatTypes(List<BoatTypeUiItem> boatTypeList, bool? hasSteeringWheel, string stringInName, int minWeight)
     {
         List<BoatTypeUiItem> newList = boatTypeList.Where(x => x.SteeringSeatPresent == hasSteeringWheel)
             .Where(x => x.Name.Contains(stringInName, StringComparison.CurrentCultureIgnoreCase))
