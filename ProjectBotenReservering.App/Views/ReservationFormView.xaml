@@ -62,6 +62,12 @@
                 TodayOutlineColor="{StaticResource Primary}"
                 EventsScrollViewVisible="False"
                 HeightRequest="320" />
+            <Label Text="{Binding DateWarningText}" 
+                   IsVisible="{Binding HasDateWarning}"
+                   TextColor="Red"
+                   FontSize="12"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center" />
         </VerticalStackLayout>
 
         <!-- Time & Clients -->
@@ -76,6 +82,11 @@
                     <Label Text="Eindtijd:" FontSize="12" TextColor="Gray"/>
                     <TimePicker Time="{Binding EndTime}" />
                 </VerticalStackLayout>
+                <Label Text="{Binding TimeWarningText}" 
+                       IsVisible="{Binding HasTimeWarning}"
+                       TextColor="Red"
+                       FontSize="12"
+                       FontAttributes="Bold" />
             </VerticalStackLayout>
 
             <VerticalStackLayout Grid.Column="1" Spacing="10" Margin="0,140,0,0">

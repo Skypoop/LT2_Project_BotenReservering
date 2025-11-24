@@ -5,7 +5,7 @@ using ProjectBotenReservering.Core.Constants;
 
 namespace ProjectBotenReservering.Core.Services;
 
-public class ReservationService
+public class ReservationService: IReservationService
 {
     private readonly IReservationRepository _reservationService;
     private readonly IBoatAuthorizationService _boatAuthorizationService;
@@ -16,15 +16,21 @@ public class ReservationService
         
     }
     
-    public bool IsBookingWithinAllowedReservationTime(DateTime startTime, DateTime endTime)
+    public bool IsBookingWithinAllowedReservationTime(DateTime startTime)
     {
+        DateTime today = DateTime.Today;
+        TimeSpan daysFromNow =  startTime.Subtract(today);
+        if (daysFromNow.Days > ReservationRules.MaxDaysBeforeReservation)
+        {
+            return false;
+        }
         return true;
     }
 
     public bool IsValidReservationLength(DateTime startTime, DateTime endTime)
     {
         TimeSpan timeDifference = endTime - startTime;
-        if (timeDifference.Hours >= ReservationRules.MaxReservationLength)
+        if (timeDifference.Hours > ReservationRules.MaxReservationLength)
         {
             return false;
         }

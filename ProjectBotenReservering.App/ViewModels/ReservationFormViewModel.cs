@@ -13,15 +13,24 @@ public partial class ReservationFormViewModel : BaseViewModel
     private readonly IBoatTypeService _boatTypeService;
     private readonly IClientService _clientService;
     private readonly IClientRepository _clientRepository;
+    private readonly IReservationService _reservationService;
+    private readonly IBoatAuthorizationService _boatAuthorizationService;
 
     public ReservationFormViewModel(
         IBoatTypeService boatTypeService,
         IClientService clientService,
-        IClientRepository clientRepository)
+        IClientRepository clientRepository,
+        IReservationService reservationService,
+        IBoatAuthorizationService boatReservationService
+        )
     {
         _boatTypeService = boatTypeService;
-        _clientService = clientService;
         _clientRepository = clientRepository;
+        
+        _clientService = clientService;
+        _reservationService = reservationService;
+        _boatAuthorizationService = boatReservationService;
+        
 
         Title = "";
 
@@ -46,6 +55,18 @@ public partial class ReservationFormViewModel : BaseViewModel
 
     [ObservableProperty]
     private TimeSpan _endTime;
+    
+    [ObservableProperty]
+    private string _dateWarningText; 
+
+    [ObservableProperty]
+    private bool _hasDateWarning;
+
+    [ObservableProperty]
+    private string _timeWarningText;
+
+    [ObservableProperty]
+    private bool _hasTimeWarning;
 
     public ObservableCollection<Client> SelectedClients { get; }
     public ObservableCollection<Client> AvailableClients { get; }
@@ -103,7 +124,40 @@ public partial class ReservationFormViewModel : BaseViewModel
 
         UpdateQualificationFlags();
     }
+    partial void OnSelectedDateChanged(DateTime value) => ValidateReservationRules();
+    partial void OnStartTimeChanged(TimeSpan value) => ValidateReservationRules();
+    partial void OnEndTimeChanged(TimeSpan value) => ValidateReservationRules();
+    
+    private void ValidateReservationRules()
+    {
+        HasDateWarning = false;
+        DateWarningText = string.Empty;
+        HasTimeWarning = false;
+        TimeWarningText = string.Empty;
 
+        DateTime startDateTime = SelectedDate.Date + StartTime;
+        DateTime endDateTime = SelectedDate.Date + EndTime;
+
+        if (!_reservationService.IsBookingWithinAllowedReservationTime(startDateTime))
+        {
+            //TODO: 2 has to be retrieved from the constant
+            DateWarningText = "Deze datum is te ver in de toekomst. max 2 dagen ver";
+            HasDateWarning = true;
+        }
+
+    
+        if (EndTime > StartTime)
+        {
+            if (!_reservationService.IsValidReservationLength(startDateTime, endDateTime))
+            {
+                TimeWarningText = "De reservering duurt te lang. max 2 uur lang";
+                HasTimeWarning = true;
+            }
+        }
+
+        SaveReservationCommand.NotifyCanExecuteChanged();
+    }
+    
     partial void OnSelectedClientToAddChanged(Client value)
     {
         // 1. If null, do nothing (this happens when we reset the picker)
@@ -180,7 +234,18 @@ public partial class ReservationFormViewModel : BaseViewModel
     {
         if (CurrentBoatType != null)
         {
-            SeatStatusText = $"{SelectedClients.Count} / {CurrentBoatType.SeatAmount}";
+            string verplichtText;
+
+            if (SelectedClients.Count != CurrentBoatType.SeatAmount)
+            {
+                verplichtText = "Verplicht:";
+            }
+            else
+            {
+                verplichtText = string.Empty;
+            }
+            
+            SeatStatusText = $"{verplichtText} {SelectedClients.Count} / {CurrentBoatType.SeatAmount}";
             SaveReservationCommand.NotifyCanExecuteChanged();
         }
     }
@@ -191,16 +256,8 @@ public partial class ReservationFormViewModel : BaseViewModel
 
         foreach (var client in SelectedClients)
         {
-            bool underqualified = CurrentBoatType.Type switch
-            {
-                BoatType.S => client.ScullLevel < CurrentBoatType.Level,
-                BoatType.B => client.SweepLevel < CurrentBoatType.Level,
-                _ => false
-            };
-
-            client.IsUnderqualified = underqualified;
-
-            if (underqualified)
+            
+            if (! _boatAuthorizationService.ClientIsAuthorized(CurrentBoatType.Type, CurrentBoatType.Level, client))
             {
                 string levelType = CurrentBoatType.Type == BoatType.S ? "scull" : "sweep";
                 int clientLevel = CurrentBoatType.Type == BoatType.S ? client.ScullLevel : client.SweepLevel;
@@ -221,6 +278,7 @@ public partial class ReservationFormViewModel : BaseViewModel
 
     private bool CanSaveReservation()
     {
+        if (HasDateWarning || HasTimeWarning) return false;
         if (CurrentBoatType == null) return false;
         return SelectedClients.Count == CurrentBoatType.SeatAmount;
     }
@@ -233,6 +291,7 @@ public partial class ReservationFormViewModel : BaseViewModel
             await Shell.Current.DisplayAlert("Error", "Eindtijd moet na starttijd zijn.", "OK");
             return;
         }
+        
 
         bool anyUnderqualified = SelectedClients.Any(c => c.IsUnderqualified);
 
@@ -244,7 +303,6 @@ public partial class ReservationFormViewModel : BaseViewModel
         {
             await Shell.Current.DisplayAlert("Succes", "Reservering Geslaagd!", "OK");
         }
-
         await Shell.Current.GoToAsync("..");
     }
 
