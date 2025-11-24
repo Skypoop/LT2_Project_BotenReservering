@@ -23,16 +23,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install .NET 9 SDK
+      - name: Install .NET 9 RC1 SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.0-rc.1'
-          include-prerelease: true
-
-      - name: Install MAUI workloads 
-        run: | 
-          dotnet workload restore 
-          dotnet workload install maui --skip-manifest-update
+          dotnet-version: '9.0.100-rc.1.24452.12'
 
       - name: Add .NET 9 NuGet Sources
         run: |
