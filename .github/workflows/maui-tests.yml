@@ -24,9 +24,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.100-rc.1.24452.12'
+          dotnet-version: '9.0.x'
 
       - name: Install MAUI workloads
         run: dotnet workload install maui-windows
@@ -35,7 +35,7 @@ jobs:
         run: dotnet workload restore
 
       - name: Restore dependencies including win-x64 runtime pack
-        run: dotnet restore -r win-x64
+        run: dotnet restore 
 
       - name: List installed .NET runtimes
         run: dotnet --list-runtimes
@@ -44,7 +44,7 @@ jobs:
         run: dotnet workload list
 
       - name: Build the application (uses restored runtime pack)
-        run: dotnet build ProjectBotenReservering.App/ProjectBotenReservering.App.csproj --configuration Release --framework net9.0-windows10.0.19041.0 -r win-x64
+        run: dotnet build ProjectBotenReservering.App/ProjectBotenReservering.App.csproj --configuration Release --framework net9.0-windows10.0.19041.0 
 
       - name: Run unit tests and generate report
         run: dotnet test --configuration Release --verbosity normal --results-directory "TestResults" --logger "trx;LogFileName=testresults.trx"
