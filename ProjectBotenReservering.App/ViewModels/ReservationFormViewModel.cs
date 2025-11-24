@@ -124,6 +124,7 @@ public partial class ReservationFormViewModel : BaseViewModel
 
         UpdateQualificationFlags();
     }
+    
     partial void OnSelectedDateChanged(DateTime value) => ValidateReservationRules();
     partial void OnStartTimeChanged(TimeSpan value) => ValidateReservationRules();
     partial void OnEndTimeChanged(TimeSpan value) => ValidateReservationRules();
