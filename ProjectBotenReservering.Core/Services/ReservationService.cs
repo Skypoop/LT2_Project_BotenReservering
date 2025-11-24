@@ -39,6 +39,6 @@ public class ReservationService: IReservationService
 
     public bool IsReservationTimeFree(DateTime startTime, DateTime endTime)
     {
-        return true;
+        throw new NotImplementedException();
     }
 }
