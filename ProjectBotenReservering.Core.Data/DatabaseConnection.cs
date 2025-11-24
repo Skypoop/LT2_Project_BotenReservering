@@ -39,7 +39,7 @@ namespace ProjectBotenReservering.Core.Data
         public async Task CreateTableAsync(string commandText)
         {
             await OpenConnectionAsync();
-            using (var command = Connection.CreateCommand())
+            using (SqliteCommand command = Connection.CreateCommand())
             {
                 command.CommandText = commandText;
                 await command.ExecuteNonQueryAsync();
@@ -49,12 +49,12 @@ namespace ProjectBotenReservering.Core.Data
         public async Task InsertMultipleWithTransactionAsync(List<string> linesToInsert)
         {
             await OpenConnectionAsync();
-            var transaction = await Connection.BeginTransactionAsync();
+            SqliteTransaction transaction = (SqliteTransaction)await Connection.BeginTransactionAsync();
             try
             {
-                foreach (var line in linesToInsert)
+                foreach (string line in linesToInsert)
                 {
-                    using (var command = Connection.CreateCommand())
+                    using (SqliteCommand command = Connection.CreateCommand())
                     {
                         command.CommandText = line;
                         command.Transaction = (SqliteTransaction?)transaction;
