@@ -36,7 +36,6 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <!-- Use slightly tighter overall padding so calendar has more room -->
     <Grid RowDefinitions="Auto, Auto, *, Auto" Padding="10">
         <!-- Top Header -->
         <Grid Grid.Row="0" ColumnDefinitions="Auto, *" Margin="0,0,0,0">
