@@ -1,15 +1,15 @@
-﻿namespace ProjectBotenReservering.App
+﻿using ProjectBotenReservering.App.ViewModels;
+using ProjectBotenReservering.App.Views;
+
+namespace ProjectBotenReservering.App
 {
     public partial class App : Application
     {
-        public App()
+        public App(HomePageViewModel viewModel)
         {
             InitializeComponent();
-        }
 
-        protected override Window CreateWindow(IActivationState? activationState)
-        {
-            return new Window(new AppShell());
+            MainPage = new AppShell();
         }
     }
 }

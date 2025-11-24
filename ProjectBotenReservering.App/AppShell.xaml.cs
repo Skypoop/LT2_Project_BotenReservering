@@ -1,10 +1,15 @@
-﻿namespace ProjectBotenReservering.App
+﻿namespace ProjectBotenReservering.App;
+using ProjectBotenReservering.App.Views;
+
+public partial class AppShell : Shell
 {
-    public partial class AppShell : Shell
+    public AppShell()
     {
-        public AppShell()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
+        
+        Routing.RegisterRoute(nameof(HomePageView), typeof(HomePageView));
+        Routing.RegisterRoute(nameof(BoatTypesView), typeof(BoatTypesView));
+        Routing.RegisterRoute(nameof(ReservationFormView), typeof(ReservationFormView));
+
     }
 }
