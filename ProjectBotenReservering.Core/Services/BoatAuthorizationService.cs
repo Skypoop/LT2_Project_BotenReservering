@@ -26,12 +26,9 @@ public class BoatAuthorizationService : IBoatAuthorizationService
             _=> false
         };
     }
-    public bool IsAuthorized(BoatType boatType, int boatLevel)
-    {
-        Client? client = _clientService.GetCurrentClient();
-        return authorizationCheck(boatType, boatLevel, client); 
-    }
-    public bool ClientIsAuthorized(BoatType boatType, int boatLevel, Client client)
+    public bool IsAuthorized(BoatType boatType, int boatLevel) => IsAuthorized(boatType, boatLevel, _clientService.GetCurrentClient());
+ 
+    public bool IsAuthorized(BoatType boatType, int boatLevel, Client? client)
     {
         return authorizationCheck(boatType, boatLevel, client); 
     }

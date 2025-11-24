@@ -258,7 +258,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         foreach (var client in SelectedClients)
         {
             
-            if (! _boatAuthorizationService.ClientIsAuthorized(CurrentBoatType.Type, CurrentBoatType.Level, client))
+            if (! _boatAuthorizationService.IsAuthorized(CurrentBoatType.Type, CurrentBoatType.Level, client))
             {
                 string levelType = CurrentBoatType.Type == BoatType.S ? "scull" : "sweep";
                 int clientLevel = CurrentBoatType.Type == BoatType.S ? client.ScullLevel : client.SweepLevel;
