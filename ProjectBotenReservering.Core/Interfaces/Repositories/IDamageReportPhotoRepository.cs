@@ -4,9 +4,9 @@ namespace ProjectBotenReservering.Core.Interfaces.Repositories;
 
 public interface IDamageReportPhotoRepository
 {
-    public DamageReportPhoto Add(DamageReportPhoto item);
-    public DamageReportPhoto? Get(int id);
-    public List<DamageReportPhoto> GetByDamageReportId(int damageReportId);
-    public void Delete(int id);
+    public Task<DamageReportPhoto> Add(DamageReportPhoto item);
+    public Task<DamageReportPhoto>? Get(int id);
+    public Task<List<DamageReportPhoto>> GetByDamageReportId(int damageReportId);
+    public Task Delete(int id);
 }
 

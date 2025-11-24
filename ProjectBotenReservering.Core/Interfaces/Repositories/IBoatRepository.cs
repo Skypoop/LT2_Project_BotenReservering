@@ -4,10 +4,10 @@ namespace ProjectBotenReservering.Core.Interfaces.Repositories;
 
 public interface IBoatRepository
 {
-    public Boat Add(Boat item);
-    public Boat? Get(int id);
-    public List<Boat> GetAll();
-    public List<Boat> GetOperationalBoats();
-    public void Delete(int boatId);
+    public Task<Boat> Add(Boat item);
+    public Task<Boat>? Get(int id);
+    public Task<List<Boat>> GetAll();
+    public Task<List<Boat>> GetOperationalBoats();
+    public Task Delete(int boatId);
 }
 

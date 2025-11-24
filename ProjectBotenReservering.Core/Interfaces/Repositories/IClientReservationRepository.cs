@@ -4,10 +4,10 @@ namespace ProjectBotenReservering.Core.Interfaces.Repositories;
 
 public interface IClientReservationRepository
 {
-    public ClientReservation Add(ClientReservation item);
-    public List<ClientReservation> GetByClientId(int clientId);
-    public List<ClientReservation> GetByReservationId(int reservationId);
-    public ClientReservation? Get(int clientId, int reservationId);
-    public void UpdateApproval(int clientId, int reservationId, bool approved);
+    public Task<ClientReservation> Add(ClientReservation item);
+    public Task<List<ClientReservation>> GetByClientId(int clientId);
+    public Task<List<ClientReservation>> GetByReservationId(int reservationId);
+    public Task<ClientReservation>? Get(int clientId, int reservationId);
+    public Task UpdateApproval(int clientId, int reservationId, bool approved);
 }
 
