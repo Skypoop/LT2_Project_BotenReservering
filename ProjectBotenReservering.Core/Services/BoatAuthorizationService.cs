@@ -12,9 +12,8 @@ public class BoatAuthorizationService : IBoatAuthorizationService
         _clientService = clientService;
     }
 
-    public bool IsAuthorized(BoatType boatType, int boatLevel)
+    private bool authorizationCheck(BoatType boatType, int boatLevel, Client? client)
     {
-        Client? client = _clientService.GetCurrentClient();
         if (client == null) 
         {
             return false;
@@ -23,9 +22,15 @@ public class BoatAuthorizationService : IBoatAuthorizationService
         return boatType switch
         {
             BoatType.S => client.ScullLevel >= boatLevel,
-            BoatType.B => client.RoeiLevel >= boatLevel,
+            BoatType.B => client.SweepLevel >= boatLevel,
             _=> false
         };
+    }
+    public bool IsAuthorized(BoatType boatType, int boatLevel) => IsAuthorized(boatType, boatLevel, _clientService.GetCurrentClient());
+ 
+    public bool IsAuthorized(BoatType boatType, int boatLevel, Client? client)
+    {
+        return authorizationCheck(boatType, boatLevel, client); 
     }
 
     public IEnumerable<T> FilterAuthorized<T>(IEnumerable<T> items, Func<T, BoatType> boatTypeSelector, Func<T, int> boatLevelSelector)

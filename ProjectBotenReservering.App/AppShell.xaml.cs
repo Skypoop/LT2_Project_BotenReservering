@@ -9,5 +9,7 @@ public partial class AppShell : Shell
         
         Routing.RegisterRoute(nameof(HomePageView), typeof(HomePageView));
         Routing.RegisterRoute(nameof(BoatTypesView), typeof(BoatTypesView));
+        Routing.RegisterRoute(nameof(ReservationFormView), typeof(ReservationFormView));
+
     }
 }

@@ -10,18 +10,33 @@ namespace ProjectBotenReservering.Core.Data
 
         public DatabaseConnection()
         {
-            string? databaseName = ConnectionHelper.ConnectionStringValue("RoeiverenigingDB");
-
+            string writableDirectory;
 #if MACCATALYST
-            string writableDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            Directory.CreateDirectory(writableDirectory); 
+            writableDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            Directory.CreateDirectory(writableDirectory);
+#elif ANDROID
+            writableDirectory = Android.App.Application.Context.FilesDir.Path;
 #else
-            string writableDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            writableDirectory = AppDomain.CurrentDomain.BaseDirectory;
 #endif
+#if ANDROID
+            // this is a temporary fix 
+            // we need to add the appsettings to the build zip
+            // for it to work with android, but this is complex and low prio for now
+			// since we dont really have anythng sensitive
 
-            string dbpath = "Data Source="+ Path.Combine(writableDirectory + databaseName);
+            string? databaseName = "Roeivereniging.db3";
+            string fullPath = Path.Combine(writableDirectory, databaseName);
+            Connection = new SqliteConnection($"Data Source={fullPath}");
+#else
+            string? databaseName = ConnectionHelper.ConnectionStringValue("RoeiverenigingDB");
+            string dbpath = "Data Source=" + Path.Combine(writableDirectory + databaseName);
             Connection = new SqliteConnection(dbpath);
+
+#endif
         }
+
+
 
         protected void OpenConnection()
         {

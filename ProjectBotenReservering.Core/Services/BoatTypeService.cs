@@ -22,10 +22,20 @@ public class BoatTypeService : IBoatTypeService
         IEnumerable<Boat> authorizedBoats = _boatAuthorizationService.FilterAuthorized(allBoats, b => b.Type, b => b.Level);
         return BoatMapper.BoatsToBoatTypeUiItems(authorizedBoats.ToList());
     }
+
+    public BoatTypeUiItem GetBoatTypeById(int id)
+    {
+        Boat? boat = _boatRepository.Get(id);
+        if (boat is null)
+        {
+            throw new KeyNotFoundException($"Boat with id {id} not found");
+        }
+        return BoatMapper.BoatToBoatTypeUiItem(boat);
+    }
     
     public List<BoatTypeUiItem> FilterBoatTypes(List<BoatTypeUiItem> boatTypeList, bool? hasSteeringWheel, string stringInName, int minWeight)
     {
-        List<BoatTypeUiItem> newList = boatTypeList.Where(x => x.SteeringSeatPresent == hasSteeringWheel)
+        List<BoatTypeUiItem> newList = boatTypeList.Where(x => hasSteeringWheel == null || x.SteeringSeatPresent == hasSteeringWheel)
             .Where(x => x.Name.Contains(stringInName, StringComparison.CurrentCultureIgnoreCase))
             .Where(x => x.Weight > minWeight).ToList();
         return newList;

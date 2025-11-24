@@ -10,11 +10,13 @@ public static class BoatMapper
         {
             Id = boat.Id,
             Name = boat.Name,
-            Seatamount = boat.Seats,
+            SeatAmount = boat.Seats,
             Weight = boat.Kg,
             Amount = 1,
             SteeringSeatPresent = boat.SteeringWheel,
-            ImagePath = "skiff.jpg" 
+            ImagePath = "skiff.jpg",
+            Level = boat.Level,
+            Type = boat.Type
         };
     }
 

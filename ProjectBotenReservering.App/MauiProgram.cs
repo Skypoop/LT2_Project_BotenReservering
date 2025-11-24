@@ -44,12 +44,14 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IBoatTypeService, BoatTypeService>();
             builder.Services.AddSingleton<IBoatAuthorizationService, BoatAuthorizationService>();
             builder.Services.AddSingleton<IClientService, ClientService>();
+            builder.Services.AddSingleton<IReservationService, ReservationService>();
             
             builder.Services.AddSingleton<IClientContext, HardcodedClientContext>();
             
             builder.Services.AddTransient<HomePageView>().AddTransient<HomePageViewModel>();
             builder.Services.AddTransient<BoatTypesView>().AddTransient<BoatTypesViewModel>();
-          
+            builder.Services.AddTransient<ReservationFormView>().AddTransient<ReservationFormViewModel>();
+
 
 #if DEBUG
             builder.Logging.AddDebug();
