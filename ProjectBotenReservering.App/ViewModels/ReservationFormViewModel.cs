@@ -1,4 +1,3 @@
-using System;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -107,55 +106,49 @@ public partial class ReservationFormViewModel : BaseViewModel
 
     partial void OnSelectedClientToAddChanged(Client value)
     {
+        // 1. If null, do nothing (this happens when we reset the picker)
         if (value == null) return;
 
-        if (CurrentBoatType == null)
-        {
-            SelectedClientToAdd = null;
-            return;
-        }
+        // 2. Capture the client to add
+        var clientToAdd = value;
 
+        // 3. IMMEDIATELY reset the picker to null. 
+        // This stops the "Double Add" bug by clearing the selection before we mess with the list.
+        SelectedClientToAdd = null;
+
+        if (CurrentBoatType == null) return;
+
+        // 4. Check Capacity
         if (SelectedClients.Count >= CurrentBoatType.SeatAmount)
         {
-            SelectedClientToAdd = null;
+            Shell.Current.DisplayAlert("Vol", $"De boot zit vol ({CurrentBoatType.SeatAmount} plaatsen).", "OK");
             return;
         }
 
-        bool alreadyAdded = false;
-        foreach (var x in SelectedClients)
+        // 5. Check Duplicates
+        if (SelectedClients.Any(x => x.Id == clientToAdd.Id))
         {
-            if (x.Id == value.Id)
-            {
-                alreadyAdded = true;
-                break;
-            }
-        }
-
-        if (alreadyAdded)
-        {
-            SelectedClientToAdd = null;
             return;
         }
 
-        SelectedClients.Add(value);
-
-        Client toRemove = null;
-        foreach (var c in AvailableClients)
-        {
-            if (c.Id == value.Id)
-            {
-                toRemove = c;
-                break;
-            }
-        }
-
-        if (toRemove != null)
-            AvailableClients.Remove(toRemove);
-
+        // 6. Add to Selected List
+        SelectedClients.Add(clientToAdd);
         UpdateSeatStatus();
         UpdateQualificationFlags();
 
-        SelectedClientToAdd = null;
+        // 7. Remove from Available List with a DELAY.
+        // We must wait for the UI to finish processing "SelectedClientToAdd = null".
+        // If we remove it too fast, the Picker grabs the next person in the list automatically.
+        MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            await Task.Delay(100); // Small delay to let the UI settle
+
+            var itemToRemove = AvailableClients.FirstOrDefault(c => c.Id == clientToAdd.Id);
+            if (itemToRemove != null)
+            {
+                AvailableClients.Remove(itemToRemove);
+            }
+        });
     }
 
     [RelayCommand]
@@ -164,6 +157,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         var currentUser = _clientService.GetCurrentClient();
         if (client.Id == currentUser?.Id)
         {
+            Shell.Current.DisplayAlert("Info", "Je kan jezelf niet verwijderen.", "OK");
             return;
         }
 
@@ -171,17 +165,8 @@ public partial class ReservationFormViewModel : BaseViewModel
         {
             SelectedClients.Remove(client);
 
-            bool present = false;
-            foreach (var c in AvailableClients)
-            {
-                if (c.Id == client.Id)
-                {
-                    present = true;
-                    break;
-                }
-            }
-
-            if (!present)
+            // Add back to available list if not there
+            if (!AvailableClients.Any(c => c.Id == client.Id))
             {
                 AvailableClients.Add(client);
             }
@@ -217,14 +202,9 @@ public partial class ReservationFormViewModel : BaseViewModel
 
             if (underqualified)
             {
-                if (CurrentBoatType.Type == BoatType.S)
-                {
-                    client.QualificationHelpText = $"Persoon scull level: {client.ScullLevel}. Vereist: {CurrentBoatType.Level}.";
-                }
-                else
-                {
-                    client.QualificationHelpText = $"Persoon sweep level: {client.SweepLevel}. Vereist: {CurrentBoatType.Level}.";
-                }
+                string levelType = CurrentBoatType.Type == BoatType.S ? "scull" : "sweep";
+                int clientLevel = CurrentBoatType.Type == BoatType.S ? client.ScullLevel : client.SweepLevel;
+                client.QualificationHelpText = $"Persoon {levelType} level: {clientLevel}. Vereist: {CurrentBoatType.Level}.";
             }
             else
             {
@@ -254,15 +234,7 @@ public partial class ReservationFormViewModel : BaseViewModel
             return;
         }
 
-        bool anyUnderqualified = false;
-        foreach (var c in SelectedClients)
-        {
-            if (c.IsUnderqualified)
-            {
-                anyUnderqualified = true;
-                break;
-            }
-        }
+        bool anyUnderqualified = SelectedClients.Any(c => c.IsUnderqualified);
 
         if (anyUnderqualified)
         {
