@@ -12,7 +12,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                             [Name] VARCHAR(50) NOT NULL PRIMARY KEY UNIQUE)");
         }
 
-        public Role Add(Role item)
+        public async Task<Role> Add(Role item)
         {
             string insertQuery = @"INSERT INTO Role(Name) VALUES(@Name)";
             OpenConnection();
@@ -25,7 +25,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return item;
         }
 
-        public Role? Get(string name)
+        public async Task<Role?> Get(string name)
         {
             Role? role = null;
             string selectQuery = "SELECT Name FROM Role WHERE Name = @Name";
@@ -47,7 +47,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return role;
         }
 
-        public List<Role> GetAll()
+        public async Task<List<Role>> GetAll()
         {
             var roleList = new List<Role>();
             string selectQuery = "SELECT Name FROM Role";

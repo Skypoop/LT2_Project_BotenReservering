@@ -14,5 +14,7 @@ public partial class BoatTypesView : ContentPage
         InitializeComponent();
 
         BindingContext = viewModel;
+
+        viewModel.InitAsync();
     }
 }

@@ -17,7 +17,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                             FOREIGN KEY (Reservation_Id) REFERENCES Reservation(Id))");
         }
 
-        public ClientReservation Add(ClientReservation item)
+        public async Task<ClientReservation> Add(ClientReservation item)
         {
             string insertQuery = @"INSERT INTO Client_Reservation(Client_Id, Reservation_Id, Approved) 
                                    VALUES(@ClientId, @ReservationId, @Approved)";
@@ -33,7 +33,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return item;
         }
 
-        public List<ClientReservation> GetByClientId(int clientId)
+        public async Task<List<ClientReservation>> GetByClientId(int clientId)
         {
             var list = new List<ClientReservation>();
             string selectQuery = "SELECT Client_Id, Reservation_Id, Approved FROM Client_Reservation WHERE Client_Id = @ClientId";
@@ -59,7 +59,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return list;
         }
 
-        public List<ClientReservation> GetByReservationId(int reservationId)
+        public async Task<List<ClientReservation>> GetByReservationId(int reservationId)
         {
             var list = new List<ClientReservation>();
             string selectQuery = "SELECT Client_Id, Reservation_Id, Approved FROM Client_Reservation WHERE Reservation_Id = @ReservationId";
@@ -85,7 +85,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return list;
         }
 
-        public ClientReservation? Get(int clientId, int reservationId)
+        public async Task<ClientReservation?> Get(int clientId, int reservationId)
         {
             ClientReservation? clientReservation = null;
             string selectQuery = "SELECT Client_Id, Reservation_Id, Approved FROM Client_Reservation WHERE Client_Id = @ClientId AND Reservation_Id = @ReservationId";
@@ -112,7 +112,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return clientReservation;
         }
 
-        public void UpdateApproval(int clientId, int reservationId, bool approved)
+        public async Task UpdateApproval(int clientId, int reservationId, bool approved)
         {
             string updateQuery = "UPDATE Client_Reservation SET Approved = @Approved WHERE Client_Id = @ClientId AND Reservation_Id = @ReservationId";
             OpenConnection();

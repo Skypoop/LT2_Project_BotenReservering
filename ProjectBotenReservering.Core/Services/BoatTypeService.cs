@@ -16,14 +16,14 @@ public class BoatTypeService : IBoatTypeService
         
     }
 
-    public List<BoatTypeUiItem> GetBoatTypes()
+    public async Task<List<BoatTypeUiItem>> GetBoatTypes()
     {
-        List<Boat> allBoats = _boatRepository.GetAll();
-        IEnumerable<Boat> authorizedBoats = _boatAuthorizationService.FilterAuthorized(allBoats, b => b.Type, b => b.Level);
+        List<Boat> allBoats = await _boatRepository.GetAll();
+        IEnumerable<Boat> authorizedBoats = await _boatAuthorizationService.FilterAuthorized(allBoats, b => b.Type, b => b.Level);
         return BoatMapper.BoatsToBoatTypeUiItems(authorizedBoats.ToList());
     }
     
-    public List<BoatTypeUiItem> FilterBoatTypes(List<BoatTypeUiItem> boatTypeList, bool? hasSteeringWheel, string stringInName, int minWeight)
+    public async Task<List<BoatTypeUiItem>> FilterBoatTypes(List<BoatTypeUiItem> boatTypeList, bool? hasSteeringWheel, string stringInName, int minWeight)
     {
         List<BoatTypeUiItem> newList = boatTypeList.Where(x => x.SteeringSeatPresent == hasSteeringWheel)
             .Where(x => x.Name.Contains(stringInName, StringComparison.CurrentCultureIgnoreCase))

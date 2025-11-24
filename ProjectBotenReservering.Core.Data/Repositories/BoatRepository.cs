@@ -18,26 +18,33 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                             [Kg] INT NOT NULL,
                             [Operational] BOOLEAN NOT NULL,
                             [Club] VARCHAR)");
+        }
 
-            List<Boat> boats = GetAll();
+        public static async Task<BoatRepository> CreateAsync()
+        {
+            var repo = new BoatRepository();
+
+            List<Boat> boats = await repo.GetAll();
             bool anyBoatExists = boats.Count > 0;
-            
+
             if (anyBoatExists == false)
             {
                 // Add boats to database if none exist
-                Add(new Boat("Skiff van Kunststof", false, 2, 1, BoatType.S, 45, true,"Local Club"));
-                Add(new Boat("Dubbel Twee van Kunststof", false, 2, 1, BoatType.S, 46, true, "Local Club"));
-                Add(new Boat("Twee zonder van Kunststof", false, 2, 3, BoatType.B, 46, true,"Local Club"));
-                Add(new Boat("Twee met van Kunststof", true, 3, 3, BoatType.B, 46, true,"Local Club"));
-                Add(new Boat("Dubbel vier van Kunststof", false, 4, 3, BoatType.S, 50, true,"Local Club"));
-                Add(new Boat("Dubbel vier met van Kunststof", true, 5, 3, BoatType.B, 52, true,"Local Club"));
-                Add(new Boat("Vier zonder van Kunststof", false, 4, 3, BoatType.B, 50, true,"Local Club"));
-                Add(new Boat("Vier met van Kunststof", true, 5, 3, BoatType.B, 52, true,"Local Club"));
-                Add(new Boat("Acht van Kunststof", true, 9, 3, BoatType.B, 55, true,"Local Club"));
+                repo.Add(new Boat("Skiff van Kunststof", false, 2, 1, BoatType.S, 45, true, "Local Club"));
+                repo.Add(new Boat("Dubbel Twee van Kunststof", false, 2, 1, BoatType.S, 46, true, "Local Club"));
+                repo.Add(new Boat("Twee zonder van Kunststof", false, 2, 3, BoatType.B, 46, true, "Local Club"));
+                repo.Add(new Boat("Twee met van Kunststof", true, 3, 3, BoatType.B, 46, true, "Local Club"));
+                repo.Add(new Boat("Dubbel vier van Kunststof", false, 4, 3, BoatType.S, 50, true, "Local Club"));
+                repo.Add(new Boat("Dubbel vier met van Kunststof", true, 5, 3, BoatType.B, 52, true, "Local Club"));
+                repo.Add(new Boat("Vier zonder van Kunststof", false, 4, 3, BoatType.B, 50, true, "Local Club"));
+                repo.Add(new Boat("Vier met van Kunststof", true, 5, 3, BoatType.B, 52, true, "Local Club"));
+                repo.Add(new Boat("Acht van Kunststof", true, 9, 3, BoatType.B, 55, true, "Local Club"));
             }
-        }
 
-        public Boat Add(Boat item)
+            return repo;
+        } 
+
+        public async Task<Boat> Add(Boat item)
         {
             string insertQuery = @"INSERT INTO Boat(Name, Steering_Wheel, Seats, Level, Type, Kg, Operational, Club) 
                                    VALUES(@Name, @SteeringWheel, @Seats, @Level, @Type, @Kg, @Operational, @Club);
@@ -60,7 +67,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return item;
         }
 
-        public Boat? Get(int id)
+        public async Task<Boat?> Get(int id)
         {
             Boat? boat = null;
             string selectQuery = "SELECT Name, Steering_Wheel, Seats, Level, Type, Kg, Operational, Club, Id FROM Boat WHERE Id = @Id";
@@ -82,7 +89,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return boat;
         }
         
-        public void Delete(int boatId)
+        public async Task Delete(int boatId)
         {
             string deleteQuery = "DELETE FROM Boat WHERE Id = @Id";
             OpenConnection();
@@ -94,7 +101,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             CloseConnection();
         }
         
-        public void DeleteAll()
+        public async Task DeleteAll()
         {
             string deleteQuery = "DELETE FROM Boat";
             OpenConnection();
@@ -105,7 +112,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             CloseConnection();
         }
         
-        public List<Boat> GetAll()
+        public async Task<List<Boat>> GetAll()
         {
             var boatList = new List<Boat>();
             string selectQuery = "SELECT * FROM Boat";
@@ -126,7 +133,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return boatList;
         }
 
-        public List<Boat> GetOperationalBoats()
+        public async Task<List<Boat>> GetOperationalBoats()
         {
             var boatList = new List<Boat>();
             string selectQuery = "SELECT Id, Name, Steering_Wheel, Seats, Level, Type, Kg, Operational, Club FROM Boat WHERE Operational = 1";

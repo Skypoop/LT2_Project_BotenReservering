@@ -14,7 +14,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                             [Min_Roei_level] INT NOT NULL)");
         }
 
-        public WindConstraint Add(WindConstraint item)
+        public async Task<WindConstraint> Add(WindConstraint item)
         {
             string insertQuery = @"INSERT INTO WindConstraint(Windforce, Min_Scull_level, Min_Roei_level) 
                                    VALUES(@Windforce, @MinScullLevel, @MinRoeiLevel)";
@@ -30,7 +30,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return item;
         }
 
-        public WindConstraint? Get(int windforce)
+        public async Task<WindConstraint?> Get(int windforce)
         {
             WindConstraint? constraint = null;
             string selectQuery = "SELECT Windforce, Min_Scull_level, Min_Roei_level FROM WindConstraint WHERE Windforce = @Windforce";
@@ -56,7 +56,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return constraint;
         }
 
-        public List<WindConstraint> GetAll()
+        public async Task<List<WindConstraint>> GetAll()
         {
             var list = new List<WindConstraint>();
             string selectQuery = "SELECT Windforce, Min_Scull_level, Min_Roei_level FROM WindConstraint";

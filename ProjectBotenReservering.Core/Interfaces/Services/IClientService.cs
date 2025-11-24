@@ -4,5 +4,5 @@ using Models;
 
 public interface IClientService
 {
-    Client? GetCurrentClient();
+    Task<Client?> GetCurrentClient();
 }

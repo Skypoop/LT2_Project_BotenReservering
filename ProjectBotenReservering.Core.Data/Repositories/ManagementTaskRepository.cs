@@ -13,7 +13,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                             [Name] VARCHAR(50) NOT NULL)");
         }
 
-        public ManagementTask Add(ManagementTask item)
+        public async Task<ManagementTask> Add(ManagementTask item)
         {
             string insertQuery = @"INSERT INTO ManagementTask(Name) VALUES(@Name);
                                    SELECT last_insert_rowid();";
@@ -27,7 +27,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return item;
         }
 
-        public ManagementTask? Get(int id)
+        public async Task<ManagementTask?> Get(int id)
         {
             ManagementTask? task = null;
             string selectQuery = "SELECT Id, Name FROM ManagementTask WHERE Id = @Id";
@@ -49,7 +49,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return task;
         }
 
-        public List<ManagementTask> GetAll()
+        public async Task<List<ManagementTask>> GetAll()
         {
             var taskList = new List<ManagementTask>();
             string selectQuery = "SELECT Id, Name FROM ManagementTask";

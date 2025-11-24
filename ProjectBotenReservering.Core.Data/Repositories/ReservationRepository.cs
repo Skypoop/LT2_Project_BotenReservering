@@ -19,7 +19,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                             FOREIGN KEY (Boat_Id) REFERENCES Boat(Id))");
         }
 
-        public Reservation Add(Reservation item)
+        public async Task<Reservation> Add(Reservation item)
         {
             string insertQuery = @"INSERT INTO Reservation(Created_At, Start_Time, End_Time, Client_Id, Boat_Id) 
                                    VALUES(@CreatedAt, @StartTime, @EndTime, @ClientId, @BoatId);
@@ -39,7 +39,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return item;
         }
 
-        public Reservation? Get(int id)
+        public async Task<Reservation?> Get(int id)
         {
             Reservation? reservation = null;
             string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id FROM Reservation WHERE Id = @Id";
@@ -61,7 +61,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return reservation;
         }
 
-        public List<Reservation> GetAll()
+        public async Task<List<Reservation>> GetAll()
         {
             var reservationList = new List<Reservation>();
             string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id FROM Reservation";
@@ -82,7 +82,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return reservationList;
         }
 
-        public List<Reservation> GetByClientId(int clientId)
+        public async Task<List<Reservation>> GetByClientId(int clientId)
         {
             var reservationList = new List<Reservation>();
             string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id FROM Reservation WHERE Client_Id = @ClientId";
@@ -104,7 +104,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return reservationList;
         }
 
-        public List<Reservation> GetByBoatId(int boatId)
+        public async Task<List<Reservation>> GetByBoatId(int boatId)
         {
             var reservationList = new List<Reservation>();
             string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id FROM Reservation WHERE Boat_Id = @BoatId";

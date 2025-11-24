@@ -12,9 +12,9 @@ public class BoatAuthorizationService : IBoatAuthorizationService
         _clientService = clientService;
     }
 
-    public bool IsAuthorized(BoatType boatType, int boatLevel)
+    public async Task<bool> IsAuthorized(BoatType boatType, int boatLevel)
     {
-        Client? client = _clientService.GetCurrentClient();
+        Client? client = await _clientService.GetCurrentClient();
         if (client == null) 
         {
             return false;
@@ -28,8 +28,18 @@ public class BoatAuthorizationService : IBoatAuthorizationService
         };
     }
 
-    public IEnumerable<T> FilterAuthorized<T>(IEnumerable<T> items, Func<T, BoatType> boatTypeSelector, Func<T, int> boatLevelSelector)
+    public async Task<IEnumerable<T>> FilterAuthorized<T>(IEnumerable<T> items, Func<T, BoatType> boatTypeSelector, Func<T, int> boatLevelSelector)
     {
-        return items.Where(item => IsAuthorized(boatTypeSelector(item), boatLevelSelector(item)));
+        var tasks = items.Select(async item => new
+        {
+            Item = item,
+            Authorized = await IsAuthorized(
+            boatTypeSelector(item),
+            boatLevelSelector(item))
+        });
+
+        var results = await Task.WhenAll(tasks);
+
+        return results.Where(x => x.Authorized).Select(x => x.Item);
     }
 }

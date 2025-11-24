@@ -15,7 +15,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                             FOREIGN KEY (DamageReport_Id) REFERENCES DamageReport(Id))");
         }
 
-        public DamageReportPhoto Add(DamageReportPhoto item)
+        public async Task<DamageReportPhoto> Add(DamageReportPhoto item)
         {
             string insertQuery = @"INSERT INTO DamageReportPhotos(DamageReport_Id, Url) 
                                    VALUES(@DamageReportId, @Url);
@@ -31,7 +31,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return item;
         }
 
-        public DamageReportPhoto? Get(int id)
+        public async Task<DamageReportPhoto?> Get(int id)
         {
             DamageReportPhoto? photo = null;
             string selectQuery = "SELECT Id, DamageReport_Id, Url FROM DamageReportPhotos WHERE Id = @Id";
@@ -57,7 +57,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return photo;
         }
 
-        public List<DamageReportPhoto> GetByDamageReportId(int damageReportId)
+        public async Task<List<DamageReportPhoto>> GetByDamageReportId(int damageReportId)
         {
             var list = new List<DamageReportPhoto>();
             string selectQuery = "SELECT Id, DamageReport_Id, Url FROM DamageReportPhotos WHERE DamageReport_Id = @DamageReportId";
@@ -83,7 +83,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return list;
         }
 
-        public void Delete(int id)
+        public async Task Delete(int id)
         {
             string deleteQuery = "DELETE FROM DamageReportPhotos WHERE Id = @Id";
             OpenConnection();

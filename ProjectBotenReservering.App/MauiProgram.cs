@@ -26,8 +26,16 @@ namespace ProjectBotenReservering.App
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
-            builder.Services.AddSingleton<IBoatRepository, BoatRepository>();
-            builder.Services.AddSingleton<IClientRepository, ClientRepository>();
+            //builder.Services.AddSingleton<IBoatRepository, BoatRepository>();
+            builder.Services.AddSingleton<IBoatRepository>(sp =>
+            {
+                return BoatRepository.CreateAsync().GetAwaiter().GetResult();
+            });
+            //builder.Services.AddSingleton<IClientRepository, ClientRepository>();
+            builder.Services.AddSingleton<IClientRepository>(sp =>
+            {
+                return ClientRepository.CreateAsync().GetAwaiter().GetResult();
+            });
             builder.Services.AddSingleton<IReservationRepository, ReservationRepository>();
             builder.Services.AddSingleton<IRoleRepository, RoleRepository>();
             builder.Services.AddSingleton<IManagementTaskRepository, ManagementTaskRepository>();

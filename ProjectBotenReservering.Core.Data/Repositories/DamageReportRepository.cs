@@ -19,7 +19,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                             FOREIGN KEY (Boat_Id) REFERENCES Boat(Id))");
         }
 
-        public DamageReport Add(DamageReport item)
+        public async Task<DamageReport> Add(DamageReport item)
         {
             string insertQuery = @"INSERT INTO DamageReport(Client_Id, Boat_Id, Damage_Information, Date, Approved) 
                                    VALUES(@ClientId, @BoatId, @DamageInformation, @Date, @Approved);
@@ -39,7 +39,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return item;
         }
 
-        public DamageReport? Get(int id)
+        public async Task<DamageReport?> Get(int id)
         {
             DamageReport? damageReport = null;
             string selectQuery = "SELECT Id, Client_Id, Boat_Id, Damage_Information, Date, Approved FROM DamageReport WHERE Id = @Id";
@@ -61,7 +61,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return damageReport;
         }
 
-        public List<DamageReport> GetAll()
+        public async Task<List<DamageReport>> GetAll()
         {
             var damageReportList = new List<DamageReport>();
             string selectQuery = "SELECT Id, Client_Id, Boat_Id, Damage_Information, Date, Approved FROM DamageReport";
@@ -82,7 +82,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return damageReportList;
         }
 
-        public List<DamageReport> GetByClientId(int clientId)
+        public async Task<List<DamageReport>> GetByClientId(int clientId)
         {
             var damageReportList = new List<DamageReport>();
             string selectQuery = "SELECT Id, Client_Id, Boat_Id, Damage_Information, Date, Approved FROM DamageReport WHERE Client_Id = @ClientId";
@@ -104,7 +104,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return damageReportList;
         }
 
-        public List<DamageReport> GetByBoatId(int boatId)
+        public async Task<List<DamageReport>> GetByBoatId(int boatId)
         {
             var damageReportList = new List<DamageReport>();
             string selectQuery = "SELECT Id, Client_Id, Boat_Id, Damage_Information, Date, Approved FROM DamageReport WHERE Boat_Id = @BoatId";

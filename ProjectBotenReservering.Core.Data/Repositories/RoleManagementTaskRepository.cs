@@ -16,7 +16,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                             FOREIGN KEY (ManagementTask_Id) REFERENCES ManagementTask(Id))");
         }
 
-        public RoleManagementTask Add(RoleManagementTask item)
+        public async Task<RoleManagementTask> Add(RoleManagementTask item)
         {
             string insertQuery = @"INSERT INTO Role_ManagementTask(Role_Id, ManagementTask_Id) 
                                    VALUES(@RoleId, @ManagementTaskId)";
@@ -31,7 +31,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return item;
         }
 
-        public List<RoleManagementTask> GetByRoleId(string roleId)
+        public async Task<List<RoleManagementTask>> GetByRoleId(string roleId)
         {
             var list = new List<RoleManagementTask>();
             string selectQuery = "SELECT Role_Id, ManagementTask_Id FROM Role_ManagementTask WHERE Role_Id = @RoleId";
@@ -53,7 +53,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return list;
         }
 
-        public List<RoleManagementTask> GetByManagementTaskId(int managementTaskId)
+        public async Task<List<RoleManagementTask>> GetByManagementTaskId(int managementTaskId)
         {
             var list = new List<RoleManagementTask>();
             string selectQuery = "SELECT Role_Id, ManagementTask_Id FROM Role_ManagementTask WHERE ManagementTask_Id = @ManagementTaskId";
@@ -75,7 +75,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return list;
         }
 
-        public void Delete(string roleId, int managementTaskId)
+        public async Task Delete(string roleId, int managementTaskId)
         {
             string deleteQuery = "DELETE FROM Role_ManagementTask WHERE Role_Id = @RoleId AND ManagementTask_Id = @ManagementTaskId";
             OpenConnection();

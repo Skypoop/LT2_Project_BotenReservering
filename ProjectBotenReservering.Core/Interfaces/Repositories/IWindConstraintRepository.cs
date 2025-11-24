@@ -4,8 +4,8 @@ namespace ProjectBotenReservering.Core.Interfaces.Repositories;
 
 public interface IWindConstraintRepository
 {
-    public WindConstraint Add(WindConstraint item);
-    public WindConstraint? Get(int windforce);
-    public List<WindConstraint> GetAll();
+    public Task<WindConstraint> Add(WindConstraint item);
+    public Task<WindConstraint?> Get(int windforce);
+    public Task<List<WindConstraint>> GetAll();
 }
 

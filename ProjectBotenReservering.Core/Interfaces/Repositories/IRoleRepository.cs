@@ -4,8 +4,8 @@ namespace ProjectBotenReservering.Core.Interfaces.Repositories;
 
 public interface IRoleRepository
 {
-    public Role Add(Role item);
-    public Role? Get(string name);
-    public List<Role> GetAll();
+    public Task<Role> Add(Role item);
+    public Task<Role?> Get(string name);
+    public Task<List<Role>> GetAll();
 }
 

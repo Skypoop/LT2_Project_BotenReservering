@@ -16,7 +16,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                             FOREIGN KEY (Client_Id) REFERENCES Client(Id))");
         }
 
-        public ClientRole Add(ClientRole item)
+        public async Task<ClientRole> Add(ClientRole item)
         {
             string insertQuery = @"INSERT INTO Client_Role(Role_Name, Client_Id) 
                                    VALUES(@RoleName, @ClientId)";
@@ -31,7 +31,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return item;
         }
 
-        public List<ClientRole> GetByClientId(int clientId)
+        public async Task<List<ClientRole>> GetByClientId(int clientId)
         {
             var list = new List<ClientRole>();
             string selectQuery = "SELECT Role_Name, Client_Id FROM Client_Role WHERE Client_Id = @ClientId";
@@ -53,7 +53,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return list;
         }
 
-        public List<ClientRole> GetByRoleName(string roleName)
+        public async Task<List<ClientRole>> GetByRoleName(string roleName)
         {
             var list = new List<ClientRole>();
             string selectQuery = "SELECT Role_Name, Client_Id FROM Client_Role WHERE Role_Name = @RoleName";
@@ -75,7 +75,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return list;
         }
 
-        public void Delete(string roleName, int clientId)
+        public async Task Delete(string roleName, int clientId)
         {
             string deleteQuery = "DELETE FROM Client_Role WHERE Role_Name = @RoleName AND Client_Id = @ClientId";
             OpenConnection();

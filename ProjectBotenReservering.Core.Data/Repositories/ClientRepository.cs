@@ -18,22 +18,29 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                             [Club] VARCHAR,
                             [Approved] BOOLEAN NOT NULL DEFAULT 0,
                             [Password_Hash] VARCHAR NOT NULL)");
+        }
 
-            List<Client> clients = GetAll();
+        public static async Task<ClientRepository> CreateAsync()
+        {
+            var repo = new ClientRepository();
+
+            List<Client> clients = await repo.GetAll();
             bool anyClientExists = clients.Count > 0;
-            
+
             if (!anyClientExists)
             {
                 // demo clients to populate the database
-                Add(new Client("Joe Doe", "joe.doe@example.com", 1, 2, "River Club", true, "hash1", 0));
-                Add(new Client("Jane Smith", "jane.smith@example.com", 2, 1, "Lakeside Club", false, "hash2", 0));
-                Add(new Client("Bob Brown", "bob.brown@example.com", 3, 3, null, false, "hash3", 0));
-                Add(new Client("Alice Green", "alice.green@example.com", 0, 1, "Harbor Club", true, "hash4", 0));
-                Add(new Client("Eve White", "eve.white@example.com", 1, 0, "Coast Club", false, "hash5", 0));
+                repo.Add(new Client("Joe Doe", "joe.doe@example.com", 1, 2, "River Club", true, "hash1", 0));
+                repo.Add(new Client("Jane Smith", "jane.smith@example.com", 2, 1, "Lakeside Club", false, "hash2", 0));
+                repo.Add(new Client("Bob Brown", "bob.brown@example.com", 3, 3, null, false, "hash3", 0));
+                repo.Add(new Client("Alice Green", "alice.green@example.com", 0, 1, "Harbor Club", true, "hash4", 0));
+                repo.Add(new Client("Eve White", "eve.white@example.com", 1, 0, "Coast Club", false, "hash5", 0));
             }
+
+            return repo;
         }
 
-        public Client Add(Client item)
+        public async Task<Client> Add(Client item)
         {
             string insertQuery = @"INSERT INTO Client(Full_Name, Email, Scull_level, Roei_level, Club, Approved, Password_Hash) 
                                    VALUES(@FullName, @Email, @ScullLevel, @RoeiLevel, @Club, @Approved, @PasswordHash);
@@ -55,7 +62,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return item;
         }
 
-        public Client? Get(string email)
+        public async Task<Client>? Get(string email)
         {
             Client? client = null;
             string selectQuery = "SELECT Id, Full_Name, Email, Scull_level, Roei_level, Club, Approved, Password_Hash FROM Client WHERE Email = @Email";
@@ -77,7 +84,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return client;
         }
 
-        public Client? Get(int id)
+        public async Task<Client?> Get(int id)
         {
             Client? client = null;
             string selectQuery = "SELECT Id, Full_Name, Email, Scull_level, Roei_level, Club, Approved, Password_Hash FROM Client WHERE Id = @Id";
@@ -99,7 +106,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return client;
         }
 
-        public List<Client> GetAll()
+        public async Task<List<Client>> GetAll()
         {
             var clientList = new List<Client>();
             string selectQuery = "SELECT * FROM Client";

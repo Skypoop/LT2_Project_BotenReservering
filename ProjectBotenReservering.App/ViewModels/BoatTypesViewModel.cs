@@ -31,16 +31,19 @@ public partial class BoatTypesViewModel : BaseViewModel
     public BoatTypesViewModel(IBoatTypeService boatTypeService)
     {
         BoatTypeService = boatTypeService;
-        AllBoatTypes = BoatTypeService.GetBoatTypes();
+    }
+    public async Task InitAsync()
+    {
+        AllBoatTypes = await BoatTypeService.GetBoatTypes();
         SelectedSteeringOption = SteeringOptions.First();
-        ApplyFilterOption();
+        await ApplyFilterOption();
     }
 
-    private void ApplyFilterOption()
+    private async Task ApplyFilterOption()
     {
         bool? steeringValue = SelectedSteeringOption?.Value;
 
-        List<BoatTypeUiItem> boatTypeList = BoatTypeService.FilterBoatTypes(AllBoatTypes, steeringValue, StringInNameFilter, MinWeightFilter);
+        List<BoatTypeUiItem> boatTypeList = await BoatTypeService.FilterBoatTypes(AllBoatTypes, steeringValue, StringInNameFilter, MinWeightFilter);
         BoatTypeItems.Clear();
         
         List<BoatTypeUiItem> orderedBoatTypeList = boatTypeList.OrderBy(x => x.Weight).ToList();

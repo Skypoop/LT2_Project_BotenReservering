@@ -16,9 +16,9 @@ public class ClientService : IClientService
         this._clientContext = clientContext;
     }
 
-    public Client? GetCurrentClient()
+    public async Task<Client?> GetCurrentClient()
     {
         int clientId = _clientContext.GetCurrentClientId();
-        return _clientRepository.Get(clientId);
+        return await _clientRepository.Get(clientId);
     }
 }

@@ -4,8 +4,8 @@ namespace ProjectBotenReservering.Core.Interfaces.Repositories;
 
 public interface IManagementTaskRepository
 {
-    public ManagementTask Add(ManagementTask item);
-    public ManagementTask? Get(int id);
-    public List<ManagementTask> GetAll();
+    public Task<ManagementTask> Add(ManagementTask item);
+    public Task<ManagementTask?> Get(int id);
+    public Task<List<ManagementTask>> GetAll();
 }
 

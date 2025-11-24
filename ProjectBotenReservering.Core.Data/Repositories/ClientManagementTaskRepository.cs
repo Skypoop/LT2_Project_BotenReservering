@@ -16,7 +16,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                             FOREIGN KEY (Management_Task_Id) REFERENCES ManagementTask(Id))");
         }
 
-        public ClientManagementTask Add(ClientManagementTask item)
+        public async Task<ClientManagementTask> Add(ClientManagementTask item)
         {
             string insertQuery = @"INSERT INTO Client_ManagementTask(Client_Id, Management_Task_Id) 
                                    VALUES(@ClientId, @ManagementTaskId)";
@@ -31,7 +31,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return item;
         }
 
-        public List<ClientManagementTask> GetByClientId(int clientId)
+        public async Task<List<ClientManagementTask>> GetByClientId(int clientId)
         {
             var list = new List<ClientManagementTask>();
             string selectQuery = "SELECT Client_Id, Management_Task_Id FROM Client_ManagementTask WHERE Client_Id = @ClientId";
@@ -53,7 +53,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return list;
         }
 
-        public List<ClientManagementTask> GetByManagementTaskId(int managementTaskId)
+        public async Task<List<ClientManagementTask>> GetByManagementTaskId(int managementTaskId)
         {
             var list = new List<ClientManagementTask>();
             string selectQuery = "SELECT Client_Id, Management_Task_Id FROM Client_ManagementTask WHERE Management_Task_Id = @ManagementTaskId";
@@ -75,7 +75,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return list;
         }
 
-        public void Delete(int clientId, int managementTaskId)
+        public async Task Delete(int clientId, int managementTaskId)
         {
             string deleteQuery = "DELETE FROM Client_ManagementTask WHERE Client_Id = @ClientId AND Management_Task_Id = @ManagementTaskId";
             OpenConnection();
