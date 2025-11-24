@@ -26,7 +26,7 @@ jobs:
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: '10.0.100'
 
       - name: Install MAUI workloads
         run: dotnet workload install maui-windows
