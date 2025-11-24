@@ -23,34 +23,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install .NET SDK
-        uses: actions/setup-dotnet@v3
+      - name: Install .NET 9 SDK
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
+          include-prerelease: true
+
+      - name: Add .NET 9 NuGet Sources
+        run: |
+          dotnet nuget add source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet9/nuget/v3/index.json --name dotnet9
+          dotnet nuget add source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-public/nuget/v3/index.json --name dotnet-public
 
       - name: Install MAUI workloads
         run: dotnet workload install maui-windows
 
-      - name: Restore all required .NET workloads
-        run: dotnet workload restore
-
-      - name: Restore dependencies including win-x64 runtime pack
+      - name: Restore dependencies
         run: dotnet restore -r win-x64
 
-      - name: List installed .NET runtimes
-        run: dotnet --list-runtimes
-
-      - name: List installed workloads
-        run: dotnet workload list
-
-      - name: Build the application (uses restored runtime pack)
+      - name: Build the application
         run: dotnet build ProjectBotenReservering.App/ProjectBotenReservering.App.csproj --configuration Release --framework net9.0-windows10.0.19041.0 -r win-x64
 
-      - name: Run unit tests and generate report
+      - name: Run unit tests
         run: dotnet test --configuration Release --verbosity normal --results-directory "TestResults" --logger "trx;LogFileName=testresults.trx"
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: test-results-windows
           path: TestResults/testresults.trx
