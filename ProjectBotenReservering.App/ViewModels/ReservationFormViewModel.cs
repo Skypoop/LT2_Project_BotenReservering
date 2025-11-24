@@ -165,7 +165,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         if (value == null) return;
 
         // 2. Capture the client to add
-        var clientToAdd = value;
+        Client clientToAdd = value;
 
         // 3. IMMEDIATELY reset the picker to null. 
         // This stops the "Double Add" bug by clearing the selection before we mess with the list.
@@ -209,7 +209,7 @@ public partial class ReservationFormViewModel : BaseViewModel
     [RelayCommand]
     private void RemoveClient(Client client)
     {
-        var currentUser = _clientService.GetCurrentClient();
+        Client currentUser = _clientService.GetCurrentClient();
         if (client.Id == currentUser?.Id)
         {
             Shell.Current.DisplayAlert("Info", "Je kan jezelf niet verwijderen.", "OK");
