@@ -35,7 +35,7 @@ public class BoatTypeService : IBoatTypeService
     
     public List<BoatTypeUiItem> FilterBoatTypes(List<BoatTypeUiItem> boatTypeList, bool? hasSteeringWheel, string stringInName, int minWeight)
     {
-        List<BoatTypeUiItem> newList = boatTypeList.Where(x => x.SteeringSeatPresent == hasSteeringWheel)
+        List<BoatTypeUiItem> newList = boatTypeList.Where(x => hasSteeringWheel == null || x.SteeringSeatPresent == hasSteeringWheel)
             .Where(x => x.Name.Contains(stringInName, StringComparison.CurrentCultureIgnoreCase))
             .Where(x => x.Weight > minWeight).ToList();
         return newList;
