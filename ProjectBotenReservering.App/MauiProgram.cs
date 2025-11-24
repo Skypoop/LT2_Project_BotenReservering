@@ -26,26 +26,18 @@ namespace ProjectBotenReservering.App
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
-            //builder.Services.AddSingleton<IBoatRepository, BoatRepository>();
-            builder.Services.AddSingleton<IBoatRepository>(sp =>
-            {
-                return BoatRepository.CreateAsync().GetAwaiter().GetResult();
-            });
-            //builder.Services.AddSingleton<IClientRepository, ClientRepository>();
-            builder.Services.AddSingleton<IClientRepository>(sp =>
-            {
-                return ClientRepository.CreateAsync().GetAwaiter().GetResult();
-            });
-            builder.Services.AddSingleton<IReservationRepository, ReservationRepository>();
-            builder.Services.AddSingleton<IRoleRepository, RoleRepository>();
-            builder.Services.AddSingleton<IManagementTaskRepository, ManagementTaskRepository>();
-            builder.Services.AddSingleton<IDamageReportRepository, DamageReportRepository>();
-            builder.Services.AddSingleton<IDamageReportPhotoRepository, DamageReportPhotoRepository>();
-            builder.Services.AddSingleton<IWindConstraintRepository, WindConstraintRepository>();
-            builder.Services.AddSingleton<IClientReservationRepository, ClientReservationRepository>();
-            builder.Services.AddSingleton<IClientRoleRepository, ClientRoleRepository>();
-            builder.Services.AddSingleton<IClientManagementTaskRepository, ClientManagementTaskRepository>();
-            builder.Services.AddSingleton<IRoleManagementTaskRepository, RoleManagementTaskRepository>();
+            builder.Services.AddSingleton<IBoatRepository>(sp => BoatRepository.CreateAsync().GetAwaiter().GetResult());
+            builder.Services.AddSingleton<IClientRepository>(sp => ClientRepository.CreateAsync().GetAwaiter().GetResult());
+            builder.Services.AddSingleton<IReservationRepository>(sp => ReservationRepository.CreateAsync().GetAwaiter().GetResult());
+            builder.Services.AddSingleton<IRoleRepository>(sp => RoleRepository.CreateAsync().GetAwaiter().GetResult());
+            builder.Services.AddSingleton<IManagementTaskRepository>(sp => ManagementTaskRepository.CreateAsync().GetAwaiter().GetResult());
+            builder.Services.AddSingleton<IDamageReportRepository>(sp => DamageReportRepository.CreateAsync().GetAwaiter().GetResult());
+            builder.Services.AddSingleton<IDamageReportPhotoRepository>(sp => DamageReportPhotoRepository.CreateAsync().GetAwaiter().GetResult());
+            builder.Services.AddSingleton<IWindConstraintRepository>(sp => WindConstraintRepository.CreateAsync().GetAwaiter().GetResult());
+            builder.Services.AddSingleton<IClientReservationRepository>(sp => ClientReservationRepository.CreateAsync().GetAwaiter().GetResult());
+            builder.Services.AddSingleton<IClientRoleRepository>(sp => ClientRoleRepository.CreateAsync().GetAwaiter().GetResult());
+            builder.Services.AddSingleton<IClientManagementTaskRepository>(sp => ClientManagementTaskRepository.CreateAsync().GetAwaiter().GetResult());
+            builder.Services.AddSingleton<IRoleManagementTaskRepository>(sp => RoleManagementTaskRepository.CreateAsync().GetAwaiter().GetResult());
 
             builder.Services.AddSingleton<IMailService, SmtpMailService>();
             builder.Services.AddSingleton<IWeatherService, WeatherService>();

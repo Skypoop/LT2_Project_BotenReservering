@@ -1,6 +1,8 @@
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Models;
 using Microsoft.Data.Sqlite;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
 {
@@ -8,22 +10,44 @@ namespace ProjectBotenReservering.Core.Data.Repositories
     {
         public ManagementTaskRepository()
         {
-            CreateTable(@"CREATE TABLE IF NOT EXISTS ManagementTask (
-                            [Id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                            [Name] VARCHAR(50) NOT NULL)");
+        }
+
+        public static async Task<ManagementTaskRepository> CreateAsync()
+        {
+            ManagementTaskRepository repo = new ManagementTaskRepository();
+
+            await repo.CreateTableAsync(@"
+                CREATE TABLE IF NOT EXISTS ManagementTask (
+                    [Id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                    [Name] VARCHAR(50) NOT NULL)");
+
+            return repo;
         }
 
         public async Task<ManagementTask> Add(ManagementTask item)
         {
             string insertQuery = @"INSERT INTO ManagementTask(Name) VALUES(@Name);
                                    SELECT last_insert_rowid();";
-            OpenConnection();
-            using (SqliteCommand command = new(insertQuery, Connection))
+
+            await OpenConnectionAsync();
+
+            try
             {
-                command.Parameters.AddWithValue("@Name", item.Name);
-                item.Id = Convert.ToInt32(command.ExecuteScalar());
+                using (SqliteCommand command = new SqliteCommand(insertQuery, Connection))
+                {
+                    command.Parameters.AddWithValue("@Name", item.Name);
+                    object? result = command.ExecuteScalar();
+                    if (result != null)
+                    {
+                        item.Id = Convert.ToInt32(result);
+                    }
+                }
             }
-            CloseConnection();
+            finally
+            {
+                _ = CloseConnectionAsync();
+            }
+
             return item;
         }
 
@@ -31,44 +55,58 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         {
             ManagementTask? task = null;
             string selectQuery = "SELECT Id, Name FROM ManagementTask WHERE Id = @Id";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            await OpenConnectionAsync();
+
+            try
             {
-                command.Parameters.AddWithValue("@Id", id);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                using (SqliteCommand command = new SqliteCommand(selectQuery, Connection))
                 {
-                    if (reader.Read())
+                    command.Parameters.AddWithValue("@Id", id);
+
+                    using (SqliteDataReader reader = command.ExecuteReader())
                     {
-                        task = new ManagementTask(reader.GetInt32(0), reader.GetString(1));
+                        if (reader.Read())
+                        {
+                            task = new ManagementTask(reader.GetInt32(0), reader.GetString(1));
+                        }
                     }
                 }
             }
+            finally
+            {
+                _ = CloseConnectionAsync();
+            }
 
-            CloseConnection();
             return task;
         }
 
         public async Task<List<ManagementTask>> GetAll()
         {
-            var taskList = new List<ManagementTask>();
+            List<ManagementTask> taskList = new List<ManagementTask>();
             string selectQuery = "SELECT Id, Name FROM ManagementTask";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            await OpenConnectionAsync();
+
+            try
             {
-                using (SqliteDataReader reader = command.ExecuteReader())
+                using (SqliteCommand command = new SqliteCommand(selectQuery, Connection))
                 {
-                    while (reader.Read())
+                    using (SqliteDataReader reader = command.ExecuteReader())
                     {
-                        taskList.Add(new ManagementTask(reader.GetInt32(0), reader.GetString(1)));
+                        while (reader.Read())
+                        {
+                            taskList.Add(new ManagementTask(reader.GetInt32(0), reader.GetString(1)));
+                        }
                     }
                 }
             }
+            finally
+            {
+                _ = CloseConnectionAsync();
+            }
 
-            CloseConnection();
             return taskList;
         }
     }
 }
-

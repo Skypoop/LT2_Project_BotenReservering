@@ -1,7 +1,9 @@
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Models;
 using Microsoft.Data.Sqlite;
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
 {
@@ -9,7 +11,13 @@ namespace ProjectBotenReservering.Core.Data.Repositories
     {
         public ClientRepository()
         {
-            CreateTable(@"CREATE TABLE IF NOT EXISTS Client (
+        }
+
+        public static async Task<ClientRepository> CreateAsync()
+        {
+            ClientRepository repo = new ClientRepository();
+
+            await repo.CreateTableAsync(@"CREATE TABLE IF NOT EXISTS Client (
                             [Id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                             [Full_Name] VARCHAR NOT NULL,
                             [Email] VARCHAR NOT NULL UNIQUE,
@@ -18,23 +26,17 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                             [Club] VARCHAR,
                             [Approved] BOOLEAN NOT NULL DEFAULT 0,
                             [Password_Hash] VARCHAR NOT NULL)");
-        }
-
-        public static async Task<ClientRepository> CreateAsync()
-        {
-            var repo = new ClientRepository();
 
             List<Client> clients = await repo.GetAll();
             bool anyClientExists = clients.Count > 0;
 
             if (!anyClientExists)
             {
-                // demo clients to populate the database
-                repo.Add(new Client("Joe Doe", "joe.doe@example.com", 1, 2, "River Club", true, "hash1", 0));
-                repo.Add(new Client("Jane Smith", "jane.smith@example.com", 2, 1, "Lakeside Club", false, "hash2", 0));
-                repo.Add(new Client("Bob Brown", "bob.brown@example.com", 3, 3, null, false, "hash3", 0));
-                repo.Add(new Client("Alice Green", "alice.green@example.com", 0, 1, "Harbor Club", true, "hash4", 0));
-                repo.Add(new Client("Eve White", "eve.white@example.com", 1, 0, "Coast Club", false, "hash5", 0));
+                await repo.Add(new Client("Joe Doe", "joe.doe@example.com", 1, 2, "River Club", true, "hash1", 0));
+                await repo.Add(new Client("Jane Smith", "jane.smith@example.com", 2, 1, "Lakeside Club", false, "hash2", 0));
+                await repo.Add(new Client("Bob Brown", "bob.brown@example.com", 3, 3, null, false, "hash3", 0));
+                await repo.Add(new Client("Alice Green", "alice.green@example.com", 0, 1, "Harbor Club", true, "hash4", 0));
+                await repo.Add(new Client("Eve White", "eve.white@example.com", 1, 0, "Coast Club", false, "hash5", 0));
             }
 
             return repo;
@@ -45,42 +47,59 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             string insertQuery = @"INSERT INTO Client(Full_Name, Email, Scull_level, Roei_level, Club, Approved, Password_Hash) 
                                    VALUES(@FullName, @Email, @ScullLevel, @RoeiLevel, @Club, @Approved, @PasswordHash);
                                    SELECT last_insert_rowid();";
-            OpenConnection();
-            using (SqliteCommand command = new(insertQuery, Connection))
-            {
-                command.Parameters.AddWithValue("@FullName", item.FullName);
-                command.Parameters.AddWithValue("@Email", item.Email);
-                command.Parameters.AddWithValue("@ScullLevel", item.ScullLevel);
-                command.Parameters.AddWithValue("@RoeiLevel", item.RoeiLevel);
-                command.Parameters.AddWithValue("@Club", item.Club ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@Approved", item.Approved);
-                command.Parameters.AddWithValue("@PasswordHash", item.PasswordHash);
 
-                item.Id = Convert.ToInt32(command.ExecuteScalar());
+            await OpenConnectionAsync();
+
+            try
+            {
+                using (SqliteCommand command = new SqliteCommand(insertQuery, Connection))
+                {
+                    command.Parameters.AddWithValue("@FullName", item.FullName);
+                    command.Parameters.AddWithValue("@Email", item.Email);
+                    command.Parameters.AddWithValue("@ScullLevel", item.ScullLevel);
+                    command.Parameters.AddWithValue("@RoeiLevel", item.RoeiLevel);
+                    command.Parameters.AddWithValue("@Club", item.Club ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@Approved", item.Approved);
+                    command.Parameters.AddWithValue("@PasswordHash", item.PasswordHash);
+
+                    item.Id = Convert.ToInt32(await command.ExecuteScalarAsync());
+                }
             }
-            CloseConnection();
+            finally
+            {
+                _ = CloseConnectionAsync();
+            }
+
             return item;
         }
 
-        public async Task<Client>? Get(string email)
+        public async Task<Client?> Get(string email)
         {
             Client? client = null;
             string selectQuery = "SELECT Id, Full_Name, Email, Scull_level, Roei_level, Club, Approved, Password_Hash FROM Client WHERE Email = @Email";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            await OpenConnectionAsync();
+
+            try
             {
-                command.Parameters.AddWithValue("@Email", email);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                using (SqliteCommand command = new SqliteCommand(selectQuery, Connection))
                 {
-                    if (reader.Read())
+                    command.Parameters.AddWithValue("@Email", email);
+
+                    using (SqliteDataReader reader = await command.ExecuteReaderAsync())
                     {
-                        client = MapReaderToClient(reader);
+                        if (await reader.ReadAsync())
+                        {
+                            client = MapReaderToClient(reader);
+                        }
                     }
                 }
             }
+            finally
+            {
+                _ = CloseConnectionAsync();
+            }
 
-            CloseConnection();
             return client;
         }
 
@@ -88,42 +107,57 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         {
             Client? client = null;
             string selectQuery = "SELECT Id, Full_Name, Email, Scull_level, Roei_level, Club, Approved, Password_Hash FROM Client WHERE Id = @Id";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            await OpenConnectionAsync();
+
+            try
             {
-                command.Parameters.AddWithValue("@Id", id);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                using (SqliteCommand command = new SqliteCommand(selectQuery, Connection))
                 {
-                    if (reader.Read())
+                    command.Parameters.AddWithValue("@Id", id);
+
+                    using (SqliteDataReader reader = await command.ExecuteReaderAsync())
                     {
-                        client = MapReaderToClient(reader);
+                        if (await reader.ReadAsync())
+                        {
+                            client = MapReaderToClient(reader);
+                        }
                     }
                 }
             }
+            finally
+            {
+                _ = CloseConnectionAsync();
+            }
 
-            CloseConnection();
             return client;
         }
 
         public async Task<List<Client>> GetAll()
         {
-            var clientList = new List<Client>();
+            List<Client> clientList = new List<Client>();
             string selectQuery = "SELECT * FROM Client";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            await OpenConnectionAsync();
+
+            try
             {
-                using (SqliteDataReader reader = command.ExecuteReader())
+                using (SqliteCommand command = new SqliteCommand(selectQuery, Connection))
                 {
-                    while (reader.Read())
+                    using (SqliteDataReader reader = await command.ExecuteReaderAsync())
                     {
-                        clientList.Add(MapReaderToClient(reader));
+                        while (await reader.ReadAsync())
+                        {
+                            clientList.Add(MapReaderToClient(reader));
+                        }
                     }
                 }
             }
+            finally
+            {
+                _ = CloseConnectionAsync();
+            }
 
-            CloseConnection();
             return clientList;
         }
 

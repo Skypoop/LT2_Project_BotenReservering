@@ -1,6 +1,9 @@
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Models;
 using Microsoft.Data.Sqlite;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
 {
@@ -8,7 +11,13 @@ namespace ProjectBotenReservering.Core.Data.Repositories
     {
         public BoatRepository()
         {
-            CreateTable(@"CREATE TABLE IF NOT EXISTS Boat (
+        }
+
+        public static async Task<BoatRepository> CreateAsync()
+        {
+            BoatRepository repo = new BoatRepository();
+
+            await repo.CreateTableAsync(@"CREATE TABLE IF NOT EXISTS Boat (
                             [Id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                             [Name] STRING NOT NULL,
                             [Steering_Wheel] BOOLEAN NOT NULL,
@@ -18,40 +27,37 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                             [Kg] INT NOT NULL,
                             [Operational] BOOLEAN NOT NULL,
                             [Club] VARCHAR)");
-        }
-
-        public static async Task<BoatRepository> CreateAsync()
-        {
-            var repo = new BoatRepository();
 
             List<Boat> boats = await repo.GetAll();
             bool anyBoatExists = boats.Count > 0;
 
-            if (anyBoatExists == false)
+            if (!anyBoatExists)
             {
-                // Add boats to database if none exist
-                repo.Add(new Boat("Skiff van Kunststof", false, 2, 1, BoatType.S, 45, true, "Local Club"));
-                repo.Add(new Boat("Dubbel Twee van Kunststof", false, 2, 1, BoatType.S, 46, true, "Local Club"));
-                repo.Add(new Boat("Twee zonder van Kunststof", false, 2, 3, BoatType.B, 46, true, "Local Club"));
-                repo.Add(new Boat("Twee met van Kunststof", true, 3, 3, BoatType.B, 46, true, "Local Club"));
-                repo.Add(new Boat("Dubbel vier van Kunststof", false, 4, 3, BoatType.S, 50, true, "Local Club"));
-                repo.Add(new Boat("Dubbel vier met van Kunststof", true, 5, 3, BoatType.B, 52, true, "Local Club"));
-                repo.Add(new Boat("Vier zonder van Kunststof", false, 4, 3, BoatType.B, 50, true, "Local Club"));
-                repo.Add(new Boat("Vier met van Kunststof", true, 5, 3, BoatType.B, 52, true, "Local Club"));
-                repo.Add(new Boat("Acht van Kunststof", true, 9, 3, BoatType.B, 55, true, "Local Club"));
+                await repo.Add(new Boat("Skiff van Kunststof", false, 2, 1, BoatType.S, 45, true, "Local Club"));
+                await repo.Add(new Boat("Dubbel Twee van Kunststof", false, 2, 1, BoatType.S, 46, true, "Local Club"));
+                await repo.Add(new Boat("Twee zonder van Kunststof", false, 2, 3, BoatType.B, 46, true, "Local Club"));
+                await repo.Add(new Boat("Twee met van Kunststof", true, 3, 3, BoatType.B, 46, true, "Local Club"));
+                await repo.Add(new Boat("Dubbel vier van Kunststof", false, 4, 3, BoatType.S, 50, true, "Local Club"));
+                await repo.Add(new Boat("Dubbel vier met van Kunststof", true, 5, 3, BoatType.B, 52, true, "Local Club"));
+                await repo.Add(new Boat("Vier zonder van Kunststof", false, 4, 3, BoatType.B, 50, true, "Local Club"));
+                await repo.Add(new Boat("Vier met van Kunststof", true, 5, 3, BoatType.B, 52, true, "Local Club"));
+                await repo.Add(new Boat("Acht van Kunststof", true, 9, 3, BoatType.B, 55, true, "Local Club"));
             }
 
             return repo;
-        } 
+        }
 
         public async Task<Boat> Add(Boat item)
         {
-            string insertQuery = @"INSERT INTO Boat(Name, Steering_Wheel, Seats, Level, Type, Kg, Operational, Club) 
-                                   VALUES(@Name, @SteeringWheel, @Seats, @Level, @Type, @Kg, @Operational, @Club);
-                                   SELECT last_insert_rowid();";
-            OpenConnection();
-            using (SqliteCommand command = new(insertQuery, Connection))
+            const string insertQuery = @"INSERT INTO Boat(Name, Steering_Wheel, Seats, Level, Type, Kg, Operational, Club) 
+                                         VALUES(@Name, @SteeringWheel, @Seats, @Level, @Type, @Kg, @Operational, @Club);
+                                         SELECT last_insert_rowid();";
+
+            await OpenConnectionAsync();
+
+            try
             {
+                await using SqliteCommand command = new SqliteCommand(insertQuery, Connection);
                 command.Parameters.AddWithValue("@Name", item.Name);
                 command.Parameters.AddWithValue("@SteeringWheel", item.SteeringWheel);
                 command.Parameters.AddWithValue("@Seats", item.Seats);
@@ -61,96 +67,125 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                 command.Parameters.AddWithValue("@Operational", item.Operational);
                 command.Parameters.AddWithValue("@Club", item.Club ?? (object)DBNull.Value);
 
-                item.Id = Convert.ToInt32(command.ExecuteScalar());
+                object result = await command.ExecuteScalarAsync();
+                item.Id = Convert.ToInt32(result);
             }
-            CloseConnection();
+            finally
+            {
+                await CloseConnectionAsync();
+            }
+
             return item;
         }
 
         public async Task<Boat?> Get(int id)
         {
             Boat? boat = null;
-            string selectQuery = "SELECT Name, Steering_Wheel, Seats, Level, Type, Kg, Operational, Club, Id FROM Boat WHERE Id = @Id";
-            OpenConnection();
+            const string selectQuery = "SELECT Id, Name, Steering_Wheel, Seats, Level, Type, Kg, Operational, Club FROM Boat WHERE Id = @Id";
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            await OpenConnectionAsync();
+
+            try
             {
+                await using SqliteCommand command = new SqliteCommand(selectQuery, Connection);
                 command.Parameters.AddWithValue("@Id", id);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                await using SqliteDataReader reader = await command.ExecuteReaderAsync();
+
+                if (await reader.ReadAsync())
                 {
-                    if (reader.Read())
-                    {
-                        boat = MapReaderToBoat(reader);
-                    }
+                    boat = MapReaderToBoat(reader);
                 }
             }
+            finally
+            {
+                await CloseConnectionAsync();
+            }
 
-            CloseConnection();
             return boat;
         }
-        
+
         public async Task Delete(int boatId)
         {
-            string deleteQuery = "DELETE FROM Boat WHERE Id = @Id";
-            OpenConnection();
-            using (SqliteCommand command = new(deleteQuery, Connection))
+            const string deleteQuery = "DELETE FROM Boat WHERE Id = @Id";
+
+            await OpenConnectionAsync();
+
+            try
             {
+                await using SqliteCommand command = new SqliteCommand(deleteQuery, Connection);
                 command.Parameters.AddWithValue("@Id", boatId);
-                command.ExecuteNonQuery();
+                await command.ExecuteNonQueryAsync();
             }
-            CloseConnection();
+            finally
+            {
+                await CloseConnectionAsync();
+            }
         }
-        
+
         public async Task DeleteAll()
         {
-            string deleteQuery = "DELETE FROM Boat";
-            OpenConnection();
-            using (SqliteCommand command = new(deleteQuery, Connection))
+            const string deleteQuery = "DELETE FROM Boat";
+
+            await OpenConnectionAsync();
+
+            try
             {
-                command.ExecuteNonQuery();
+                await using SqliteCommand command = new SqliteCommand(deleteQuery, Connection);
+                await command.ExecuteNonQueryAsync();
             }
-            CloseConnection();
+            finally
+            {
+                await CloseConnectionAsync();
+            }
         }
-        
+
         public async Task<List<Boat>> GetAll()
         {
-            var boatList = new List<Boat>();
-            string selectQuery = "SELECT * FROM Boat";
-            OpenConnection();
+            List<Boat> boatList = new List<Boat>();
+            const string selectQuery = "SELECT Id, Name, Steering_Wheel, Seats, Level, Type, Kg, Operational, Club FROM Boat";
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            await OpenConnectionAsync();
+
+            try
             {
-                using (SqliteDataReader reader = command.ExecuteReader())
+                await using SqliteCommand command = new SqliteCommand(selectQuery, Connection);
+                await using SqliteDataReader reader = await command.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
                 {
-                    while (reader.Read())
-                    {
-                        boatList.Add(MapReaderToBoat(reader));
-                    }
+                    boatList.Add(MapReaderToBoat(reader));
                 }
             }
+            finally
+            {
+                await CloseConnectionAsync();
+            }
 
-            CloseConnection();
             return boatList;
         }
 
         public async Task<List<Boat>> GetOperationalBoats()
         {
-            var boatList = new List<Boat>();
-            string selectQuery = "SELECT Id, Name, Steering_Wheel, Seats, Level, Type, Kg, Operational, Club FROM Boat WHERE Operational = 1";
-            OpenConnection();
+            List<Boat> boatList = new List<Boat>();
+            const string selectQuery = "SELECT Id, Name, Steering_Wheel, Seats, Level, Type, Kg, Operational, Club FROM Boat WHERE Operational = 1";
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            await OpenConnectionAsync();
+
+            try
             {
-                using (SqliteDataReader reader = command.ExecuteReader())
+                await using SqliteCommand command = new SqliteCommand(selectQuery, Connection);
+                await using SqliteDataReader reader = await command.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
                 {
-                    while (reader.Read())
-                    {
-                        boatList.Add(MapReaderToBoat(reader));
-                    }
+                    boatList.Add(MapReaderToBoat(reader));
                 }
             }
+            finally
+            {
+                await CloseConnectionAsync();
+            }
 
-            CloseConnection();
             return boatList;
         }
 
@@ -170,4 +205,3 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         }
     }
 }
-

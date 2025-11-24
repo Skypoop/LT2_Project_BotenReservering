@@ -1,6 +1,8 @@
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Models;
 using Microsoft.Data.Sqlite;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
 {
@@ -8,11 +10,20 @@ namespace ProjectBotenReservering.Core.Data.Repositories
     {
         public DamageReportPhotoRepository()
         {
-            CreateTable(@"CREATE TABLE IF NOT EXISTS DamageReportPhotos (
-                            [Id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                            [DamageReport_Id] INT NOT NULL,
-                            [Url] VARCHAR NOT NULL,
-                            FOREIGN KEY (DamageReport_Id) REFERENCES DamageReport(Id))");
+        }
+
+        public static async Task<DamageReportPhotoRepository> CreateAsync()
+        {
+            DamageReportPhotoRepository repo = new DamageReportPhotoRepository();
+
+            await repo.CreateTableAsync(@"
+                CREATE TABLE IF NOT EXISTS DamageReportPhotos (
+                    [Id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                    [DamageReport_Id] INT NOT NULL,
+                    [Url] VARCHAR NOT NULL,
+                    FOREIGN KEY (DamageReport_Id) REFERENCES DamageReport(Id))");
+
+            return repo;
         }
 
         public async Task<DamageReportPhoto> Add(DamageReportPhoto item)
@@ -20,14 +31,28 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             string insertQuery = @"INSERT INTO DamageReportPhotos(DamageReport_Id, Url) 
                                    VALUES(@DamageReportId, @Url);
                                    SELECT last_insert_rowid();";
-            OpenConnection();
-            using (SqliteCommand command = new(insertQuery, Connection))
+
+            await OpenConnectionAsync();
+
+            try
             {
-                command.Parameters.AddWithValue("@DamageReportId", item.DamageReportId);
-                command.Parameters.AddWithValue("@Url", item.Url);
-                item.Id = Convert.ToInt32(command.ExecuteScalar());
+                using (SqliteCommand command = new SqliteCommand(insertQuery, Connection))
+                {
+                    command.Parameters.AddWithValue("@DamageReportId", item.DamageReportId);
+                    command.Parameters.AddWithValue("@Url", item.Url);
+
+                    object? result = command.ExecuteScalar();
+                    if (result != null)
+                    {
+                        item.Id = Convert.ToInt32(result);
+                    }
+                }
             }
-            CloseConnection();
+            finally
+            {
+                _ = CloseConnectionAsync();
+            }
+
             return item;
         }
 
@@ -35,67 +60,88 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         {
             DamageReportPhoto? photo = null;
             string selectQuery = "SELECT Id, DamageReport_Id, Url FROM DamageReportPhotos WHERE Id = @Id";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            await OpenConnectionAsync();
+
+            try
             {
-                command.Parameters.AddWithValue("@Id", id);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                using (SqliteCommand command = new SqliteCommand(selectQuery, Connection))
                 {
-                    if (reader.Read())
+                    command.Parameters.AddWithValue("@Id", id);
+
+                    using (SqliteDataReader reader = command.ExecuteReader())
                     {
-                        photo = new DamageReportPhoto(
-                            reader.GetInt32(0),
-                            reader.GetInt32(1),
-                            reader.GetString(2)
-                        );
+                        if (reader.Read())
+                        {
+                            photo = new DamageReportPhoto(
+                                reader.GetInt32(0),
+                                reader.GetInt32(1),
+                                reader.GetString(2)
+                            );
+                        }
                     }
                 }
             }
+            finally
+            {
+                _ = CloseConnectionAsync();
+            }
 
-            CloseConnection();
             return photo;
         }
 
         public async Task<List<DamageReportPhoto>> GetByDamageReportId(int damageReportId)
         {
-            var list = new List<DamageReportPhoto>();
+            List<DamageReportPhoto> list = new List<DamageReportPhoto>();
             string selectQuery = "SELECT Id, DamageReport_Id, Url FROM DamageReportPhotos WHERE DamageReport_Id = @DamageReportId";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            await OpenConnectionAsync();
+
+            try
             {
-                command.Parameters.AddWithValue("@DamageReportId", damageReportId);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                using (SqliteCommand command = new SqliteCommand(selectQuery, Connection))
                 {
-                    while (reader.Read())
+                    command.Parameters.AddWithValue("@DamageReportId", damageReportId);
+
+                    using (SqliteDataReader reader = command.ExecuteReader())
                     {
-                        list.Add(new DamageReportPhoto(
-                            reader.GetInt32(0),
-                            reader.GetInt32(1),
-                            reader.GetString(2)
-                        ));
+                        while (reader.Read())
+                        {
+                            list.Add(new DamageReportPhoto(
+                                reader.GetInt32(0),
+                                reader.GetInt32(1),
+                                reader.GetString(2)
+                            ));
+                        }
                     }
                 }
             }
+            finally
+            {
+                _ = CloseConnectionAsync();
+            }
 
-            CloseConnection();
             return list;
         }
 
         public async Task Delete(int id)
         {
             string deleteQuery = "DELETE FROM DamageReportPhotos WHERE Id = @Id";
-            OpenConnection();
 
-            using (SqliteCommand command = new(deleteQuery, Connection))
+            await OpenConnectionAsync();
+
+            try
             {
-                command.Parameters.AddWithValue("@Id", id);
-                command.ExecuteNonQuery();
+                using (SqliteCommand command = new SqliteCommand(deleteQuery, Connection))
+                {
+                    command.Parameters.AddWithValue("@Id", id);
+                    command.ExecuteNonQuery();
+                }
             }
-
-            CloseConnection();
+            finally
+            {
+                _ = CloseConnectionAsync();
+            }
         }
     }
 }
-

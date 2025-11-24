@@ -1,6 +1,8 @@
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Models;
 using Microsoft.Data.Sqlite;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
 {
@@ -8,25 +10,43 @@ namespace ProjectBotenReservering.Core.Data.Repositories
     {
         public WindConstraintRepository()
         {
-            CreateTable(@"CREATE TABLE IF NOT EXISTS WindConstraint (
-                            [Windforce] INT NOT NULL PRIMARY KEY,
-                            [Min_Scull_level] INT NOT NULL,
-                            [Min_Roei_level] INT NOT NULL)");
+        }
+
+        public static async Task<WindConstraintRepository> CreateAsync()
+        {
+            WindConstraintRepository repo = new WindConstraintRepository();
+
+            await repo.CreateTableAsync(@"
+                CREATE TABLE IF NOT EXISTS WindConstraint (
+                    Windforce INT NOT NULL PRIMARY KEY,
+                    Min_Scull_level INT NOT NULL,
+                    Min_Roei_level INT NOT NULL)");
+
+            return repo;
         }
 
         public async Task<WindConstraint> Add(WindConstraint item)
         {
             string insertQuery = @"INSERT INTO WindConstraint(Windforce, Min_Scull_level, Min_Roei_level) 
                                    VALUES(@Windforce, @MinScullLevel, @MinRoeiLevel)";
-            OpenConnection();
-            using (SqliteCommand command = new(insertQuery, Connection))
+
+            await OpenConnectionAsync();
+
+            try
             {
-                command.Parameters.AddWithValue("@Windforce", item.Windforce);
-                command.Parameters.AddWithValue("@MinScullLevel", item.MinScullLevel);
-                command.Parameters.AddWithValue("@MinRoeiLevel", item.MinRoeiLevel);
-                command.ExecuteNonQuery();
+                using (SqliteCommand command = new(insertQuery, Connection))
+                {
+                    command.Parameters.AddWithValue("@Windforce", item.Windforce);
+                    command.Parameters.AddWithValue("@MinScullLevel", item.MinScullLevel);
+                    command.Parameters.AddWithValue("@MinRoeiLevel", item.MinRoeiLevel);
+                    command.ExecuteNonQuery();
+                }
             }
-            CloseConnection();
+            finally
+            {
+                _ = CloseConnectionAsync();
+            }
+
             return item;
         }
 
@@ -34,25 +54,31 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         {
             WindConstraint? constraint = null;
             string selectQuery = "SELECT Windforce, Min_Scull_level, Min_Roei_level FROM WindConstraint WHERE Windforce = @Windforce";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            await OpenConnectionAsync();
+
+            try
             {
-                command.Parameters.AddWithValue("@Windforce", windforce);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                using (SqliteCommand command = new(selectQuery, Connection))
                 {
-                    if (reader.Read())
+                    command.Parameters.AddWithValue("@Windforce", windforce);
+                    using (SqliteDataReader reader = command.ExecuteReader())
                     {
-                        constraint = new WindConstraint(
-                            reader.GetInt32(0),
-                            reader.GetInt32(1),
-                            reader.GetInt32(2)
-                        );
+                        if (reader.Read())
+                        {
+                            constraint = new WindConstraint(
+                                reader.GetInt32(0),
+                                reader.GetInt32(1),
+                                reader.GetInt32(2)
+                            );
+                        }
                     }
                 }
             }
-
-            CloseConnection();
+            finally
+            {
+                _ = CloseConnectionAsync();
+            }
             return constraint;
         }
 
@@ -60,26 +86,31 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         {
             var list = new List<WindConstraint>();
             string selectQuery = "SELECT Windforce, Min_Scull_level, Min_Roei_level FROM WindConstraint";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            await OpenConnectionAsync();
+
+            try
             {
-                using (SqliteDataReader reader = command.ExecuteReader())
+                using (SqliteCommand command = new(selectQuery, Connection))
                 {
-                    while (reader.Read())
+                    using (SqliteDataReader reader = command.ExecuteReader())
                     {
-                        list.Add(new WindConstraint(
-                            reader.GetInt32(0),
-                            reader.GetInt32(1),
-                            reader.GetInt32(2)
-                        ));
+                        while (reader.Read())
+                        {
+                            list.Add(new WindConstraint(
+                                reader.GetInt32(0),
+                                reader.GetInt32(1),
+                                reader.GetInt32(2)
+                            ));
+                        }
                     }
                 }
+            } finally
+            {
+                _ = CloseConnectionAsync();
             }
 
-            CloseConnection();
             return list;
         }
     }
 }
-

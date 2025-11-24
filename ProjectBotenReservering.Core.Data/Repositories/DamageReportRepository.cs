@@ -1,6 +1,8 @@
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Models;
 using Microsoft.Data.Sqlite;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
 {
@@ -8,15 +10,24 @@ namespace ProjectBotenReservering.Core.Data.Repositories
     {
         public DamageReportRepository()
         {
-            CreateTable(@"CREATE TABLE IF NOT EXISTS DamageReport (
-                            [Id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                            [Client_Id] INT NOT NULL,
-                            [Boat_Id] INT NOT NULL,
-                            [Damage_Information] LONGVARCHAR NOT NULL,
-                            [Date] DATETIME NOT NULL,
-                            [Approved] BOOLEAN NOT NULL,
-                            FOREIGN KEY (Client_Id) REFERENCES Client(Id),
-                            FOREIGN KEY (Boat_Id) REFERENCES Boat(Id))");
+        }
+
+        public static async Task<DamageReportRepository> CreateAsync()
+        {
+            DamageReportRepository repo = new DamageReportRepository();
+
+            await repo.CreateTableAsync(@"
+                CREATE TABLE IF NOT EXISTS DamageReport (
+                    [Id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                    [Client_Id] INT NOT NULL,
+                    [Boat_Id] INT NOT NULL,
+                    [Damage_Information] LONGVARCHAR NOT NULL,
+                    [Date] DATETIME NOT NULL,
+                    [Approved] BOOLEAN NOT NULL,
+                    FOREIGN KEY (Client_Id) REFERENCES Client(Id),
+                    FOREIGN KEY (Boat_Id) REFERENCES Boat(Id))");
+
+            return repo;
         }
 
         public async Task<DamageReport> Add(DamageReport item)
@@ -24,18 +35,31 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             string insertQuery = @"INSERT INTO DamageReport(Client_Id, Boat_Id, Damage_Information, Date, Approved) 
                                    VALUES(@ClientId, @BoatId, @DamageInformation, @Date, @Approved);
                                    SELECT last_insert_rowid();";
-            OpenConnection();
-            using (SqliteCommand command = new(insertQuery, Connection))
-            {
-                command.Parameters.AddWithValue("@ClientId", item.ClientId);
-                command.Parameters.AddWithValue("@BoatId", item.BoatId);
-                command.Parameters.AddWithValue("@DamageInformation", item.DamageInformation);
-                command.Parameters.AddWithValue("@Date", item.Date);
-                command.Parameters.AddWithValue("@Approved", item.Approved);
 
-                item.Id = Convert.ToInt32(command.ExecuteScalar());
+            await OpenConnectionAsync();
+
+            try
+            {
+                using (SqliteCommand command = new SqliteCommand(insertQuery, Connection))
+                {
+                    command.Parameters.AddWithValue("@ClientId", item.ClientId);
+                    command.Parameters.AddWithValue("@BoatId", item.BoatId);
+                    command.Parameters.AddWithValue("@DamageInformation", item.DamageInformation);
+                    command.Parameters.AddWithValue("@Date", item.Date);
+                    command.Parameters.AddWithValue("@Approved", item.Approved);
+
+                    object? result = command.ExecuteScalar();
+                    if (result != null)
+                    {
+                        item.Id = Convert.ToInt32(result);
+                    }
+                }
             }
-            CloseConnection();
+            finally
+            {
+                _ = CloseConnectionAsync();
+            }
+
             return item;
         }
 
@@ -43,86 +67,117 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         {
             DamageReport? damageReport = null;
             string selectQuery = "SELECT Id, Client_Id, Boat_Id, Damage_Information, Date, Approved FROM DamageReport WHERE Id = @Id";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            await OpenConnectionAsync();
+
+            try
             {
-                command.Parameters.AddWithValue("@Id", id);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                using (SqliteCommand command = new SqliteCommand(selectQuery, Connection))
                 {
-                    if (reader.Read())
+                    command.Parameters.AddWithValue("@Id", id);
+
+                    using (SqliteDataReader reader = command.ExecuteReader())
                     {
-                        damageReport = MapReaderToDamageReport(reader);
+                        if (reader.Read())
+                        {
+                            damageReport = MapReaderToDamageReport(reader);
+                        }
                     }
                 }
             }
+            finally
+            {
+                _ = CloseConnectionAsync();
+            }
 
-            CloseConnection();
             return damageReport;
         }
 
         public async Task<List<DamageReport>> GetAll()
         {
-            var damageReportList = new List<DamageReport>();
+            List<DamageReport> damageReportList = new List<DamageReport>();
             string selectQuery = "SELECT Id, Client_Id, Boat_Id, Damage_Information, Date, Approved FROM DamageReport";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            await OpenConnectionAsync();
+
+            try
             {
-                using (SqliteDataReader reader = command.ExecuteReader())
+                using (SqliteCommand command = new SqliteCommand(selectQuery, Connection))
                 {
-                    while (reader.Read())
+                    using (SqliteDataReader reader = command.ExecuteReader())
                     {
-                        damageReportList.Add(MapReaderToDamageReport(reader));
+                        while (reader.Read())
+                        {
+                            damageReportList.Add(MapReaderToDamageReport(reader));
+                        }
                     }
                 }
             }
+            finally
+            {
+                _ = CloseConnectionAsync();
+            }
 
-            CloseConnection();
             return damageReportList;
         }
 
         public async Task<List<DamageReport>> GetByClientId(int clientId)
         {
-            var damageReportList = new List<DamageReport>();
+            List<DamageReport> damageReportList = new List<DamageReport>();
             string selectQuery = "SELECT Id, Client_Id, Boat_Id, Damage_Information, Date, Approved FROM DamageReport WHERE Client_Id = @ClientId";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            await OpenConnectionAsync();
+
+            try
             {
-                command.Parameters.AddWithValue("@ClientId", clientId);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                using (SqliteCommand command = new SqliteCommand(selectQuery, Connection))
                 {
-                    while (reader.Read())
+                    command.Parameters.AddWithValue("@ClientId", clientId);
+
+                    using (SqliteDataReader reader = command.ExecuteReader())
                     {
-                        damageReportList.Add(MapReaderToDamageReport(reader));
+                        while (reader.Read())
+                        {
+                            damageReportList.Add(MapReaderToDamageReport(reader));
+                        }
                     }
                 }
             }
+            finally
+            {
+                _ = CloseConnectionAsync();
+            }
 
-            CloseConnection();
             return damageReportList;
         }
 
         public async Task<List<DamageReport>> GetByBoatId(int boatId)
         {
-            var damageReportList = new List<DamageReport>();
+            List<DamageReport> damageReportList = new List<DamageReport>();
             string selectQuery = "SELECT Id, Client_Id, Boat_Id, Damage_Information, Date, Approved FROM DamageReport WHERE Boat_Id = @BoatId";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            await OpenConnectionAsync();
+
+            try
             {
-                command.Parameters.AddWithValue("@BoatId", boatId);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                using (SqliteCommand command = new SqliteCommand(selectQuery, Connection))
                 {
-                    while (reader.Read())
+                    command.Parameters.AddWithValue("@BoatId", boatId);
+
+                    using (SqliteDataReader reader = command.ExecuteReader())
                     {
-                        damageReportList.Add(MapReaderToDamageReport(reader));
+                        while (reader.Read())
+                        {
+                            damageReportList.Add(MapReaderToDamageReport(reader));
+                        }
                     }
                 }
             }
+            finally
+            {
+                _ = CloseConnectionAsync();
+            }
 
-            CloseConnection();
             return damageReportList;
         }
 
@@ -139,4 +194,3 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         }
     }
 }
-

@@ -31,6 +31,8 @@ public partial class BoatTypesViewModel : BaseViewModel
     public BoatTypesViewModel(IBoatTypeService boatTypeService)
     {
         BoatTypeService = boatTypeService;
+
+        _ = InitAsync();
     }
     public async Task InitAsync()
     {
