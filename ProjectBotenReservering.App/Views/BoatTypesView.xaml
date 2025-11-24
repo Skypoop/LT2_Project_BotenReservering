@@ -13,7 +13,7 @@
             <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Padding="20">
                 
                 <VerticalStackLayout Grid.Column="0" VerticalOptions="Start">
-                    <Label Text="Reservatie" 
+                    <Label Text="Reservering" 
                            FontSize="24" 
                            FontAttributes="Bold" 
                            TextColor="Black" />

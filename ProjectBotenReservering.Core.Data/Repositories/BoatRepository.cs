@@ -63,7 +63,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         public Boat? Get(int id)
         {
             Boat? boat = null;
-            string selectQuery = "SELECT Name, Steering_Wheel, Seats, Level, Type, Kg, Operational, Club, Id FROM Boat WHERE Id = @Id";
+            string selectQuery = "SELECT Id, Name, Steering_Wheel, Seats, Level, Type, Kg, Operational, Club FROM Boat WHERE Id = @Id";
             OpenConnection();
 
             using (SqliteCommand command = new(selectQuery, Connection))

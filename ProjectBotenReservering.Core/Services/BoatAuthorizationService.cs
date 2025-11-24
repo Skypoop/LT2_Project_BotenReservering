@@ -23,7 +23,7 @@ public class BoatAuthorizationService : IBoatAuthorizationService
         return boatType switch
         {
             BoatType.S => client.ScullLevel >= boatLevel,
-            BoatType.B => client.RoeiLevel >= boatLevel,
+            BoatType.B => client.SweepLevel >= boatLevel,
             _=> false
         };
     }

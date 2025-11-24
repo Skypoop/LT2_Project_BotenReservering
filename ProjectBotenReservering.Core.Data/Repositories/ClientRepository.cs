@@ -9,12 +9,12 @@ namespace ProjectBotenReservering.Core.Data.Repositories
     {
         public ClientRepository()
         {
-            CreateTable(@"CREATE TABLE IF NOT EXISTS Client (
+            CreateTable(@"DROP TABLE IF EXISTS Client; CREATE TABLE IF NOT EXISTS Client (
                             [Id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                             [Full_Name] VARCHAR NOT NULL,
                             [Email] VARCHAR NOT NULL UNIQUE,
                             [Scull_level] INT,
-                            [Roei_level] INT,
+                            [Sweep_level] INT,
                             [Club] VARCHAR,
                             [Approved] BOOLEAN NOT NULL DEFAULT 0,
                             [Password_Hash] VARCHAR NOT NULL)");
@@ -35,8 +35,8 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public Client Add(Client item)
         {
-            string insertQuery = @"INSERT INTO Client(Full_Name, Email, Scull_level, Roei_level, Club, Approved, Password_Hash) 
-                                   VALUES(@FullName, @Email, @ScullLevel, @RoeiLevel, @Club, @Approved, @PasswordHash);
+            string insertQuery = @"INSERT INTO Client(Full_Name, Email, Scull_level, Sweep_level, Club, Approved, Password_Hash) 
+                                   VALUES(@FullName, @Email, @ScullLevel, @SweepLevel, @Club, @Approved, @PasswordHash);
                                    SELECT last_insert_rowid();";
             OpenConnection();
             using (SqliteCommand command = new(insertQuery, Connection))
@@ -44,7 +44,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                 command.Parameters.AddWithValue("@FullName", item.FullName);
                 command.Parameters.AddWithValue("@Email", item.Email);
                 command.Parameters.AddWithValue("@ScullLevel", item.ScullLevel);
-                command.Parameters.AddWithValue("@RoeiLevel", item.RoeiLevel);
+                command.Parameters.AddWithValue("@SweepLevel", item.SweepLevel);
                 command.Parameters.AddWithValue("@Club", item.Club ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@Approved", item.Approved);
                 command.Parameters.AddWithValue("@PasswordHash", item.PasswordHash);
@@ -58,7 +58,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         public Client? Get(string email)
         {
             Client? client = null;
-            string selectQuery = "SELECT Id, Full_Name, Email, Scull_level, Roei_level, Club, Approved, Password_Hash FROM Client WHERE Email = @Email";
+            string selectQuery = "SELECT Id, Full_Name, Email, Scull_level, Sweep_level, Club, Approved, Password_Hash FROM Client WHERE Email = @Email";
             OpenConnection();
 
             using (SqliteCommand command = new(selectQuery, Connection))
@@ -80,7 +80,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         public Client? Get(int id)
         {
             Client? client = null;
-            string selectQuery = "SELECT Id, Full_Name, Email, Scull_level, Roei_level, Club, Approved, Password_Hash FROM Client WHERE Id = @Id";
+            string selectQuery = "SELECT Id, Full_Name, Email, Scull_level, Sweep_level, Club, Approved, Password_Hash FROM Client WHERE Id = @Id";
             OpenConnection();
 
             using (SqliteCommand command = new(selectQuery, Connection))
