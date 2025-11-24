@@ -44,7 +44,7 @@ jobs:
         run: dotnet workload list
 
       - name: Build the application (uses restored runtime pack)
-        run: dotnet build ProjectBotenReservering.App/ProjectBotenReservering.App.csproj --configuration Release --framework net8.0-windows10.0.19041.0 -r win-x64
+        run: dotnet build ProjectBotenReservering.App/ProjectBotenReservering.App.csproj --configuration Release --framework net9.0-windows10.0.19041.0 -r win-x64
 
       - name: Run unit tests and generate report
         run: dotnet test --configuration Release --verbosity normal --results-directory "TestResults" --logger "trx;LogFileName=testresults.trx"
