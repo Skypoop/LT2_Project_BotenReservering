@@ -1,105 +1,35 @@
-using ProjectBotenReservering.Core.Helpers;
-using ProjectBotenReservering.Core.Interfaces.Services;
 using System.Net;
 using System.Net.Mail;
+using ProjectBotenReservering.Core.Interfaces.Services;
+using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.Core.Services;
 
-public class SmtpMailService : IMailService
+public class SmtpMailService : ISmtpMailService
 {
-    private string? _server;
-    private string? _port;
-    private string? _username;
-    private string? _password;
+    private readonly MailSettings _settings;
 
-    public string? server
+    public SmtpMailService(MailSettings settings)
     {
-        get { return _server; }
-        set
-        {
-            Validate(value, nameof(server));
-
-            _server = value;
-        }
-    }
-
-    public string? port
-    {
-        get { return _port; }
-        set
-        {
-            Validate(value, nameof(port));
-
-            _port = value;
-        }
-    }
-
-    public string? username
-    {
-        get { return _username; }
-        set
-        {
-            Validate(value, nameof(username));
-
-            _username = value;
-        }
-    }
-
-    public string? password
-    {
-        get { return _password; }
-        set
-        {
-            Validate(value, nameof(password));
-
-            _password = value;
-        }
-    }
-
-    public SmtpMailService()
-    {
-        server = MailConnectionHelper.MailConnectionStringValue("server");
-        port = MailConnectionHelper.MailConnectionStringValue("port");
-        username = MailConnectionHelper.MailConnectionStringValue("username");
-        password = MailConnectionHelper.MailConnectionStringValue("password");
-    }
-
-    private void Validate(string? value, string parameter)
-    {
-        if (string.IsNullOrEmpty(value))
-        {
-            throw new Exception($"SMTP parameter '{parameter}' is missing or empty in appsettings.json");
-        }
+        _settings = settings ?? throw new ArgumentNullException(nameof(settings));
     }
 
     public async Task SendMailAsync(List<string> receivers, string subject, string body)
     {
-        SmtpClient smtp = new SmtpClient(server) { Port = Int32.Parse(port), EnableSsl = true, Credentials = new NetworkCredential(username, password) };
-        MailMessage message = new MailMessage()
-        {
-            From = new MailAddress(username),
-            Subject = subject,
-            Body = body,
-            IsBodyHtml = false
-        };
+        using SmtpClient smtp = new SmtpClient(_settings.Server);
+        smtp.Port = _settings.Port;
+        smtp.EnableSsl = true;
+        smtp.Credentials = new NetworkCredential(_settings.Username, _settings.Password);
 
-        if(receivers.Any(reciver => !IsEmailValid(reciver) || string.IsNullOrEmpty(reciver)))
+        foreach (string receiver in receivers)
         {
-            throw new ArgumentException("Reciver is no valid email adress, must contain @");
+            using MailMessage message = new MailMessage();
+            message.From = new MailAddress(_settings.Username);
+            message.To.Add(receiver);
+            message.Subject = subject;
+            message.Body = body;
+            message.IsBodyHtml = false;
+            await smtp.SendMailAsync(message);
         }
-
-        receivers.ForEach(reciver => message.To.Add(reciver));
-
-        await smtp.SendMailAsync(message);
-    }
-
-    public bool IsEmailValid(string? email)
-    {
-        if(email.Contains("@"))
-        {
-            return true;
-        }
-
-        return false;
     }
 }

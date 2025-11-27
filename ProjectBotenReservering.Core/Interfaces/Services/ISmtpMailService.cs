@@ -8,7 +8,7 @@ using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.Core.Interfaces.Services;
 
-public interface IMailService
+public interface ISmtpMailService
 {
-    public Task SendMailAsync(List<string> recivers, string subject, string body);
+    public Task SendMailAsync(List<string> receivers, string subject, string body);
 }

@@ -1,10 +1,11 @@
-using System.Collections.ObjectModel;
-using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
-
+using ProjectBotenReservering.Core.Services;
+using System.Collections.ObjectModel;
+using Windows.Services.Maps;
 namespace ProjectBotenReservering.App.ViewModels;
 
 [QueryProperty(nameof(BoatId), "Id")]
@@ -21,16 +22,18 @@ public partial class ReservationFormViewModel : BaseViewModel
         IClientService clientService,
         IClientRepository clientRepository,
         IReservationService reservationService,
-        IBoatAuthorizationService boatReservationService
+        IBoatAuthorizationService boatReservationService,
+        ISmtpMailService mailservice
         )
     {
+        _mailService = mailservice; 
         _boatTypeService = boatTypeService;
         _clientRepository = clientRepository;
         
         _clientService = clientService;
         _reservationService = reservationService;
         _boatAuthorizationService = boatReservationService;
-        
+
 
         Title = "";
 
@@ -68,6 +71,7 @@ public partial class ReservationFormViewModel : BaseViewModel
     [ObservableProperty]
     private bool _hasTimeWarning;
 
+    private readonly ISmtpMailService _mailService;         
     public ObservableCollection<Client> SelectedClients { get; }
     public ObservableCollection<Client> AvailableClients { get; }
 
@@ -285,7 +289,18 @@ public partial class ReservationFormViewModel : BaseViewModel
         if (CurrentBoatType == null) return false;
         return SelectedClients.Count == CurrentBoatType.SeatAmount;
     }
+    private async Task SendReservationEmailAsync()
+    {
+        List<string> receivers = SelectedClients
+            .Select(client => client.Email)
+            .Where(emailAdress => !string.IsNullOrWhiteSpace(emailAdress))
+            .ToList();
 
+        string subject = "Reservering Bevestiging";
+        string body = "Uw reservering is bevestigd.";
+
+        await _mailService.SendMailAsync(receivers, subject, body);
+    }
     [RelayCommand(CanExecute = nameof(CanSaveReservation))]
     private async Task SaveReservation()
     {
@@ -301,10 +316,12 @@ public partial class ReservationFormViewModel : BaseViewModel
         if (anyUnderqualified)
         {
             await Shell.Current.DisplayAlert("Info", "Reservering verstuurd naar botencommissaris voor goedkeuring", "OK");
+            //Logic for sending message to boat commissioner should be added here
         }
         else
         {
             await Shell.Current.DisplayAlert("Succes", "Reservering Geslaagd!", "OK");
+            await SendReservationEmailAsync(); 
         }
         await Shell.Current.GoToAsync("..");
     }
