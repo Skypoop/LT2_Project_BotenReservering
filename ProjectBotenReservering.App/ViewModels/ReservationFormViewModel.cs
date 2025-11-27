@@ -255,7 +255,7 @@ public partial class ReservationFormViewModel : BaseViewModel
     {
         if (CurrentBoatType == null) return;
 
-        foreach (var client in SelectedClients)
+        foreach (Client client in SelectedClients)
         {
             
             if (! _boatAuthorizationService.IsAuthorized(CurrentBoatType.Type, CurrentBoatType.Level, client))
@@ -263,10 +263,12 @@ public partial class ReservationFormViewModel : BaseViewModel
                 string levelType = CurrentBoatType.Type == BoatType.S ? "scull" : "sweep";
                 int clientLevel = CurrentBoatType.Type == BoatType.S ? client.ScullLevel : client.SweepLevel;
                 client.QualificationHelpText = $"Persoon {levelType} level: {clientLevel}. Vereist: {CurrentBoatType.Level}.";
+                client.IsUnderqualified = true;
             }
             else
             {
                 client.QualificationHelpText = string.Empty;
+                client.IsUnderqualified = false;
             }
         }
     }
@@ -308,9 +310,9 @@ public partial class ReservationFormViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private void ShowQualificationWarning(Client client)
+    private static void ShowQualificationWarning(Client client)
     {
-        var message = string.IsNullOrWhiteSpace(client.QualificationHelpText) ? "Persoon is te lage rang voor deze boot" : client.QualificationHelpText;
+        string message = string.IsNullOrWhiteSpace(client.QualificationHelpText) ? "Persoon is te lage rang voor deze boot" : client.QualificationHelpText;
         Shell.Current.DisplayAlert("Waarschuwing", message, "OK");
     }
 }
