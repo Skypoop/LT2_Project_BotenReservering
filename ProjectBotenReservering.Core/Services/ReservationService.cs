@@ -7,13 +7,23 @@ namespace ProjectBotenReservering.Core.Services;
 
 public class ReservationService: IReservationService
 {
-    private readonly IReservationRepository _reservationService;
+    private readonly IReservationRepository _reservationRepository;
     private readonly IBoatAuthorizationService _boatAuthorizationService;
     public ReservationService(IReservationRepository reservationRepository, IBoatAuthorizationService boatAuthorizationService)
     {
-        this._reservationService = reservationRepository;
-        this._boatAuthorizationService = boatAuthorizationService;
+        _reservationRepository = reservationRepository;
+        _boatAuthorizationService = boatAuthorizationService;
         
+    }
+
+    public Reservation Add(Reservation reservation)
+    {
+        return _reservationRepository.Add(reservation);
+    }
+    
+    public Reservation? Get(int id)
+    {
+        return _reservationRepository.Get(id);
     }
     
     public bool IsBookingWithinAllowedReservationTime(DateTime startTime)

@@ -129,12 +129,12 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         private Reservation MapReaderToReservation(SqliteDataReader reader)
         {
             return new Reservation(
-                reader.GetInt32(0),
                 reader.GetDateTime(1),
                 reader.GetDateTime(2),
                 reader.GetDateTime(3),
                 reader.GetInt32(4),
-                reader.GetInt32(5)
+                reader.GetInt32(5),
+                reader.GetInt32(0)
             );
         }
     }
