@@ -5,7 +5,6 @@ using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 using ProjectBotenReservering.Core.Services;
 using System.Collections.ObjectModel;
-using Windows.Services.Maps;
 namespace ProjectBotenReservering.App.ViewModels;
 
 [QueryProperty(nameof(BoatId), "Id")]
