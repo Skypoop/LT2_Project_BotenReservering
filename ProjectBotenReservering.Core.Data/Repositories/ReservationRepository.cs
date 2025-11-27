@@ -17,6 +17,25 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                             [Boat_Id] INT NOT NULL,
                             FOREIGN KEY (Client_Id) REFERENCES Client(Id),
                             FOREIGN KEY (Boat_Id) REFERENCES Boat(Id))");
+            
+            List<Reservation> reservations = GetAll();
+            bool anyReservationsExists = reservations.Count > 0;
+            
+            if (anyReservationsExists == false)
+            {
+                DateTime now = DateTime.Now;
+
+                Add(new Reservation(0, now, now.AddHours(2), now.AddHours(4), 1, 1));
+                Add(new Reservation(0, now, now.AddDays(1).AddHours(10), now.AddDays(1).AddHours(11), 2, 2));
+                Add(new Reservation(0, now, now.AddDays(3).AddHours(14), now.AddDays(3).AddHours(16), 1, 3));
+                Add(new Reservation(0, now, now.AddDays(5).AddHours(9), now.AddDays(5).AddHours(10).AddMinutes(30), 2, 4));
+                Add(new Reservation(0, now, now.AddDays(12).AddHours(16), now.AddDays(12).AddHours(18), 1, 5));
+                Add(new Reservation(0, now, now.AddDays(18).AddHours(8), now.AddDays(18).AddHours(10), 2, 1));
+                Add(new Reservation(0, now, now.AddDays(21).AddHours(11), now.AddDays(21).AddHours(12), 1, 2));
+                Add(new Reservation(0, now, now.AddDays(24).AddHours(13), now.AddDays(24).AddHours(15), 2, 3));
+                Add(new Reservation(0, now, now.AddDays(28).AddHours(15), now.AddDays(28).AddHours(16).AddMinutes(30), 1, 4));
+                Add(new Reservation(0, now, now.AddDays(30).AddHours(10), now.AddDays(30).AddHours(12), 2, 5));
+            }
         }
 
         public Reservation Add(Reservation item)

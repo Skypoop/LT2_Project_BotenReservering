@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
@@ -7,11 +8,11 @@ namespace ProjectBotenReservering.Core.Services;
 
 public class ReservationService: IReservationService
 {
-    private readonly IReservationRepository _reservationService;
+    private readonly IReservationRepository _reservationRepository;
     private readonly IBoatAuthorizationService _boatAuthorizationService;
     public ReservationService(IReservationRepository reservationRepository, IBoatAuthorizationService boatAuthorizationService)
     {
-        this._reservationService = reservationRepository;
+        this._reservationRepository = reservationRepository;
         this._boatAuthorizationService = boatAuthorizationService;
         
     }
@@ -37,6 +38,12 @@ public class ReservationService: IReservationService
         return true;
     }
 
+    public async Task<List<Reservation>> GetReservations()
+    {
+        List<Reservation> reservationList = await Task.Run(() => _reservationRepository.GetAll());
+        return reservationList;
+    }
+    
     public bool IsReservationTimeFree(DateTime startTime, DateTime endTime)
     {
         throw new NotImplementedException();
