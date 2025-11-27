@@ -4,6 +4,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
+using Microsoft.Maui.Devices;
+using ProjectBotenReservering.App.Context;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
@@ -22,15 +24,15 @@ public partial class ReservationFormViewModel : BaseViewModel
         IClientRepository clientRepository,
         IReservationService reservationService,
         IBoatAuthorizationService boatReservationService
-        )
+    )
     {
         _boatTypeService = boatTypeService;
         _clientRepository = clientRepository;
-        
+
         _clientService = clientService;
         _reservationService = reservationService;
         _boatAuthorizationService = boatReservationService;
-        
+
 
         Title = "";
 
@@ -44,40 +46,34 @@ public partial class ReservationFormViewModel : BaseViewModel
 
     public DateTime MinDate => DateTime.Today;
 
-    [ObservableProperty]
-    private BoatTypeUiItem _currentBoatType;
+    [ObservableProperty] private BoatTypeUiItem _currentBoatType;
 
-    [ObservableProperty]
-    private DateTime _selectedDate;
+    [ObservableProperty] private DateTime _selectedDate;
 
-    [ObservableProperty]
-    private TimeSpan _startTime;
+    [ObservableProperty] private TimeSpan _startTime;
 
-    [ObservableProperty]
-    private TimeSpan _endTime;
-    
-    [ObservableProperty]
-    private string _dateWarningText; 
+    [ObservableProperty] private TimeSpan _endTime;
 
-    [ObservableProperty]
-    private bool _hasDateWarning;
+    [ObservableProperty] private string _dateWarningText;
 
-    [ObservableProperty]
-    private string _timeWarningText;
+    [ObservableProperty] private bool _hasDateWarning;
 
-    [ObservableProperty]
-    private bool _hasTimeWarning;
+    [ObservableProperty] private string _timeWarningText;
+
+    [ObservableProperty] private bool _hasTimeWarning;
 
     public ObservableCollection<Client> SelectedClients { get; }
     public ObservableCollection<Client> AvailableClients { get; }
 
-    [ObservableProperty]
-    private Client _selectedClientToAdd;
+    public bool IsMacCatalyst { get; } = DeviceInfo.Current.Platform == DevicePlatform.MacCatalyst;
+    public bool IsPickerSupported => !IsMacCatalyst;
 
-    [ObservableProperty]
-    private string _seatStatusText = "";
+    [ObservableProperty] private Client _selectedClientToAdd;
+
+    [ObservableProperty] private string _seatStatusText = "";
 
     private int _boatId;
+
     public int BoatId
     {
         get => _boatId;
@@ -124,11 +120,11 @@ public partial class ReservationFormViewModel : BaseViewModel
 
         UpdateQualificationFlags();
     }
-    
+
     partial void OnSelectedDateChanged(DateTime value) => ValidateReservationRules();
     partial void OnStartTimeChanged(TimeSpan value) => ValidateReservationRules();
     partial void OnEndTimeChanged(TimeSpan value) => ValidateReservationRules();
-    
+
     private void ValidateReservationRules()
     {
         HasDateWarning = false;
@@ -146,7 +142,7 @@ public partial class ReservationFormViewModel : BaseViewModel
             HasDateWarning = true;
         }
 
-    
+
         if (EndTime > StartTime)
         {
             if (!_reservationService.IsValidReservationLength(startDateTime, endDateTime))
@@ -158,52 +154,40 @@ public partial class ReservationFormViewModel : BaseViewModel
 
         SaveReservationCommand.NotifyCanExecuteChanged();
     }
-    
+
     partial void OnSelectedClientToAddChanged(Client value)
     {
-        // 1. If null, do nothing (this happens when we reset the picker)
         if (value == null) return;
-
-        // 2. Capture the client to add
         Client clientToAdd = value;
-
-        // 3. IMMEDIATELY reset the picker to null. 
-        // This stops the "Double Add" bug by clearing the selection before we mess with the list.
         SelectedClientToAdd = null;
+        TryAddClient(clientToAdd);
+    }
 
+    private void TryAddClient(Client clientToAdd)
+    {
+        if (clientToAdd == null) return;
         if (CurrentBoatType == null) return;
 
-        // 4. Check Capacity
         if (SelectedClients.Count >= CurrentBoatType.SeatAmount)
         {
-            Shell.Current.DisplayAlert("Vol", $"De boot zit vol ({CurrentBoatType.SeatAmount} plaatsen).", "OK");
+            _ = Shell.Current.DisplayAlert("Vol", $"De boot zit vol ({CurrentBoatType.SeatAmount} plaatsen).", "OK");
             return;
         }
 
-        // 5. Check Duplicates
         if (SelectedClients.Any(x => x.Id == clientToAdd.Id))
         {
             return;
         }
 
-        // 6. Add to Selected List
         SelectedClients.Add(clientToAdd);
         UpdateSeatStatus();
         UpdateQualificationFlags();
+    }
 
-        // 7. Remove from Available List with a DELAY.
-        // We must wait for the UI to finish processing "SelectedClientToAdd = null".
-        // If we remove it too fast, the Picker grabs the next person in the list automatically.
-        MainThread.BeginInvokeOnMainThread(async () =>
-        {
-            await Task.Delay(100); // Small delay to let the UI settle
-
-            var itemToRemove = AvailableClients.FirstOrDefault(c => c.Id == clientToAdd.Id);
-            if (itemToRemove != null)
-            {
-                AvailableClients.Remove(itemToRemove);
-            }
-        });
+    [RelayCommand]
+    private void AddClient(Client client)
+    {
+        TryAddClient(client);
     }
 
     [RelayCommand]
@@ -245,7 +229,7 @@ public partial class ReservationFormViewModel : BaseViewModel
             {
                 verplichtText = string.Empty;
             }
-            
+
             SeatStatusText = $"{verplichtText} {SelectedClients.Count} / {CurrentBoatType.SeatAmount}";
             SaveReservationCommand.NotifyCanExecuteChanged();
         }
@@ -257,12 +241,12 @@ public partial class ReservationFormViewModel : BaseViewModel
 
         foreach (Client client in SelectedClients)
         {
-            
-            if (! _boatAuthorizationService.IsAuthorized(CurrentBoatType.Type, CurrentBoatType.Level, client))
+            if (!_boatAuthorizationService.IsAuthorized(CurrentBoatType.Type, CurrentBoatType.Level, client))
             {
                 string levelType = CurrentBoatType.Type == BoatType.S ? "scull" : "sweep";
                 int clientLevel = CurrentBoatType.Type == BoatType.S ? client.ScullLevel : client.SweepLevel;
-                client.QualificationHelpText = $"Persoon {levelType} level: {clientLevel}. Vereist: {CurrentBoatType.Level}.";
+                client.QualificationHelpText =
+                    $"Persoon {levelType} level: {clientLevel}. Vereist: {CurrentBoatType.Level}.";
                 client.IsUnderqualified = true;
             }
             else
@@ -294,25 +278,40 @@ public partial class ReservationFormViewModel : BaseViewModel
             await Shell.Current.DisplayAlert("Error", "Eindtijd moet na starttijd zijn.", "OK");
             return;
         }
-        
+
 
         bool anyUnderqualified = SelectedClients.Any(c => c.IsUnderqualified);
 
+
+        Reservation currentReservation = new Reservation
+        (
+            DateTime.Now,
+            this.SelectedDate.Date.Add(this.StartTime),
+            this.SelectedDate.Date.Add(this.EndTime),
+            _clientService.GetCurrentClient()!.Id,
+            BoatId);
+        Console.WriteLine("Reservation created: " + currentReservation);
+
         if (anyUnderqualified)
         {
-            await Shell.Current.DisplayAlert("Info", "Reservering verstuurd naar botencommissaris voor goedkeuring", "OK");
+            await Shell.Current.DisplayAlert("Info", "Reservering verstuurd naar botencommissaris voor goedkeuring",
+                "OK");
         }
         else
         {
+            _reservationService.Add(currentReservation);
             await Shell.Current.DisplayAlert("Succes", "Reservering Geslaagd!", "OK");
         }
+
         await Shell.Current.GoToAsync("..");
     }
 
     [RelayCommand]
     private static void ShowQualificationWarning(Client client)
     {
-        string message = string.IsNullOrWhiteSpace(client.QualificationHelpText) ? "Persoon is te lage rang voor deze boot" : client.QualificationHelpText;
+        string message = string.IsNullOrWhiteSpace(client.QualificationHelpText)
+            ? "Persoon is te lage rang voor deze boot"
+            : client.QualificationHelpText;
         Shell.Current.DisplayAlert("Waarschuwing", message, "OK");
     }
 }

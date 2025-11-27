@@ -12,8 +12,8 @@ public class ClientService : IClientService
 
     public ClientService(IClientRepository clientRepository, IClientContext clientContext)
     {
-        this._clientRepository = clientRepository;
-        this._clientContext = clientContext;
+        _clientRepository = clientRepository;
+        _clientContext = clientContext;
     }
 
     public Client? GetCurrentClient()

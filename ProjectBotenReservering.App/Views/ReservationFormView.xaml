@@ -94,7 +94,23 @@
                     <Label Grid.Column="0" Text="Roeiers" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
                     <Label Grid.Column="1" Text="{Binding SeatStatusText}" FontSize="18" FontAttributes="Bold" />
                 </Grid>
-                <Picker Title="Voeg roeier toe" ItemsSource="{Binding AvailableClients}" ItemDisplayBinding="{Binding FullName}" SelectedItem="{Binding SelectedClientToAdd}" BackgroundColor="#f0f0f0" />
+                <Picker Title="Voeg roeier toe" ItemsSource="{Binding AvailableClients}" ItemDisplayBinding="{Binding FullName}" SelectedItem="{Binding SelectedClientToAdd}" BackgroundColor="#f0f0f0" IsVisible="{Binding IsPickerSupported}" />
+
+                <VerticalStackLayout IsVisible="{Binding IsMacCatalyst}" Spacing="6">
+                    <Label Text="Selecteer roeier:" FontSize="12" TextColor="Gray" />
+                    <CollectionView ItemsSource="{Binding AvailableClients}" SelectionMode="None" HeightRequest="180">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Client">
+                                <Frame Padding="8" Margin="0,4" HasShadow="False" BorderColor="#e0e0e0" CornerRadius="6" BackgroundColor="#ffffff">
+                                    <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
+                                        <Label Grid.Column="0" Text="{Binding FullName}" VerticalOptions="Center" FontSize="14" />
+                                        <Button Grid.Column="1" Text="Voeg toe" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ReservationFormViewModel}}, Path=AddClientCommand}" CommandParameter="{Binding .}" HeightRequest="30" Padding="10,0" />
+                                    </Grid>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
 
                 <CollectionView ItemsSource="{Binding SelectedClients}" SelectionMode="None" HorizontalOptions="FillAndExpand" HeightRequest="220">
                     <CollectionView.ItemsLayout>
