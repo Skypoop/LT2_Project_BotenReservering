@@ -1,9 +1,12 @@
 using System.Collections.ObjectModel;
+using Android.Provider;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
+using Plugin.Maui.Calendar.Models; 
+using Plugin.Maui.Calendar.Enums;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
@@ -45,6 +48,9 @@ public partial class ReservationFormViewModel : BaseViewModel
     public DateTime MinDate => DateTime.Today;
 
     [ObservableProperty]
+    private List<Reservation> _reservationList;
+    
+    [ObservableProperty]
     private BoatTypeUiItem _currentBoatType;
 
     [ObservableProperty]
@@ -70,13 +76,15 @@ public partial class ReservationFormViewModel : BaseViewModel
 
     public ObservableCollection<Client> SelectedClients { get; }
     public ObservableCollection<Client> AvailableClients { get; }
+    
+    public EventCollection Events { get; set; }
 
     [ObservableProperty]
     private Client _selectedClientToAdd;
 
     [ObservableProperty]
     private string _seatStatusText = "";
-
+    
     private int _boatId;
     public int BoatId
     {
@@ -101,6 +109,31 @@ public partial class ReservationFormViewModel : BaseViewModel
         UpdateSeatStatus();
         UpdateQualificationFlags();
     }
+    
+    [RelayCommand]
+    public async Task LoadReservationsAsync()
+    {
+            List<Reservation> reservations = await _reservationService.GetAll();
+            foreach(var res in reservations) ReservationList.Add(res);
+    }
+
+    // public void initializeEvents()
+    // {
+    //     Events = new EventCollection
+    //     {
+    //         [DateTime.Now.AddDays(-2)] = new DayEventCollection<Reservation>(Colors.Purple, Colors.Purple)
+    //         {
+    //             new() { Name = "Cool event1", Description = "This is Cool event1's description!" },
+    //             new() { Name = "Cool event2", Description = "This is Cool event2's description!" }
+    //         },
+    //         [DateTime.Now.AddDays(-5)] = new DayEventCollection<Reservation>(Colors.Blue, Colors.Blue)
+    //         {
+    //             new() { Name = "Cool event3", Description = "This is Cool event3's description!" },
+    //             new() { Name = "Cool event4", Description = "This is Cool event4's description!" }
+    //         },
+    //     };
+    //     Events.Add(DateTime.Now.AddDays(-4), new DayEventCollection<EventModel>(GenerateEvents(10, "Cool")) { EventIndicatorColor = Colors.Green, EventIndicatorSelectedColor = Colors.Green });
+    // }
 
     private void InitializeClients()
     {
