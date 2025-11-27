@@ -27,12 +27,12 @@ public partial class BoatTypesViewModel : BaseViewModel
     [ObservableProperty]
     public int minWeightFilter = 0;
     
-    private readonly IBoatTypeService BoatTypeService;
+    private readonly IBoatTypeService _boatTypeService;
     
     public BoatTypesViewModel(IBoatTypeService boatTypeService)
     {
-        BoatTypeService = boatTypeService;
-        AllBoatTypes = BoatTypeService.GetBoatTypes();
+        _boatTypeService = boatTypeService;
+        AllBoatTypes = _boatTypeService.GetBoatTypes();
         SelectedSteeringOption = SteeringOptions.First();
         ApplyFilterOption();
     }
@@ -41,7 +41,7 @@ public partial class BoatTypesViewModel : BaseViewModel
     {
         bool? steeringValue = SelectedSteeringOption?.Value;
 
-        List<BoatTypeUiItem> boatTypeList = BoatTypeService.FilterBoatTypes(AllBoatTypes, steeringValue, StringInNameFilter, MinWeightFilter);
+        List<BoatTypeUiItem> boatTypeList = _boatTypeService.FilterBoatTypes(AllBoatTypes, steeringValue, StringInNameFilter, MinWeightFilter);
         BoatTypeItems.Clear();
         
         List<BoatTypeUiItem> orderedBoatTypeList = boatTypeList.OrderBy(x => x.Weight).ToList();
