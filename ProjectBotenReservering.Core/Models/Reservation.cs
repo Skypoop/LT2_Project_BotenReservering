@@ -9,7 +9,7 @@ public class Reservation
     public int ClientId { get; set; }
     public int BoatId { get; set; }
 
-    public Reservation(int id, DateTime createdAt, DateTime startTime, DateTime endTime, int clientId, int boatId)
+    public Reservation(DateTime createdAt, DateTime startTime, DateTime endTime, int clientId, int boatId, int id = 0)
     {
         Id = id;
         CreatedAt = createdAt;

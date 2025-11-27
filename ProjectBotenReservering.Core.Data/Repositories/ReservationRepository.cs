@@ -17,7 +17,6 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                             [Boat_Id] INT NOT NULL,
                             FOREIGN KEY (Client_Id) REFERENCES Client(Id),
                             FOREIGN KEY (Boat_Id) REFERENCES Boat(Id))");
-            Console.WriteLine("het gebeurt in de reservations table ");
             List<Reservation> reservations = GetAll();
             bool anyReservationsExists = reservations.Count > 0;
             
@@ -83,7 +82,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         public List<Reservation> GetAll()
         {
             var reservationList = new List<Reservation>();
-            string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id FROM Reservation";
+            string selectQuery = "SELECT * FROM Reservation";
             OpenConnection();
 
             using (SqliteCommand command = new(selectQuery, Connection))

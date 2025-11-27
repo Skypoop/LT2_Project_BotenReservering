@@ -56,37 +56,49 @@
         </Grid>
 
         <!-- Calendar -->
-        <VerticalStackLayout Grid.Row="1" Spacing="5" Margin="0,0,0,16">
-            <cal:Calendar 
-                SelectedDate="{Binding SelectedDate}"
-                MinimumDate="{Binding MinDate}"
-                MonthLabelStyle="{StaticResource CalMonthLabelStyle}"
-                DaysLabelStyle="{StaticResource CalDayLabelStyle}"
-                SelectedDateLabelStyle="{StaticResource CalSelectedDateLabelStyle}"
-                DaysTitleLabelStyle="{StaticResource CalWeekdayTitleStyle}"
-                SelectedDayBackgroundColor="{StaticResource Primary}"
-                TodayOutlineColor="{StaticResource Primary}"
-                EventsScrollViewVisible="False"
-                HeightRequest="320" />
-            <Label Text="{Binding DateWarningText}" 
-                   IsVisible="{Binding HasDateWarning}"
-                   TextColor="Red"
-                   FontSize="12"
-                   FontAttributes="Bold"
-                   HorizontalOptions="Center" />
-        </VerticalStackLayout>
-
+        <Border Stroke="#C49B33"
+                StrokeThickness="4"
+                StrokeShape="RoundRectangle 20,0,0,20"
+                Background="#2B0B98"
+                Padding="1,1"
+                HorizontalOptions="Center">
+            <VerticalStackLayout Grid.Row="1" Spacing="5" Margin="0,0,0,16" BackgroundColor="#ffdb99">
+                <cal:Calendar 
+                    SelectedDate="{Binding SelectedDate}"
+                    MinimumDate="{Binding MinDate}"
+                    MonthLabelStyle="{StaticResource CalMonthLabelStyle}"
+                    DaysLabelStyle="{StaticResource CalDayLabelStyle}"
+                    SelectedDateLabelStyle="{StaticResource CalSelectedDateLabelStyle}"
+                    DaysTitleLabelStyle="{StaticResource CalWeekdayTitleStyle}"
+                    SelectedDayBackgroundColor="{StaticResource Primary}"
+                    TodayOutlineColor="{StaticResource Primary}"
+                    Events="{Binding Events}"
+                    EventsScrollViewVisible="False"
+                    VerticalOptions="Fill"
+                    SwipeUpToHideEnabled="False"
+                    FooterSectionVisible="False"
+                    HeightRequest="500"
+                    WidthRequest="800"/>
+                <Label Text="{Binding DateWarningText}" 
+                       IsVisible="{Binding HasDateWarning}"
+                       TextColor="Red"
+                       FontSize="12"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </Border>
+            
         <!-- Time & Clients -->
         <Grid Grid.Row="2" ColumnDefinitions="*, *" ColumnSpacing="20">
             <VerticalStackLayout Grid.Column="0" Spacing="15" Margin="80,140,0,0">
                 <Label Text="Tijdstip" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
                 <VerticalStackLayout>
                     <Label Text="Starttijd:" FontSize="12" TextColor="Gray"/>
-                    <TimePicker Time="{Binding StartTime}" />
+                    <TimePicker Format="HH:mm" Time="{Binding StartTime}" />
                 </VerticalStackLayout>
                 <VerticalStackLayout>
                     <Label Text="Eindtijd:" FontSize="12" TextColor="Gray"/>
-                    <TimePicker Time="{Binding EndTime}" />
+                    <TimePicker Format="HH:mm" Time="{Binding EndTime}" />
                 </VerticalStackLayout>
                 <Label Text="{Binding TimeWarningText}" 
                        IsVisible="{Binding HasTimeWarning}"
