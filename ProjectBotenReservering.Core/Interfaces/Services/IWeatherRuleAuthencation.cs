@@ -2,8 +2,8 @@
 
 namespace ProjectBotenReservering.Core.Interfaces.Services
 {
-    public interface IWeatherService
+    public interface IWeatherRuleAuthencation
     {
-        Task<int> GetWeatherAsync();
+        Task<bool> IsAllowedToSail(List<Client> clients, int boatId);
     }
 }

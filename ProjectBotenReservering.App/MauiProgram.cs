@@ -45,6 +45,8 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IBoatAuthorizationService, BoatAuthorizationService>();
             builder.Services.AddSingleton<IClientService, ClientService>();
             builder.Services.AddSingleton<IReservationService, ReservationService>();
+            builder.Services.AddSingleton<IWeatherRuleAuthencation, WeatherRuleAuthencation>();
+            builder.Services.AddSingleton<IBoatService, BoatService>();
             
             builder.Services.AddSingleton<IClientContext, HardcodedClientContext>();
             

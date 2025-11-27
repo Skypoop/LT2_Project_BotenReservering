@@ -2,8 +2,8 @@
 
 namespace ProjectBotenReservering.Core.Interfaces.Services
 {
-    public interface IWeatherService
+    public interface IBoatService
     {
-        Task<int> GetWeatherAsync();
+        Boat Get(int id);
     }
 }

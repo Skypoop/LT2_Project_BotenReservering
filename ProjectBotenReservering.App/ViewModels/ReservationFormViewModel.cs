@@ -15,13 +15,15 @@ public partial class ReservationFormViewModel : BaseViewModel
     private readonly IClientRepository _clientRepository;
     private readonly IReservationService _reservationService;
     private readonly IBoatAuthorizationService _boatAuthorizationService;
+    private readonly IWeatherRuleAuthencation _weatherRuleAuthencation;
 
     public ReservationFormViewModel(
         IBoatTypeService boatTypeService,
         IClientService clientService,
         IClientRepository clientRepository,
         IReservationService reservationService,
-        IBoatAuthorizationService boatReservationService
+        IBoatAuthorizationService boatReservationService,
+        IWeatherRuleAuthencation weatherRuleAuthencation
         )
     {
         _boatTypeService = boatTypeService;
@@ -30,7 +32,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         _clientService = clientService;
         _reservationService = reservationService;
         _boatAuthorizationService = boatReservationService;
-        
+        _weatherRuleAuthencation = weatherRuleAuthencation;
 
         Title = "";
 
@@ -297,10 +299,15 @@ public partial class ReservationFormViewModel : BaseViewModel
         
 
         bool anyUnderqualified = SelectedClients.Any(c => c.IsUnderqualified);
+        bool weatherAllowed = await _weatherRuleAuthencation.IsAllowedToSail(SelectedClients.ToList(), CurrentBoatType.Id);
 
         if (anyUnderqualified)
         {
             await Shell.Current.DisplayAlert("Info", "Reservering verstuurd naar botencommissaris voor goedkeuring", "OK");
+        }
+        else if(!weatherAllowed)
+        {
+            await Shell.Current.DisplayAlert("Warning", "Het weer is te heftig voor nu", "OK");
         }
         else
         {
@@ -314,5 +321,10 @@ public partial class ReservationFormViewModel : BaseViewModel
     {
         string message = string.IsNullOrWhiteSpace(client.QualificationHelpText) ? "Persoon is te lage rang voor deze boot" : client.QualificationHelpText;
         Shell.Current.DisplayAlert("Waarschuwing", message, "OK");
+    }
+
+    private void ShowWarningWeatherQualifactionError()
+    {
+        Shell.Current.DisplayAlert("Waarschuwing", "Een persoon heeft een te laag niveau voor het verwachte weer", "OK");
     }
 }
