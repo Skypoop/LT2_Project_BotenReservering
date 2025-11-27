@@ -1,6 +1,7 @@
 ﻿using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace ProjectBotenReservering.Core.Services
@@ -19,9 +20,9 @@ namespace ProjectBotenReservering.Core.Services
             _windConstraintRepository = windConstraintRepository;
         }
 
-        public async Task<bool> IsAllowedToSail(List<Client> clients, int boatId)
+        public async Task<bool> IsAllowedToSail(List<Client> clients, int boatId, DateTime beginDate, DateTime endDate)
         {
-            int windforce = await _weatherService.GetWeatherAsync();
+            int windforce = await _weatherService.GetWeatherAsync(beginDate, endDate);
             WindConstraint? maxLevels = _windConstraintRepository.Get(windforce);
             Boat? boat = _boatService.Get(boatId);
 

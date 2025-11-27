@@ -37,8 +37,8 @@ public partial class ReservationFormViewModel : BaseViewModel
         Title = "";
 
         SelectedDate = DateTime.Today;
-        StartTime = new TimeSpan(9, 0, 0);
-        EndTime = new TimeSpan(10, 0, 0);
+        StartTime = new DateTime(2025,11, 27, 9, 0, 0);
+        EndTime = new DateTime(2025, 11, 27, 10, 0, 0);
 
         SelectedClients = new ObservableCollection<Client>();
         AvailableClients = new ObservableCollection<Client>();
@@ -53,10 +53,10 @@ public partial class ReservationFormViewModel : BaseViewModel
     private DateTime _selectedDate;
 
     [ObservableProperty]
-    private TimeSpan _startTime;
+    private DateTime _startTime;
 
     [ObservableProperty]
-    private TimeSpan _endTime;
+    private DateTime _endTime;
     
     [ObservableProperty]
     private string _dateWarningText; 
@@ -128,8 +128,8 @@ public partial class ReservationFormViewModel : BaseViewModel
     }
     
     partial void OnSelectedDateChanged(DateTime value) => ValidateReservationRules();
-    partial void OnStartTimeChanged(TimeSpan value) => ValidateReservationRules();
-    partial void OnEndTimeChanged(TimeSpan value) => ValidateReservationRules();
+    partial void OnStartTimeChanged(DateTime value) => ValidateReservationRules();
+    partial void OnEndTimeChanged(DateTime value) => ValidateReservationRules();
     
     private void ValidateReservationRules()
     {
@@ -138,8 +138,8 @@ public partial class ReservationFormViewModel : BaseViewModel
         HasTimeWarning = false;
         TimeWarningText = string.Empty;
 
-        DateTime startDateTime = SelectedDate.Date + StartTime;
-        DateTime endDateTime = SelectedDate.Date + EndTime;
+        DateTime startDateTime = SelectedDate.Date + StartTime.TimeOfDay;
+        DateTime endDateTime = SelectedDate.Date + EndTime.TimeOfDay;
 
         if (!_reservationService.IsBookingWithinAllowedReservationTime(startDateTime))
         {
@@ -299,7 +299,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         
 
         bool anyUnderqualified = SelectedClients.Any(c => c.IsUnderqualified);
-        bool weatherAllowed = await _weatherRuleAuthencation.IsAllowedToSail(SelectedClients.ToList(), CurrentBoatType.Id);
+        bool weatherAllowed = await _weatherRuleAuthencation.IsAllowedToSail(SelectedClients.ToList(), CurrentBoatType.Id, StartTime, EndTime);
 
         if (anyUnderqualified)
         {
