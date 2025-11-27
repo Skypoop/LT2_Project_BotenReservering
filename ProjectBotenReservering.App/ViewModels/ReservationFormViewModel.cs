@@ -93,7 +93,7 @@ public partial class ReservationFormViewModel : BaseViewModel
     [RelayCommand]
     private async Task LoadBoatData(int id)
     {
-        var boatType = _boatTypeService.GetBoatTypeById(id);
+        BoatTypeUiItem boatType = _boatTypeService.GetBoatTypeById(id);
         CurrentBoatType = boatType;
         Title = boatType.Name;
 
@@ -107,14 +107,14 @@ public partial class ReservationFormViewModel : BaseViewModel
         SelectedClients.Clear();
         AvailableClients.Clear();
 
-        var currentUser = _clientService.GetCurrentClient();
+        Client? currentUser = _clientService.GetCurrentClient();
 
         if (currentUser != null)
         {
             SelectedClients.Add(currentUser);
         }
 
-        var allClients = _clientRepository.GetAll();
+        List<Client> allClients = _clientRepository.GetAll();
         foreach (var client in allClients)
         {
             if (currentUser != null && client.Id == currentUser.Id) continue;
@@ -198,7 +198,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         {
             await Task.Delay(100); // Small delay to let the UI settle
 
-            var itemToRemove = AvailableClients.FirstOrDefault(c => c.Id == clientToAdd.Id);
+            Client? itemToRemove = AvailableClients.FirstOrDefault(c => c.Id == clientToAdd.Id);
             if (itemToRemove != null)
             {
                 AvailableClients.Remove(itemToRemove);
@@ -310,7 +310,7 @@ public partial class ReservationFormViewModel : BaseViewModel
     [RelayCommand]
     private void ShowQualificationWarning(Client client)
     {
-        var message = string.IsNullOrWhiteSpace(client.QualificationHelpText) ? "Persoon is te lage rang voor deze boot" : client.QualificationHelpText;
+        string message = string.IsNullOrWhiteSpace(client.QualificationHelpText) ? "Persoon is te lage rang voor deze boot" : client.QualificationHelpText;
         Shell.Current.DisplayAlert("Waarschuwing", message, "OK");
     }
 }
