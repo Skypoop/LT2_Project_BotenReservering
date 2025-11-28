@@ -109,7 +109,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         public List<Reservation> GetByBoatId(int boatId)
         {
             var reservationList = new List<Reservation>();
-            string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id FROM Reservation WHERE Boat_Id = @BoatId";
+            string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id, Approved FROM Reservation WHERE Boat_Id = @BoatId";
             OpenConnection();
 
             using (SqliteCommand command = new(selectQuery, Connection))
