@@ -20,7 +20,7 @@ namespace ProjectBotenReservering.Core.Services
             _windConstraintRepository = windConstraintRepository;
         }
 
-        public async Task<bool> IsAllowedToSail(List<Client> clients, int boatId, DateTime beginDate, DateTime endDate)
+        public async Task<bool> BoatIsAllowedToRowing(List<Client> clients, int boatId, DateTime beginDate, DateTime endDate)
         {
             int windforce = await _weatherService.GetWeatherAsync(beginDate, endDate);
             WindConstraint? maxLevels = _windConstraintRepository.Get(windforce);
@@ -33,19 +33,6 @@ namespace ProjectBotenReservering.Core.Services
 
             if ((boat.Type == BoatType.B && boat.Level >= maxLevels.MinSweepLevel) || (boat.Type == BoatType.S && boat.Level >= maxLevels.MinScullLevel)) {
                 return true;
-            }
-
-            foreach (var client in clients)
-            {
-                if (boat.Type == BoatType.S && client.ScullLevel >= maxLevels.MinScullLevel)
-                {
-                    return true;
-                }
-
-                if (boat.Type == BoatType.B && client.SweepLevel >= maxLevels.MinSweepLevel)
-                {
-                    return true;
-                }
             }
 
             return false;

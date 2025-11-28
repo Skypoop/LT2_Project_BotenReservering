@@ -132,7 +132,7 @@ public partial class ReservationFormViewModel : BaseViewModel
     partial void OnStartTimeChanged(TimeSpan value) => ValidateReservationRules();
     partial void OnEndTimeChanged(TimeSpan value) => ValidateReservationRules();
 
-    private void ValidateReservationRules()
+    private async Task ValidateReservationRules()
     {
         HasDateWarning = false;
         DateWarningText = string.Empty;
@@ -147,6 +147,15 @@ public partial class ReservationFormViewModel : BaseViewModel
             //TODO: 2 has to be retrieved from the constant
             DateWarningText = "Deze datum is te ver in de toekomst. max 2 dagen ver";
             HasDateWarning = true;
+        } else
+        {
+            bool weatherAllowed = await _weatherRuleAuthencation.BoatIsAllowedToRowing(SelectedClients.ToList(), CurrentBoatType.Id, startDateTime, endDateTime);
+
+            if (!weatherAllowed)
+            {
+                DateWarningText = "Voor deze datum is het weer te heftig";
+                HasDateWarning = true;
+            }
         }
 
 
@@ -300,15 +309,10 @@ public partial class ReservationFormViewModel : BaseViewModel
 
 
         bool anyUnderqualified = SelectedClients.Any(c => c.IsUnderqualified);
-        bool weatherAllowed = await _weatherRuleAuthencation.IsAllowedToSail(SelectedClients.ToList(), CurrentBoatType.Id, StartTime, EndTime);
 
         if (anyUnderqualified)
         {
             await Shell.Current.DisplayAlert("Info", "Reservering verstuurd naar botencommissaris voor goedkeuring", "OK");
-        }
-        else if (!weatherAllowed)
-        {
-            await Shell.Current.DisplayAlert("Warning", "Het weer is te heftig voor nu", "OK");
         }
         else
         {
