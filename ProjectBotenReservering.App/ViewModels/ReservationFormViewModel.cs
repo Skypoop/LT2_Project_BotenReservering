@@ -151,7 +151,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         {
             bool weatherAllowed = await _weatherRuleAuthencation.BoatIsAllowedToRowing(SelectedClients.ToList(), CurrentBoatType.Id, startDateTime, endDateTime);
 
-            if (!weatherAllowed)
+            if (weatherAllowed)
             {
                 DateWarningText = "Voor deze datum is het weer te heftig";
                 HasDateWarning = true;
