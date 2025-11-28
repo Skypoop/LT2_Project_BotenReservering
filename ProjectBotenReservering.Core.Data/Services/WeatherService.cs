@@ -22,22 +22,19 @@ namespace ProjectBotenReservering.Core.Data.Services
 
         private static int GetDateIndex(List<string> timeList, string formattedDateTime)
         {
-            int index = timeList.FindIndex(str => str == formattedDateTime);
-
-            if (index == -1)
-                throw new InvalidOperationException($"Datum {formattedDateTime} niet gevonden in weather data.");
-
-            return index;
+            return timeList.FindIndex(str => str == formattedDateTime);
         }
 
+        // Returns the maximum wind speed between the specified start and end indices (inclusive).
+        // The startIndex and endIndex define the range within the windSpeeds list.
         private static decimal GetMaxWindSpeedInRange(List<decimal> windSpeeds, int startIndex, int endIndex)
         {
-            int count = endIndex - startIndex + 1;
+            int indexRange = endIndex - startIndex + 1;
 
-            if (count <= 0)
-                throw new InvalidOperationException("Ongeldige datum range: eindtijd moet na starttijd zijn.");
+            if (indexRange <= 0)
+                throw new InvalidOperationException("Ongeldige index range: index range moet altijd 1 of hoger zijn.");
 
-            return windSpeeds.Skip(startIndex).Take(count).Max();
+            return windSpeeds.Skip(startIndex).Take(indexRange).Max();
         }
 
         public async Task<int> GetWeatherAsync(DateTime beginDate, DateTime endDate)

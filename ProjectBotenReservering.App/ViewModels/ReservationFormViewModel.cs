@@ -152,7 +152,7 @@ public partial class ReservationFormViewModel : BaseViewModel
 
                 if (!weatherAllowed)
                 {
-                    DateWarningText = "Let op voor deze datum is het weer te heftig";
+                    DateWarningText = "LET OP: Voor deze datum is het weer te heftig!";
                     HasDateWarning = true;
                 }
             }
@@ -247,18 +247,18 @@ public partial class ReservationFormViewModel : BaseViewModel
     {
         if (CurrentBoatType != null)
         {
-            string verplichtText;
+            string mandatoryText;
 
             if (SelectedClients.Count != CurrentBoatType.SeatAmount)
             {
-                verplichtText = "Verplicht:";
+                mandatoryText = "Verplicht:";
             }
             else
             {
-                verplichtText = string.Empty;
+                mandatoryText = string.Empty;
             }
 
-            SeatStatusText = $"{verplichtText} {SelectedClients.Count} / {CurrentBoatType.SeatAmount}";
+            SeatStatusText = $"{mandatoryText} {SelectedClients.Count} / {CurrentBoatType.SeatAmount}";
             SaveReservationCommand.NotifyCanExecuteChanged();
         }
     }

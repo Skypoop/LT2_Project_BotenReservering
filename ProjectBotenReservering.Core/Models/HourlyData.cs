@@ -7,7 +7,6 @@ namespace ProjectBotenReservering.Core.Models
         [JsonPropertyName("wind_speed_10m")]
         public required List<decimal> WindSpeed10m { get; set; }
 
-        // Als je ook tijden wilt opslaan:
         [JsonPropertyName("time")]
         public required List<string> Time { get; set; }
     }
