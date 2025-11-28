@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ProjectBotenReservering.App.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
@@ -290,15 +291,36 @@ public partial class ReservationFormViewModel : BaseViewModel
     }
     private async Task SendReservationEmailAsync()
     {
-        List<string> receivers = SelectedClients
-            .Select(client => client.Email)
-            .Where(emailAdress => !string.IsNullOrWhiteSpace(emailAdress))
-            .ToList();
+        string rawBody = await ResourceLoaderHelper
+            .LoadEmbeddedResourceAsync("ReservationConfirmation.html");
 
-        string subject = "Reservering Bevestiging";
-        string body = "Uw reservering is bevestigd.";
+        if (string.IsNullOrEmpty(rawBody)) return;
 
-        await _mailService.SendMailAsync(receivers, subject, body);
+        string dateString = SelectedDate.ToString("dd-MM-yyyy");
+        string startTimeString = $"{dateString} {StartTime:hh\\:mm}";
+        string endTimeString = $"{dateString} {EndTime:hh\\:mm}";
+
+        foreach (Client currentClient in SelectedClients)
+        {
+            IEnumerable<string> otherRowersList = SelectedClients
+                .Where(client => client.Id != currentClient.Id)
+                .Select(client => client.FullName);
+
+            string otherRowersText = otherRowersList.Any()
+                ? string.Join(", ", otherRowersList)
+                : "Geen! Veel plezier solo!";
+
+            string personalizedBody = rawBody
+                .Replace("{Name}", currentClient.FullName)
+                .Replace("{StartTime}", startTimeString)
+                .Replace("{EndTime}", endTimeString)
+                .Replace("{OtherRowers}", otherRowersText);
+
+            string subject = $"Reservering #{dateString}";
+
+            List<string> singleReceiver = [currentClient.Email];
+            await _mailService.SendMailAsync(singleReceiver, subject, personalizedBody);
+        }
     }
     [RelayCommand(CanExecute = nameof(CanSaveReservation))]
     private async Task SaveReservation()

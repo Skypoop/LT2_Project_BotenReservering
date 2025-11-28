@@ -28,7 +28,7 @@ public class SmtpMailService : ISmtpMailService
             message.To.Add(receiver);
             message.Subject = subject;
             message.Body = body;
-            message.IsBodyHtml = false;
+            message.IsBodyHtml = true;
             await smtp.SendMailAsync(message);
         }
     }
