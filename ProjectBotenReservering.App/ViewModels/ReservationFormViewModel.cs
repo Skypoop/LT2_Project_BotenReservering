@@ -286,20 +286,24 @@ public partial class ReservationFormViewModel : BaseViewModel
         Reservation currentReservation = new Reservation
         (
             DateTime.Now,
-            this.SelectedDate.Date.Add(this.StartTime),
-            this.SelectedDate.Date.Add(this.EndTime),
+            SelectedDate.Date.Add(StartTime),
+            SelectedDate.Date.Add(EndTime),
             _clientService.GetCurrentClient()!.Id,
-            BoatId);
+            BoatId, 
+            true);
         Console.WriteLine("Reservation created: " + currentReservation);
 
         if (anyUnderqualified)
         {
+            currentReservation.Approved = false;
+            _reservationService.Add(currentReservation);
             await Shell.Current.DisplayAlert("Info", "Reservering verstuurd naar botencommissaris voor goedkeuring",
                 "OK");
         }
         else
         {
             _reservationService.Add(currentReservation);
+            //_reservationService.AddClientsToReservation(currentReservation, SelectedClients);
             await Shell.Current.DisplayAlert("Succes", "Reservering Geslaagd!", "OK");
         }
 

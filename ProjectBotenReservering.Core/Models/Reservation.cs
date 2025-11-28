@@ -8,8 +8,9 @@ public class Reservation
     public DateTime EndTime { get; set; }
     public int ClientId { get; set; }
     public int BoatId { get; set; }
+    public bool Approved { get; set; }
 
-    public Reservation(DateTime createdAt, DateTime startTime, DateTime endTime, int clientId, int boatId, int id = 0)
+    public Reservation(DateTime createdAt, DateTime startTime, DateTime endTime, int clientId, int boatId, bool approved, int id = 0)
     {
         Id = id;
         CreatedAt = createdAt;
@@ -17,6 +18,7 @@ public class Reservation
         EndTime = endTime;
         ClientId = clientId;
         BoatId = boatId;
+        Approved = approved;
     }
 }
 
