@@ -18,18 +18,18 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
             if (anyWindConstraintsExist == false)
             {
-                Add(new WindConstraint(1, 10, 10));
-                Add(new WindConstraint(2, 10, 10));
-                Add(new WindConstraint(3, 10, 10));
-                Add(new WindConstraint(4, 10, 10));
-                Add(new WindConstraint(5, 10, 10));
-                Add(new WindConstraint(6, 10, 10));
-                Add(new WindConstraint(7, 10, 10));
-                Add(new WindConstraint(8, 10, 10));
-                Add(new WindConstraint(9, 10, 10));
-                Add(new WindConstraint(10, 10, 10));
-                Add(new WindConstraint(11, 10, 10));
-                Add(new WindConstraint(12, 10, 10));
+                Add(new WindConstraint(1, 1, 1));
+                Add(new WindConstraint(2, 1, 1));
+                Add(new WindConstraint(3, 1, 1));
+                Add(new WindConstraint(4, 1, 1));
+                Add(new WindConstraint(5, 1, 1));
+                Add(new WindConstraint(6, 1, 1));
+                Add(new WindConstraint(7, 1, 1));
+                Add(new WindConstraint(8, 1, 1));
+                Add(new WindConstraint(9, 1, 1));
+                Add(new WindConstraint(10, 1, 1));
+                Add(new WindConstraint(11, 1, 1));
+                Add(new WindConstraint(12, 1, 1));
             }
         }
 

@@ -28,27 +28,27 @@ namespace ProjectBotenReservering.Core.Services
 
             if (maxLevels == null || boat == null)
             {
-                return false;
+                return true;
             }
 
-            if ((boat.Type == BoatType.B && boat.Level > maxLevels.MinSweepLevel) || (boat.Type == BoatType.S && boat.Level > maxLevels.MinScullLevel)) {
-                return false;
+            if ((boat.Type == BoatType.B && boat.Level >= maxLevels.MinSweepLevel) || (boat.Type == BoatType.S && boat.Level >= maxLevels.MinScullLevel)) {
+                return true;
             }
 
             foreach (var client in clients)
             {
-                if (boat.Type == BoatType.S && client.ScullLevel > maxLevels.MinScullLevel)
+                if (boat.Type == BoatType.S && client.ScullLevel >= maxLevels.MinScullLevel)
                 {
-                    return false;
+                    return true;
                 }
 
-                if (boat.Type == BoatType.B && client.SweepLevel > maxLevels.MinSweepLevel)
+                if (boat.Type == BoatType.B && client.SweepLevel >= maxLevels.MinSweepLevel)
                 {
-                    return false;
+                    return true;
                 }
             }
 
-            return true;
+            return false;
         }
     }
 }
