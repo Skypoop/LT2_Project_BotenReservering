@@ -303,7 +303,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         else
         {
             _reservationService.Add(currentReservation);
-            //_reservationService.AddClientsToReservation(currentReservation, SelectedClients);
+            _reservationService.AddClientsToReservation(currentReservation, SelectedClients.ToList ());
             await Shell.Current.DisplayAlert("Succes", "Reservering Geslaagd!", "OK");
         }
 
