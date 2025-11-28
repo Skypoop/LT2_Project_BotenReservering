@@ -4,7 +4,6 @@ using ProjectBotenReservering.Core.Models;
 using ProjectBotenReservering.App.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
-using ProjectBotenReservering.Core.Models;
 using ProjectBotenReservering.Core.Services;
 using System.Collections.ObjectModel;
 
