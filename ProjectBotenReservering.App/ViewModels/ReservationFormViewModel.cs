@@ -1,12 +1,13 @@
-using System.Collections.ObjectModel;
-using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using ProjectBotenReservering.App.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 using Microsoft.Maui.Devices;
 using ProjectBotenReservering.App.Context;
-
+using ProjectBotenReservering.Core.Services;
+using System.Collections.ObjectModel;
 namespace ProjectBotenReservering.App.ViewModels;
 
 [QueryProperty(nameof(BoatId), "Id")]
@@ -23,15 +24,18 @@ public partial class ReservationFormViewModel : BaseViewModel
         IClientService clientService,
         IClientRepository clientRepository,
         IReservationService reservationService,
-        IBoatAuthorizationService boatReservationService
-    )
+        IBoatAuthorizationService boatReservationService,
+        ISmtpMailService mailservice
+        )
     {
+        _mailService = mailservice; 
         _boatTypeService = boatTypeService;
         _clientRepository = clientRepository;
 
         _clientService = clientService;
         _reservationService = reservationService;
         _boatAuthorizationService = boatReservationService;
+
 
 
         Title = "";
@@ -46,7 +50,7 @@ public partial class ReservationFormViewModel : BaseViewModel
 
     public DateTime MinDate => DateTime.Today;
 
-    [ObservableProperty] private BoatTypeUiItem _currentBoatType;
+    [ObservableProperty] private BoatTypeUiItem? _currentBoatType;
 
     [ObservableProperty] private DateTime _selectedDate;
 
@@ -54,21 +58,22 @@ public partial class ReservationFormViewModel : BaseViewModel
 
     [ObservableProperty] private TimeSpan _endTime;
 
-    [ObservableProperty] private string _dateWarningText;
+    [ObservableProperty] private string? _dateWarningText;
 
     [ObservableProperty] private bool _hasDateWarning;
 
-    [ObservableProperty] private string _timeWarningText;
+    [ObservableProperty] private string? _timeWarningText;
 
     [ObservableProperty] private bool _hasTimeWarning;
 
+    private readonly ISmtpMailService _mailService;         
     public ObservableCollection<Client> SelectedClients { get; }
     public ObservableCollection<Client> AvailableClients { get; }
 
     public bool IsMacCatalyst { get; } = DeviceInfo.Current.Platform == DevicePlatform.MacCatalyst;
     public bool IsPickerSupported => !IsMacCatalyst;
 
-    [ObservableProperty] private Client _selectedClientToAdd;
+    [ObservableProperty] private Client? _selectedClientToAdd;
 
     [ObservableProperty] private string _seatStatusText = "";
 
@@ -89,7 +94,7 @@ public partial class ReservationFormViewModel : BaseViewModel
     [RelayCommand]
     private async Task LoadBoatData(int id)
     {
-        var boatType = _boatTypeService.GetBoatTypeById(id);
+        BoatTypeUiItem boatType = _boatTypeService.GetBoatTypeById(id);
         CurrentBoatType = boatType;
         Title = boatType.Name;
 
@@ -103,14 +108,14 @@ public partial class ReservationFormViewModel : BaseViewModel
         SelectedClients.Clear();
         AvailableClients.Clear();
 
-        var currentUser = _clientService.GetCurrentClient();
+        Client? currentUser = _clientService.GetCurrentClient();
 
         if (currentUser != null)
         {
             SelectedClients.Add(currentUser);
         }
 
-        var allClients = _clientRepository.GetAll();
+        List<Client> allClients = _clientRepository.GetAll();
         foreach (var client in allClients)
         {
             if (currentUser != null && client.Id == currentUser.Id) continue;
@@ -193,7 +198,12 @@ public partial class ReservationFormViewModel : BaseViewModel
     [RelayCommand]
     private void RemoveClient(Client client)
     {
-        Client currentUser = _clientService.GetCurrentClient();
+        Client? currentUser = _clientService.GetCurrentClient();
+        if (currentUser == null)
+        {
+            Console.WriteLine("Not logged in");
+            return;
+        }
         if (client.Id == currentUser?.Id)
         {
             Shell.Current.DisplayAlert("Info", "Je kan jezelf niet verwijderen.", "OK");
@@ -269,7 +279,39 @@ public partial class ReservationFormViewModel : BaseViewModel
         if (CurrentBoatType == null) return false;
         return SelectedClients.Count == CurrentBoatType.SeatAmount;
     }
+    private async Task SendReservationEmailAsync()
+    {
+        string rawBody = await ResourceLoaderHelper
+            .LoadEmbeddedResourceAsync("ReservationConfirmation.html");
 
+        if (string.IsNullOrEmpty(rawBody)) return;
+
+        string dateString = SelectedDate.ToString("dd-MM-yyyy");
+        string startTimeString = $"{dateString} {StartTime:hh\\:mm}";
+        string endTimeString = $"{dateString} {EndTime:hh\\:mm}";
+
+        foreach (Client currentClient in SelectedClients)
+        {
+            IEnumerable<string> otherRowersList = SelectedClients
+                .Where(client => client.Id != currentClient.Id)
+                .Select(client => client.FullName);
+
+            string otherRowersText = otherRowersList.Any()
+                ? string.Join(", ", otherRowersList)
+                : "Geen! Veel plezier solo!";
+
+            string personalizedBody = rawBody
+                .Replace("{Name}", currentClient.FullName)
+                .Replace("{StartTime}", startTimeString)
+                .Replace("{EndTime}", endTimeString)
+                .Replace("{OtherRowers}", otherRowersText);
+
+            string subject = $"Reservering #{dateString}";
+
+            List<string> singleReceiver = [currentClient.Email];
+            await _mailService.SendMailAsync(singleReceiver, subject, personalizedBody);
+        }
+    }
     [RelayCommand(CanExecute = nameof(CanSaveReservation))]
     private async Task SaveReservation()
     {
@@ -305,6 +347,7 @@ public partial class ReservationFormViewModel : BaseViewModel
             _reservationService.Add(currentReservation);
             _reservationService.AddClientsToReservation(currentReservation, SelectedClients.ToList ());
             await Shell.Current.DisplayAlert("Succes", "Reservering Geslaagd!", "OK");
+            await SendReservationEmailAsync(); 
         }
 
         await Shell.Current.GoToAsync("..");
