@@ -40,7 +40,7 @@ namespace ProjectBotenReservering.Core.Data.Services
             return windSpeeds.Skip(startIndex).Take(count).Max();
         }
 
-        public async Task<int> GetWeatherAsync(DateTime? beginDate = null, DateTime? endDate = null)
+        public async Task<int> GetWeatherAsync(DateTime beginDate, DateTime endDate)
         {
             HttpResponseMessage response = await _httpClient.GetAsync(
                 "?latitude=52.52&longitude=13.41&current=wind_speed_10m&hourly=wind_speed_10m&current_weather=true"
@@ -57,15 +57,12 @@ namespace ProjectBotenReservering.Core.Data.Services
             if (weatherData?.Hourly == null)
                 throw new InvalidOperationException("Hourly weather data is missing.");
 
-            // Format datums
-            string startDateFormatted = FormatDateTime(beginDate.Value);
-            string endDateFormatted = FormatDateTime(endDate.Value);
+            string startDateFormatted = FormatDateTime(beginDate);
+            string endDateFormatted = FormatDateTime(endDate);
 
-            // Vind indexes
             int startDateIndex = GetDateIndex(weatherData.Hourly.Time, startDateFormatted);
             int endDateIndex = GetDateIndex(weatherData.Hourly.Time, endDateFormatted);
 
-            // Bereken max windsnelheid in range
             decimal maxWindSpeed = GetMaxWindSpeedInRange(weatherData.Hourly.WindSpeed10m, startDateIndex, endDateIndex);
 
             int windforce = WindforceService.GetWindforce(maxWindSpeed);

@@ -16,15 +16,13 @@ public partial class ReservationFormViewModel : BaseViewModel
     private readonly IClientRepository _clientRepository;
     private readonly IReservationService _reservationService;
     private readonly IBoatAuthorizationService _boatAuthorizationService;
-    private readonly IWeatherRuleAuthencation _weatherRuleAuthencation;
 
     public ReservationFormViewModel(
         IBoatTypeService boatTypeService,
         IClientService clientService,
         IClientRepository clientRepository,
         IReservationService reservationService,
-        IBoatAuthorizationService boatReservationService,
-        IWeatherRuleAuthencation weatherRuleAuthencation
+        IBoatAuthorizationService boatReservationService
         )
     {
         _boatTypeService = boatTypeService;
@@ -33,7 +31,6 @@ public partial class ReservationFormViewModel : BaseViewModel
         _clientService = clientService;
         _reservationService = reservationService;
         _boatAuthorizationService = boatReservationService;
-        _weatherRuleAuthencation = weatherRuleAuthencation;
 
         Title = "";
 
@@ -147,28 +144,31 @@ public partial class ReservationFormViewModel : BaseViewModel
             //TODO: 2 has to be retrieved from the constant
             DateWarningText = "Deze datum is te ver in de toekomst. max 2 dagen ver";
             HasDateWarning = true;
-        } else
-        {
-            bool weatherAllowed = await _weatherRuleAuthencation.BoatIsAllowedToRowing(SelectedClients.ToList(), CurrentBoatType.Id, startDateTime, endDateTime);
-
-            if (weatherAllowed)
-            {
-                DateWarningText = "Voor deze datum is het weer te heftig";
-                HasDateWarning = true;
-            }
         }
-
-
-        if (EndTime > StartTime)
+        else if (_reservationService.IsBookingWithinAllowedReservationTime(startDateTime) && BoatId != 0)
         {
-            if (!_reservationService.IsValidReservationLength(startDateTime, endDateTime))
             {
-                TimeWarningText = "De reservering duurt te lang. max 2 uur lang";
-                HasTimeWarning = true;
-            }
-        }
+                bool weatherAllowed = await _boatAuthorizationService.WeatherAuthorized(BoatId, startDateTime, endDateTime);
 
-        SaveReservationCommand.NotifyCanExecuteChanged();
+                if (!weatherAllowed)
+                {
+                    DateWarningText = "Let op voor deze datum is het weer te heftig";
+                    HasDateWarning = true;
+                }
+            }
+
+
+            if (EndTime > StartTime)
+            {
+                if (!_reservationService.IsValidReservationLength(startDateTime, endDateTime))
+                {
+                    TimeWarningText = "De reservering duurt te lang. max 2 uur lang";
+                    HasTimeWarning = true;
+                }
+            }
+
+            SaveReservationCommand.NotifyCanExecuteChanged();
+        }
     }
 
     partial void OnSelectedClientToAddChanged(Client value)
