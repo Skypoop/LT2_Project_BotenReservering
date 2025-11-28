@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Maui;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using ProjectBotenReservering.App.Context;
 using ProjectBotenReservering.App.ViewModels;
@@ -9,6 +10,7 @@ using ProjectBotenReservering.Core.Data.Repositories;
 using ProjectBotenReservering.Core.Services;
 using ProjectBotenReservering.Core.Data.Services;
 using ProjectBotenReservering.Core.Interfaces.Context;
+using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.App
 {
@@ -16,7 +18,7 @@ namespace ProjectBotenReservering.App
     {
         public static MauiApp CreateMauiApp()
         {
-            var builder = MauiApp.CreateBuilder();
+            MauiAppBuilder builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
                 .UseMauiCommunityToolkit()
@@ -25,6 +27,14 @@ namespace ProjectBotenReservering.App
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
+
+            IConfigurationRoot configuration = new ConfigurationBuilder()
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json")
+                .Build();
+
+            MailSettings mailSettings = configuration.GetSection("MailConnection").Get<MailSettings>()!;
+            IServiceCollection serviceCollection = builder.Services.AddSingleton(mailSettings);
 
             builder.Services.AddSingleton<IBoatRepository, BoatRepository>();
             builder.Services.AddSingleton<IClientRepository, ClientRepository>();
@@ -39,7 +49,7 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IClientManagementTaskRepository, ClientManagementTaskRepository>();
             builder.Services.AddSingleton<IRoleManagementTaskRepository, RoleManagementTaskRepository>();
 
-            builder.Services.AddSingleton<IMailService, SmtpMailService>();
+            builder.Services.AddSingleton<ISmtpMailService, SmtpMailService>();
             builder.Services.AddSingleton<IWeatherService, WeatherService>();
             builder.Services.AddSingleton<IBoatTypeService, BoatTypeService>();
             builder.Services.AddSingleton<IBoatAuthorizationService, BoatAuthorizationService>();
