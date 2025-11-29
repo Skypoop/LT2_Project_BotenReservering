@@ -17,7 +17,7 @@ public partial class ReservationFormViewModel : BaseViewModel
     private readonly IClientService _clientService;
     private readonly IClientRepository _clientRepository;
     private readonly IReservationService _reservationService;
-    private readonly IBoatAuthorizationService _boatAuthorization_service;
+    private readonly IBoatAuthorizationService _boatAuthorizationService;
 
     public ReservationFormViewModel(
         IBoatTypeService boatTypeService,
@@ -30,7 +30,7 @@ public partial class ReservationFormViewModel : BaseViewModel
     {
         _mailService = mailservice; 
         _boatTypeService = boatTypeService;
-        _client_repository = clientRepository;
+        _clientRepository = clientRepository;
 
         _clientService = clientService;
         _reservationService = reservationService;
@@ -53,9 +53,9 @@ public partial class ReservationFormViewModel : BaseViewModel
 
     [ObservableProperty] private DateTime _selectedDate;
 
-    [ObservableProperty] private TimeSpan _start_time;
+    [ObservableProperty] private TimeSpan _startTime;
 
-    [ObservableProperty] private TimeSpan _end_time;
+    [ObservableProperty] private TimeSpan _endTime;
 
     [ObservableProperty] private string? _dateWarningText;
 
@@ -114,7 +114,7 @@ public partial class ReservationFormViewModel : BaseViewModel
             SelectedClients.Add(currentUser);
         }
 
-        List<Client> allClients = _client_repository.GetAll();
+        List<Client> allClients = _clientRepository.GetAll();
         foreach (var client in allClients)
         {
             if (currentUser != null && client.Id == currentUser.Id) continue;
@@ -197,7 +197,7 @@ public partial class ReservationFormViewModel : BaseViewModel
     [RelayCommand]
     private void RemoveClient(Client client)
     {
-        Client? currentUser = _client_service.GetCurrentClient();
+        Client? currentUser = _clientService.GetCurrentClient();
         if (currentUser == null)
         {
             Console.WriteLine("Not logged in");
@@ -250,7 +250,7 @@ public partial class ReservationFormViewModel : BaseViewModel
 
         foreach (Client client in SelectedClients)
         {
-            if (!_boatAuthorization_service.IsAuthorized(CurrentBoatType.Type, CurrentBoatType.Level, client))
+            if (!_boatAuthorizationService.IsAuthorized(CurrentBoatType.Type, CurrentBoatType.Level, client))
             {
                 string levelType = CurrentBoatType.Type == BoatType.S ? "scull" : "sweep";
                 int clientLevel = CurrentBoatType.Type == BoatType.S ? client.ScullLevel : client.SweepLevel;
@@ -286,8 +286,8 @@ public partial class ReservationFormViewModel : BaseViewModel
         if (string.IsNullOrEmpty(rawBody)) return;
 
         string dateString = SelectedDate.ToString("dd-MM-yyyy");
-        string startTimeString = $"{dateString} {StartTime:hh\:mm}";
-        string endTimeString = $"{dateString} {EndTime:hh\:mm}";
+        string startTimeString = $"{dateString} {StartTime:hh\\:mm}";
+        string endTimeString = $"{dateString} {EndTime:hh\\:mm}";
 
         foreach (Client currentClient in SelectedClients)
         {
@@ -343,8 +343,8 @@ public partial class ReservationFormViewModel : BaseViewModel
         }
         else
         {
-            _reservation_service.Add(currentReservation);
-            _reservation_service.AddClientsToReservation(currentReservation, SelectedClients.ToList ());
+            _reservationService.Add(currentReservation);
+            _reservationService.AddClientsToReservation(currentReservation, SelectedClients.ToList ());
             await Shell.Current.DisplayAlert("Succes", "Reservering Geslaagd!", "OK");
             await SendReservationEmailAsync(); 
         }
