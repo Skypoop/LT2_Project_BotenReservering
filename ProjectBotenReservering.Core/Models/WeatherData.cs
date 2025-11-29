@@ -6,11 +6,8 @@ namespace ProjectBotenReservering.Core.Models
     {
         [JsonPropertyName("current_weather")]
         public required CurrentWeather CurrentWeather { get; set; }
-    }
 
-    public class CurrentWeather
-    {
-        [JsonPropertyName("windspeed")]
-        public decimal Windspeed { get; set; }
+        [JsonPropertyName("hourly")]
+        public required HourlyData Hourly { get; set; }
     }
 }

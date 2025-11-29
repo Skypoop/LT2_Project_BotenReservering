@@ -1,13 +1,14 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ProjectBotenReservering.Core.Models;
 using ProjectBotenReservering.App.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
-using ProjectBotenReservering.Core.Models;
 using Microsoft.Maui.Devices;
 using ProjectBotenReservering.App.Context;
 using ProjectBotenReservering.Core.Services;
 using System.Collections.ObjectModel;
+
 namespace ProjectBotenReservering.App.ViewModels;
 
 [QueryProperty(nameof(BoatId), "Id")]
@@ -35,7 +36,6 @@ public partial class ReservationFormViewModel : BaseViewModel
         _clientService = clientService;
         _reservationService = reservationService;
         _boatAuthorizationService = boatReservationService;
-
 
         Title = "";
 
@@ -129,7 +129,7 @@ public partial class ReservationFormViewModel : BaseViewModel
     partial void OnStartTimeChanged(TimeSpan value) => ValidateReservationRules();
     partial void OnEndTimeChanged(TimeSpan value) => ValidateReservationRules();
 
-    private void ValidateReservationRules()
+    private async Task ValidateReservationRules()
     {
         HasDateWarning = false;
         DateWarningText = string.Empty;
@@ -145,6 +145,17 @@ public partial class ReservationFormViewModel : BaseViewModel
             DateWarningText = "Deze datum is te ver in de toekomst. max 2 dagen ver";
             HasDateWarning = true;
         }
+        else if (_reservationService.IsBookingWithinAllowedReservationTime(startDateTime) && BoatId != 0)
+        {
+            {
+                bool weatherAllowed = await _boatAuthorizationService.WeatherAuthorized(BoatId, startDateTime, endDateTime);
+
+                if (!weatherAllowed)
+                {
+                    DateWarningText = "LET OP: Voor deze datum is het weer te heftig!";
+                    HasDateWarning = true;
+                }
+            }
 
 
         if (EndTime > StartTime)
@@ -156,7 +167,8 @@ public partial class ReservationFormViewModel : BaseViewModel
             }
         }
 
-        SaveReservationCommand.NotifyCanExecuteChanged();
+            SaveReservationCommand.NotifyCanExecuteChanged();
+        }
     }
 
     partial void OnSelectedClientToAddChanged(Client value)
@@ -228,18 +240,18 @@ public partial class ReservationFormViewModel : BaseViewModel
     {
         if (CurrentBoatType != null)
         {
-            string verplichtText;
+            string mandatoryText;
 
             if (SelectedClients.Count != CurrentBoatType.SeatAmount)
             {
-                verplichtText = "Verplicht:";
+                mandatoryText = "Verplicht:";
             }
             else
             {
-                verplichtText = string.Empty;
+                mandatoryText = string.Empty;
             }
 
-            SeatStatusText = $"{verplichtText} {SelectedClients.Count} / {CurrentBoatType.SeatAmount}";
+            SeatStatusText = $"{mandatoryText} {SelectedClients.Count} / {CurrentBoatType.SeatAmount}";
             SaveReservationCommand.NotifyCanExecuteChanged();
         }
     }

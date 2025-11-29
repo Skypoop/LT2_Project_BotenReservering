@@ -1,7 +1,9 @@
-﻿namespace ProjectBotenReservering.Core.Interfaces.Services
+﻿using ProjectBotenReservering.Core.Models;
+
+namespace ProjectBotenReservering.Core.Interfaces.Services
 {
     public interface IWeatherService
     {
-        Task<int> GetWeatherAsync();
+        Task<int> GetWeatherAsync(DateTime beginDate, DateTime endDate);
     }
 }

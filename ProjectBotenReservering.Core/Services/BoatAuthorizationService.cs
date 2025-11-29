@@ -1,3 +1,4 @@
+using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 
@@ -6,10 +7,16 @@ namespace ProjectBotenReservering.Core.Services;
 public class BoatAuthorizationService : IBoatAuthorizationService
 {
     private readonly IClientService _clientService;
+    private readonly IWeatherService _weatherService;
+    private readonly IBoatRepository _boatRepository;
+    private readonly IWindConstraintRepository _windConstraintRepository;
 
-    public BoatAuthorizationService(IClientService clientService)
+    public BoatAuthorizationService(IClientService clientService, IWeatherService weatherService, IBoatRepository boatRepository, IWindConstraintRepository windConstraintRepository)
     {
         _clientService = clientService;
+        _weatherService = weatherService;
+        _boatRepository = boatRepository;
+        _windConstraintRepository = windConstraintRepository;
     }
 
     private bool authorizationCheck(BoatType boatType, int boatLevel, Client? client)
@@ -26,6 +33,26 @@ public class BoatAuthorizationService : IBoatAuthorizationService
             _=> false
         };
     }
+
+    public async Task<bool> WeatherAuthorized(int boatId, DateTime beginDate, DateTime endDate)
+    {
+        int windforce = await _weatherService.GetWeatherAsync(beginDate, endDate);
+        WindConstraint? minLevels = _windConstraintRepository.Get(windforce);
+        Boat? boat = _boatRepository.Get(boatId);
+
+        if (minLevels == null || boat == null)
+        {
+            return false;
+        }
+
+        if ((boat.Type == BoatType.B && boat.Level >= minLevels.MinSweepLevel) || (boat.Type == BoatType.S && boat.Level >= minLevels.MinScullLevel))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     public bool IsAuthorized(BoatType boatType, int boatLevel) => IsAuthorized(boatType, boatLevel, _clientService.GetCurrentClient());
  
     public bool IsAuthorized(BoatType boatType, int boatLevel, Client? client)
