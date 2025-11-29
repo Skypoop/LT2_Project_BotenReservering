@@ -17,7 +17,7 @@ public partial class ReservationFormViewModel : BaseViewModel
     private readonly IClientService _clientService;
     private readonly IClientRepository _clientRepository;
     private readonly IReservationService _reservationService;
-    private readonly IBoatAuthorizationService _boatAuthorizationService;
+    private readonly IBoatAuthorizationService _boatAuthorization_service;
 
     public ReservationFormViewModel(
         IBoatTypeService boatTypeService,
@@ -30,12 +30,11 @@ public partial class ReservationFormViewModel : BaseViewModel
     {
         _mailService = mailservice; 
         _boatTypeService = boatTypeService;
-        _clientRepository = clientRepository;
+        _client_repository = clientRepository;
 
         _clientService = clientService;
         _reservationService = reservationService;
         _boatAuthorizationService = boatReservationService;
-
 
 
         Title = "";
@@ -54,9 +53,9 @@ public partial class ReservationFormViewModel : BaseViewModel
 
     [ObservableProperty] private DateTime _selectedDate;
 
-    [ObservableProperty] private TimeSpan _startTime;
+    [ObservableProperty] private TimeSpan _start_time;
 
-    [ObservableProperty] private TimeSpan _endTime;
+    [ObservableProperty] private TimeSpan _end_time;
 
     [ObservableProperty] private string? _dateWarningText;
 
@@ -115,7 +114,7 @@ public partial class ReservationFormViewModel : BaseViewModel
             SelectedClients.Add(currentUser);
         }
 
-        List<Client> allClients = _clientRepository.GetAll();
+        List<Client> allClients = _client_repository.GetAll();
         foreach (var client in allClients)
         {
             if (currentUser != null && client.Id == currentUser.Id) continue;
@@ -165,10 +164,10 @@ public partial class ReservationFormViewModel : BaseViewModel
         if (value == null) return;
         Client clientToAdd = value;
         SelectedClientToAdd = null;
-        TryAddClient(clientToAdd);
+        AddClientIfValid(clientToAdd);
     }
 
-    private void TryAddClient(Client clientToAdd)
+    private void AddClientIfValid(Client clientToAdd)
     {
         if (clientToAdd == null) return;
         if (CurrentBoatType == null) return;
@@ -192,13 +191,13 @@ public partial class ReservationFormViewModel : BaseViewModel
     [RelayCommand]
     private void AddClient(Client client)
     {
-        TryAddClient(client);
+        AddClientIfValid(client);
     }
 
     [RelayCommand]
     private void RemoveClient(Client client)
     {
-        Client? currentUser = _clientService.GetCurrentClient();
+        Client? currentUser = _client_service.GetCurrentClient();
         if (currentUser == null)
         {
             Console.WriteLine("Not logged in");
@@ -251,7 +250,7 @@ public partial class ReservationFormViewModel : BaseViewModel
 
         foreach (Client client in SelectedClients)
         {
-            if (!_boatAuthorizationService.IsAuthorized(CurrentBoatType.Type, CurrentBoatType.Level, client))
+            if (!_boatAuthorization_service.IsAuthorized(CurrentBoatType.Type, CurrentBoatType.Level, client))
             {
                 string levelType = CurrentBoatType.Type == BoatType.S ? "scull" : "sweep";
                 int clientLevel = CurrentBoatType.Type == BoatType.S ? client.ScullLevel : client.SweepLevel;
@@ -287,8 +286,8 @@ public partial class ReservationFormViewModel : BaseViewModel
         if (string.IsNullOrEmpty(rawBody)) return;
 
         string dateString = SelectedDate.ToString("dd-MM-yyyy");
-        string startTimeString = $"{dateString} {StartTime:hh\\:mm}";
-        string endTimeString = $"{dateString} {EndTime:hh\\:mm}";
+        string startTimeString = $"{dateString} {StartTime:hh\:mm}";
+        string endTimeString = $"{dateString} {EndTime:hh\:mm}";
 
         foreach (Client currentClient in SelectedClients)
         {
@@ -344,8 +343,8 @@ public partial class ReservationFormViewModel : BaseViewModel
         }
         else
         {
-            _reservationService.Add(currentReservation);
-            _reservationService.AddClientsToReservation(currentReservation, SelectedClients.ToList ());
+            _reservation_service.Add(currentReservation);
+            _reservation_service.AddClientsToReservation(currentReservation, SelectedClients.ToList ());
             await Shell.Current.DisplayAlert("Succes", "Reservering Geslaagd!", "OK");
             await SendReservationEmailAsync(); 
         }
