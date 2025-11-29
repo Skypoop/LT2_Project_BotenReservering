@@ -333,7 +333,6 @@ public partial class ReservationFormViewModel : BaseViewModel
             _clientService.GetCurrentClient()!.Id,
             BoatId, 
             true);
-        Console.WriteLine("Reservation created: " + currentReservation);
 
         if (anyUnderqualified)
         {
