@@ -339,6 +339,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         {
             currentReservation.Approved = false;
             _reservationService.Add(currentReservation);
+            _reservationService.AddClientsToReservation(currentReservation, SelectedClients.ToList());
             await Shell.Current.DisplayAlert("Info", "Reservering verstuurd naar botencommissaris voor goedkeuring",
                 "OK");
         }
