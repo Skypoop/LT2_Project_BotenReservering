@@ -23,6 +23,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\ProjectBotenReservering.Core.Data\ProjectBotenReservering.Core.Data.csproj" />
 		<ProjectReference Include="..\ProjectBotenReservering.Core\ProjectBotenReservering.Core.csproj" />
 	</ItemGroup>
 
