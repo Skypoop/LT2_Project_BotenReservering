@@ -56,13 +56,13 @@
         </Grid>
 
         <!-- Calendar -->
-        <Border Stroke="#C49B33"
+        <Border Stroke="{StaticResource Primary}"
                 StrokeThickness="4"
                 StrokeShape="RoundRectangle 20,0,0,20"
-                Background="#2B0B98"
+                Background="{StaticResource Primary}"
                 Padding="1,1"
                 HorizontalOptions="Center">
-            <VerticalStackLayout Grid.Row="1" Spacing="5" Margin="0,0,0,16" BackgroundColor="#ffdb99">
+            <VerticalStackLayout Grid.Row="1" Spacing="5" Margin="0,0,0,16" BackgroundColor="{StaticResource Secondary}">
                 <cal:Calendar 
                     SelectedDate="{Binding SelectedDate}"
                     MinimumDate="{Binding MinDate}"
@@ -74,14 +74,27 @@
                     TodayOutlineColor="{StaticResource Primary}"
                     Events="{Binding Events}"
                     EventsScrollViewVisible="False"
+                    EventIndicatorColor="Blue"
                     VerticalOptions="Fill"
                     SwipeUpToHideEnabled="False"
                     FooterSectionVisible="False"
                     HeightRequest="500"
-                    WidthRequest="800"/>
+                    WidthRequest="800">
+
+                    <cal:Calendar.EventTemplate>
+                        <DataTemplate>
+                            <StackLayout>
+                                <Label Text="{Binding Name}" />
+                                <Label Text="{Binding Description}" />
+                            </StackLayout>
+                        </DataTemplate>
+                    </cal:Calendar.EventTemplate>
+                </cal:Calendar>
+               
+                
                 <Label Text="{Binding DateWarningText}" 
                        IsVisible="{Binding HasDateWarning}"
-                       TextColor="Red"
+                       TextColor="red"
                        FontSize="12"
                        FontAttributes="Bold"
                        HorizontalOptions="Center" />

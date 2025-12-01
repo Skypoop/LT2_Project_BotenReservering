@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
-using Plugin.Maui.Calendar.Models; 
+using Plugin.Maui.Calendar.Models;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
@@ -61,6 +61,8 @@ public partial class ReservationFormViewModel : BaseViewModel
 
 
     private ObservableCollection<Reservation> _reservationList { get; set; } = [];
+
+    private ObservableCollection<Reservation> _dayEventCollection { get; set; } = [];
 
     [ObservableProperty]
     private BoatTypeUiItem _currentBoatType;
@@ -132,7 +134,21 @@ public partial class ReservationFormViewModel : BaseViewModel
 
     public void initializeEvents()
     {
-        Events.Add(DateTime.Today, _reservationList);
+        EventCollection eventList = new EventCollection();
+
+        //Today
+        Events.Add(DateTime.Now, new List<object>
+        {
+            new Reservation(createdAt: DateTime.Today,startTime: DateTime.Today.AddHours(2),endTime: DateTime.Today.AddHours(4),clientId: 3,boatId: 2,id: 3),
+            new Reservation(createdAt: DateTime.Today,startTime: DateTime.Today.AddHours(2),endTime: DateTime.Today.AddHours(4),clientId: 3,boatId: 2,id: 3)
+        });
+
+        // Tomorrow
+        Events.Add(DateTime.Now.AddDays(1), new List<object>
+        {
+            new Reservation(createdAt: DateTime.Now.AddDays(1),startTime: DateTime.Now.AddDays(1).AddHours(2),endTime: DateTime.Now.AddDays(1).AddHours(4),clientId: 3,boatId: 2,id: 3),
+            new Reservation(createdAt: DateTime.Now.AddDays(1),startTime: DateTime.Now.AddDays(1).AddHours(2),endTime: DateTime.Now.AddDays(1).AddHours(4),clientId: 3,boatId: 2,id: 3)
+        });
     }
 
     private void InitializeClients()
