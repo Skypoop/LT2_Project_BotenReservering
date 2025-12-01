@@ -9,7 +9,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
     {
         public ClientRepository()
         {
-            CreateTable(@"DROP TABLE IF EXISTS Client; CREATE TABLE IF NOT EXISTS Client (
+            CreateTable(@"CREATE TABLE IF NOT EXISTS Client (
                             [Id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                             [Full_Name] VARCHAR NOT NULL,
                             [Email] VARCHAR NOT NULL UNIQUE,
