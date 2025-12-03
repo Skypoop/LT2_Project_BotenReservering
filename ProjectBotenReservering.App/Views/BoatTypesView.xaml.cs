@@ -14,5 +14,15 @@ public partial class BoatTypesView : ContentPage
         InitializeComponent();
 
         BindingContext = viewModel;
+        
+        Loaded += BoatTypesView_Loaded;
+    }
+    
+    private async void BoatTypesView_Loaded(object? sender, EventArgs e)
+    {
+        if (BindingContext is BoatTypesViewModel vm)
+        {
+            await vm.OnApearing();
+        }
     }
 }
