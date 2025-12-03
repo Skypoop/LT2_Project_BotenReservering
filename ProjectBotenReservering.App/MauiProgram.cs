@@ -61,6 +61,8 @@ namespace ProjectBotenReservering.App
             builder.Services.AddTransient<HomePageView>().AddTransient<HomePageViewModel>();
             builder.Services.AddTransient<BoatTypesView>().AddTransient<BoatTypesViewModel>();
             builder.Services.AddTransient<ReservationFormView>().AddTransient<ReservationFormViewModel>();
+            builder.Services.AddTransient<MainPageView>().AddTransient<MainPageViewModel>();
+            builder.Services.AddTransient<AppShell>();
 
 
 #if DEBUG
