@@ -5,7 +5,7 @@ using ProjectBotenReservering.Core.Mappers;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
-public partial class MainPageViewModel : BaseViewModel
+public partial class SideBarViewModel : BaseViewModel
 {
     public ObservableCollection<TabItem> Tabs { get; }
 
@@ -18,7 +18,7 @@ public partial class MainPageViewModel : BaseViewModel
 
     public ICommand SelectTabCommand { get; }
 
-    public MainPageViewModel(BoatTypesViewModel boatTypesViewModel)
+    public SideBarViewModel(BoatTypesViewModel boatTypesViewModel)
     {
         Tabs = new ObservableCollection<TabItem>
         {

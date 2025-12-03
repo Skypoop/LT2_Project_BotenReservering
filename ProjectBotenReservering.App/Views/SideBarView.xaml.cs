@@ -2,9 +2,9 @@ using ProjectBotenReservering.App.ViewModels;
 
 namespace ProjectBotenReservering.App.Views;
 
-public partial class MainPageView : ContentPage
+public partial class SideBarView : ContentPage
 {
-	public MainPageView(MainPageViewModel viewModel)
+	public SideBarView(SideBarViewModel viewModel)
 	{
 		InitializeComponent();
 

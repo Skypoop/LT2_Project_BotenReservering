@@ -7,8 +7,8 @@
     Title="Roei verenging app">
 
     <ShellContent
-        ContentTemplate="{DataTemplate local:MainPageView}"
-        Route="MainPage" />
+        ContentTemplate="{DataTemplate local:SideBarView}"
+        Route="BoatTypesView" />
     
 
 </Shell>
