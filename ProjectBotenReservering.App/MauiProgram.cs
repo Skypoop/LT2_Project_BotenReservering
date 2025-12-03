@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Maui;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using ProjectBotenReservering.App.Context;
+using ProjectBotenReservering.Core.Context;
 using ProjectBotenReservering.App.ViewModels;
 using ProjectBotenReservering.App.Views;
 using ProjectBotenReservering.Core.Interfaces.Services;
@@ -55,12 +55,13 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IBoatAuthorizationService, BoatAuthorizationService>();
             builder.Services.AddSingleton<IClientService, ClientService>();
             builder.Services.AddSingleton<IReservationService, ReservationService>();
-            
-            builder.Services.AddSingleton<IClientContext, HardcodedClientContext>();
-            
+            builder.Services.AddSingleton<IClientContext, ClientContext>();
+            builder.Services.AddSingleton<IAuthService, AuthService>();
+
             builder.Services.AddTransient<HomePageView>().AddTransient<HomePageViewModel>();
             builder.Services.AddTransient<BoatTypesView>().AddTransient<BoatTypesViewModel>();
             builder.Services.AddTransient<ReservationFormView>().AddTransient<ReservationFormViewModel>();
+            builder.Services.AddTransient<LoginView>().AddTransient<LoginViewModel>();
 
 
 #if DEBUG
