@@ -9,14 +9,9 @@ namespace ProjectBotenReservering.Core.Services
     {
         public Client? Login(string email, string password)
         {
-            var client = clientRepository.Get(email);
+            Client client = clientRepository.Get(email);
 
-            if (client == null)
-            {
-                return null;
-            }
-
-            if (PasswordHelper.VerifyPassword(password, client.PasswordHash))
+            if (client != null && PasswordHelper.VerifyPassword(password, client.PasswordHash))
             {
                 return client;
             }

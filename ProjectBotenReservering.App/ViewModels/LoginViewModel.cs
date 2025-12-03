@@ -9,16 +9,16 @@ namespace ProjectBotenReservering.App.ViewModels
     public partial class LoginViewModel(IAuthService authService, IClientContext clientContext) : BaseViewModel
     {
         [ObservableProperty]
-        private string email = "";
+        private string _email = "";
 
         [ObservableProperty]
-        private string password = "";
+        private string _password = "";
 
         [ObservableProperty]
-        private string loginMessage;
+        private string _loginMessage;
 
         [ObservableProperty]
-        private bool isPasswordHidden = true;
+        private bool _isPasswordHidden = true;
 
         [RelayCommand]
         private void Login()
@@ -27,7 +27,6 @@ namespace ProjectBotenReservering.App.ViewModels
 
             if (authenticatedClient != null)
             {
-                LoginMessage = $"Welkom {authenticatedClient.FullName}!";
                 clientContext.SetCurrentClientId(authenticatedClient.Id);
                 Application.Current.MainPage = new AppShell();
             }
