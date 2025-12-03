@@ -1,11 +1,11 @@
 using System.Collections.ObjectModel;
-using System.Globalization;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 using Plugin.Maui.Calendar.Models;
+using System.Threading.Tasks;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
@@ -58,11 +58,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         }
     }
 
-
-
     private ObservableCollection<Reservation> _reservationList { get; set; } = [];
-
-    private ObservableCollection<Reservation> _dayEventCollection { get; set; } = [];
 
     [ObservableProperty]
     private BoatTypeUiItem _currentBoatType;
@@ -90,7 +86,10 @@ public partial class ReservationFormViewModel : BaseViewModel
 
     public ObservableCollection<Client> SelectedClients { get; }
     public ObservableCollection<Client> AvailableClients { get; }
-    
+
+    public ObservableCollection<Reservation> Reservations { get; }
+    = new ObservableCollection<Reservation>();
+
     public EventCollection Events { get; set; } = new EventCollection();
 
     [ObservableProperty]
@@ -128,27 +127,54 @@ public partial class ReservationFormViewModel : BaseViewModel
     public async Task LoadReservationsAsync()
     {
             List<Reservation> reservations = await _reservationService.GetAll();
-            foreach(Reservation res in reservations) _reservationList.Add(res);
+            foreach (Reservation res in reservations) _reservationList.Add(res);
             initializeEvents();
     }
 
     public void initializeEvents()
     {
-        EventCollection eventList = new EventCollection();
-
-        //Today
-        Events.Add(DateTime.Now, new List<object>
+        foreach (var res in _reservationList)
         {
-            new Reservation(createdAt: DateTime.Today,startTime: DateTime.Today.AddHours(2),endTime: DateTime.Today.AddHours(4),clientId: 3,boatId: 2,id: 3),
-            new Reservation(createdAt: DateTime.Today,startTime: DateTime.Today.AddHours(2),endTime: DateTime.Today.AddHours(4),clientId: 3,boatId: 2,id: 3)
-        });
+            int days = (res.StartTime.Date - DateTime.Now.Date).Days;
 
-        // Tomorrow
-        Events.Add(DateTime.Now.AddDays(1), new List<object>
+            switch (days)
+            {
+                // vandaag
+                case 0: 
+                    Events.Add(DateTime.Now.Date, Build(res));
+                    break;
+                // morgen
+                case 1: 
+                    Events.Add(DateTime.Now.Date.AddDays(1), Build(res));
+                    break;
+                // overmorgen
+                case 2: 
+                    Events.Add(DateTime.Now.Date.AddDays(2), Build(res));
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        List<object> Build(Reservation r) =>
+            new()
+            {
+            new Reservation(r.CreatedAt, r.StartTime, r.EndTime, r.ClientId, r.BoatId, r.Id)
+            };
+    }
+
+    public void RefreshEvents(DateTime value)
+    {
+        Reservations.Clear();
+
+        foreach (var res in _reservationList)
         {
-            new Reservation(createdAt: DateTime.Now.AddDays(1),startTime: DateTime.Now.AddDays(1).AddHours(2),endTime: DateTime.Now.AddDays(1).AddHours(4),clientId: 3,boatId: 2,id: 3),
-            new Reservation(createdAt: DateTime.Now.AddDays(1),startTime: DateTime.Now.AddDays(1).AddHours(2),endTime: DateTime.Now.AddDays(1).AddHours(4),clientId: 3,boatId: 2,id: 3)
-        });
+            if (res.StartTime.Date == value.Date)
+            {
+                Reservations.Add(res);
+            }
+        }
     }
 
     private void InitializeClients()
@@ -173,12 +199,16 @@ public partial class ReservationFormViewModel : BaseViewModel
 
         UpdateQualificationFlags();
     }
-    
-    partial void OnSelectedDateChanged(DateTime value) => ValidateReservationRules();
+
+    partial void OnSelectedDateChanged(DateTime value)
+    {
+        ValidateReservationRules();
+        RefreshEvents(value);
+    }
     partial void OnStartTimeChanged(TimeSpan value) => ValidateReservationRules();
     partial void OnEndTimeChanged(TimeSpan value) => ValidateReservationRules();
     
-    private void ValidateReservationRules()
+    private async Task ValidateReservationRules()
     {
         HasDateWarning = false;
         DateWarningText = string.Empty;
