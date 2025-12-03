@@ -4,13 +4,10 @@ namespace ProjectBotenReservering.App;
 
 public partial class App : Application
 {
-    public App(HomePageView homePageView)
+    public App(LoginView loginView)
     {
-        public App(LoginView loginView)
-        {
-            InitializeComponent();
-            MainPage = loginView;
+        InitializeComponent();
 
-        }
+        MainPage = loginView;
     }
 }
