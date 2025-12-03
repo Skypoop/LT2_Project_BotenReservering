@@ -63,8 +63,6 @@ namespace ProjectBotenReservering.App
             builder.Services.AddTransient<ReservationFormView>().AddTransient<ReservationFormViewModel>();
             builder.Services.AddTransient<SideBarView>().AddTransient<SideBarViewModel>();
 
-            builder.Services.AddTransient<AppShell>();
-
 
 #if DEBUG
             builder.Logging.AddDebug();
