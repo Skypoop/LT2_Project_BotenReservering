@@ -22,7 +22,7 @@ public partial class MainPageViewModel : BaseViewModel
     {
         Tabs = new ObservableCollection<TabItem>
         {
-            new TabItem("calendar_regular_full", new BoatTypesView(boatTypesViewModel))
+            new TabItem("calendar_regular_full.png", new BoatTypesView(boatTypesViewModel)),
         };
 
         SelectedTab = Tabs[0];

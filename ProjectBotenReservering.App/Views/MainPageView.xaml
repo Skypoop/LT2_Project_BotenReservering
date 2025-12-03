@@ -1,8 +1,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:ProjectBotenReservering.App.ViewModels"
-             x:Class="ProjectBotenReservering.App.Views.MainPageView"
-             Title="MainPageView">
+             x:Class="ProjectBotenReservering.App.Views.MainPageView">
 
     <Grid>
         <Grid.ColumnDefinitions>

@@ -5,10 +5,10 @@ namespace ProjectBotenReservering.App;
 
 public partial class App : Application
 {
-    public App(MainPageView mainPage)
+    public App(AppShell appShell)
     {
         InitializeComponent();
 
-        MainPage = mainPage;
+        MainPage = appShell;
     }
 }

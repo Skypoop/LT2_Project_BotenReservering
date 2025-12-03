@@ -4,11 +4,11 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:ProjectBotenReservering.App.Views"
-    Title="ProjectBotenReservering.App">
+    Title="Roei verenging app">
 
     <ShellContent
-        ContentTemplate="{DataTemplate local:BoatTypesView}"
-        Route="BoatTypesView" />
+        ContentTemplate="{DataTemplate local:MainPageView}"
+        Route="MainPage" />
     
 
 </Shell>
