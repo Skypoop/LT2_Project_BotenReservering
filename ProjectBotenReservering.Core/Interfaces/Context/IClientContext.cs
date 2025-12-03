@@ -1,8 +1,10 @@
 using ProjectBotenReservering.Core.Models;
 
-namespace ProjectBotenReservering.Core.Interfaces.Context;
-
-public interface IClientContext
+namespace ProjectBotenReservering.Core.Interfaces.Context
 {
-    int GetCurrentClientId();
+    public interface IClientContext
+    {
+        int GetCurrentClientId();
+        void SetCurrentClientId(int id);
+    }
 }

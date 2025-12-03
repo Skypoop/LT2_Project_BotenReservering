@@ -4,9 +4,6 @@ using ProjectBotenReservering.Core.Models;
 using ProjectBotenReservering.App.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
-using Microsoft.Maui.Devices;
-using ProjectBotenReservering.App.Context;
-using ProjectBotenReservering.Core.Services;
 using System.Collections.ObjectModel;
 
 namespace ProjectBotenReservering.App.ViewModels;
