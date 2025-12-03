@@ -87,8 +87,7 @@ public partial class ReservationFormViewModel : BaseViewModel
     public ObservableCollection<Client> SelectedClients { get; }
     public ObservableCollection<Client> AvailableClients { get; }
 
-    public ObservableCollection<Reservation> Reservations { get; }
-    = new ObservableCollection<Reservation>();
+    public ObservableCollection<Reservation> Reservations { get; } = new ObservableCollection<Reservation>();
 
     public EventCollection Events { get; set; } = new EventCollection();
 
@@ -126,51 +125,29 @@ public partial class ReservationFormViewModel : BaseViewModel
     [RelayCommand]
     public async Task LoadReservationsAsync()
     {
-            List<Reservation> reservations = await _reservationService.GetAll();
-            foreach (Reservation res in reservations) _reservationList.Add(res);
-            initializeEvents();
+        List<Reservation> reservations = await _reservationService.GetAll();
+        foreach (Reservation res in reservations) _reservationList.Add(res);
+        InitializeEvents();
     }
 
-    public void initializeEvents()
+    public void InitializeEvents()
     {
         foreach (var res in _reservationList)
         {
-            int days = (res.StartTime.Date - DateTime.Now.Date).Days;
-
-            switch (days)
-            {
-                // vandaag
-                case 0: 
-                    Events.Add(DateTime.Now.Date, Build(res));
-                    break;
-                // morgen
-                case 1: 
-                    Events.Add(DateTime.Now.Date.AddDays(1), Build(res));
-                    break;
-                // overmorgen
-                case 2: 
-                    Events.Add(DateTime.Now.Date.AddDays(2), Build(res));
-                    break;
-
-                default:
-                    break;
-            }
+            DateTime dayOfReservation = res.StartTime;
+            // Due to the events only allowing one entry per day, we only add the first reservation found for that day. It only uses these events to show the dots on the calendar.
+            if (Events.ContainsKey(dayOfReservation)) continue;
+            
+            Events.Add(dayOfReservation, new List<object>{res});
         }
-
-        List<object> Build(Reservation r) =>
-            new()
-            {
-            new Reservation(r.CreatedAt, r.StartTime, r.EndTime, r.ClientId, r.BoatId, r.Id)
-            };
     }
 
-    public void RefreshEvents(DateTime value)
+    public void RefreshReservationList(DateTime value)
     {
         Reservations.Clear();
-
         foreach (var res in _reservationList)
         {
-            if (res.StartTime.Date == value.Date)
+            if (res.StartTime.Day == value.Date.Day)
             {
                 Reservations.Add(res);
             }
@@ -203,7 +180,7 @@ public partial class ReservationFormViewModel : BaseViewModel
     partial void OnSelectedDateChanged(DateTime value)
     {
         ValidateReservationRules();
-        RefreshEvents(value);
+        RefreshReservationList(value);
     }
     partial void OnStartTimeChanged(TimeSpan value) => ValidateReservationRules();
     partial void OnEndTimeChanged(TimeSpan value) => ValidateReservationRules();
