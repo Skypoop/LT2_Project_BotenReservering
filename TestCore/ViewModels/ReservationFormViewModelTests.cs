@@ -56,7 +56,7 @@ namespace TestCore.ViewModels
         {
             //Arrange
             DateTime startTime = DateTime.Today.AddDays(1);
-            DateTime endTime = DateTime.Today.AddDays(1).AddMinutes(120);
+            DateTime endTime = DateTime.Today.AddDays(1).AddMinutes(110);
             
             //Act
             bool result = _service.IsValidReservationLength(startTime, endTime);
