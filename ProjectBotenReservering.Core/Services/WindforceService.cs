@@ -1,6 +1,8 @@
-﻿namespace ProjectBotenReservering.Core.Services
+﻿using ProjectBotenReservering.Core.Interfaces.Services;
+
+namespace ProjectBotenReservering.Core.Services
 {
-    public class WindforceService
+    public class WindforceService : IWindforceService
     {
         public static int GetWindforce(decimal windspeedKmh)
         {

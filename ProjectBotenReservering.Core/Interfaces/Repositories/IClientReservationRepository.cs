@@ -8,6 +8,5 @@ public interface IClientReservationRepository
     public List<ClientReservation> GetByClientId(int clientId);
     public List<ClientReservation> GetByReservationId(int reservationId);
     public ClientReservation? Get(int clientId, int reservationId);
-    public void UpdateApproval(int clientId, int reservationId, bool approved);
 }
 

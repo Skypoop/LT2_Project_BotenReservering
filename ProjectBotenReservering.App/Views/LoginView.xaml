@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ProjectBotenReservering.App.ViewModels"
+             x:Class="ProjectBotenReservering.App.Views.LoginView"
+             x:DataType="vm:LoginViewModel"
+             Title="Login">
+
+    <StackLayout Padding="30" Spacing="20" VerticalOptions="Center">
+
+        <Label Text="Remus Invictus Login"
+               FontSize="24"
+               FontAttributes="Bold"
+               HorizontalOptions="Center" />
+
+        <!-- Email Entry -->
+        <Entry Placeholder="Email"
+               Text="{Binding Email}"
+               Keyboard="Email" />
+
+        <!-- Password Entry with Eye Icon -->
+        <Grid ColumnDefinitions="*, Auto">
+            <!-- The Password Field -->
+            <Entry Grid.Column="0"
+                   Grid.ColumnSpan="2"
+                   Placeholder="Password"
+                   Text="{Binding Password}"
+                   IsPassword="{Binding IsPasswordHidden}" />
+
+            <!-- The Eye Button (Overlapping the right side) -->
+            <Button Grid.Column="1"
+                    Text="👁"
+                    Command="{Binding TogglePasswordCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="Gray"
+                    FontSize="18"
+                    WidthRequest="50"
+                    HeightRequest="40"
+                    VerticalOptions="Center"
+                    Margin="0,0,5,0"/>
+        </Grid>
+
+        <!-- Login Button -->
+        <Button Text="Login"
+                Command="{Binding LoginCommand}"
+                BackgroundColor="#2196F3"
+                TextColor="White"/>
+
+        <!-- Error Message -->
+        <Label Text="{Binding LoginMessage}"
+               TextColor="Red"
+               HorizontalOptions="Center"/>
+
+        <!-- Register Link -->
+        <Label Text="Nog geen account? Registreer hier"
+               TextColor="#2196F3"
+               TextDecorations="Underline"
+               HorizontalOptions="Center"
+               FontSize="14">
+            <Label.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding NavigateToRegisterCommand}" />
+            </Label.GestureRecognizers>
+        </Label>
+
+    </StackLayout>
+</ContentPage>

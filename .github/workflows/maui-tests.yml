@@ -8,6 +8,7 @@ on:
       - feature/*
       - hotfix/*
       - release/*
+      - bugfix/*
   pull_request:
     branches:
       - main
@@ -15,6 +16,7 @@ on:
       - hotfix/*
       - release/*
       - develop
+      - bugfix/*
 
 jobs:
   test:

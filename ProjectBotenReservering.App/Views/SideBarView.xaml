@@ -1,0 +1,29 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ProjectBotenReservering.App.ViewModels"
+             x:Class="ProjectBotenReservering.App.Views.SideBarView">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <CollectionView Grid.Column="0"
+                        Background="LightGray"
+                        ItemsSource="{Binding Tabs}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <VerticalStackLayout Padding="0, 15, 0, 0" HorizontalOptions="Center">
+                        <Button Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SideBarViewModel}}, Path=SelectTabCommand}"
+                                CommandParameter="{Binding}"
+                                ImageSource="{Binding ImageName}"
+                                WidthRequest="50"/>
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <ContentView Grid.Column="1" Content="{Binding SelectedTab.Content}" />
+    </Grid>
+</ContentPage>
