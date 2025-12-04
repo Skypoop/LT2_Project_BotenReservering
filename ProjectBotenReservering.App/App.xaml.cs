@@ -1,13 +1,14 @@
 ﻿using ProjectBotenReservering.App.Views;
 
-namespace ProjectBotenReservering.App;
-
-public partial class App : Application
+namespace ProjectBotenReservering.App
 {
-    public App(LoginView loginView)
+    public partial class App : Application
     {
-        InitializeComponent();
+        public App(LoginView loginView)
+        {
+            InitializeComponent();
+            MainPage = loginView;
 
-        MainPage = loginView;
+        }
     }
 }
