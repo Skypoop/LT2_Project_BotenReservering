@@ -4,8 +4,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
-using Microsoft.Maui.Devices;
-using ProjectBotenReservering.App.Context;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
@@ -46,21 +44,29 @@ public partial class ReservationFormViewModel : BaseViewModel
 
     public DateTime MinDate => DateTime.Today;
 
-    [ObservableProperty] private BoatTypeUiItem _currentBoatType;
+    [ObservableProperty] 
+    private BoatTypeUiItem _currentBoatType;
 
-    [ObservableProperty] private DateTime _selectedDate;
+    [ObservableProperty] 
+    private DateTime _selectedDate;
 
-    [ObservableProperty] private TimeSpan _startTime;
+    [ObservableProperty] 
+    private TimeSpan _startTime;
 
-    [ObservableProperty] private TimeSpan _endTime;
+    [ObservableProperty] 
+    private TimeSpan _endTime;
 
-    [ObservableProperty] private string _dateWarningText;
+    [ObservableProperty] 
+    private string _dateWarningText;
 
-    [ObservableProperty] private bool _hasDateWarning;
+    [ObservableProperty] 
+    private bool _hasDateWarning;
 
-    [ObservableProperty] private string _timeWarningText;
+    [ObservableProperty] 
+    private string _timeWarningText;
 
-    [ObservableProperty] private bool _hasTimeWarning;
+    [ObservableProperty] 
+    private bool _hasTimeWarning;
 
     public ObservableCollection<Client> SelectedClients { get; }
     public ObservableCollection<Client> AvailableClients { get; }
@@ -68,9 +74,11 @@ public partial class ReservationFormViewModel : BaseViewModel
     public bool IsMacCatalyst { get; } = DeviceInfo.Current.Platform == DevicePlatform.MacCatalyst;
     public bool IsPickerSupported => !IsMacCatalyst;
 
-    [ObservableProperty] private Client _selectedClientToAdd;
+    [ObservableProperty] 
+    private Client _selectedClientToAdd;
 
-    [ObservableProperty] private string _seatStatusText = "";
+    [ObservableProperty] 
+    private string _seatStatusText = "";
 
     private int _boatId;
 
@@ -290,7 +298,6 @@ public partial class ReservationFormViewModel : BaseViewModel
             this.SelectedDate.Date.Add(this.EndTime),
             _clientService.GetCurrentClient()!.Id,
             BoatId);
-        Console.WriteLine("Reservation created: " + currentReservation);
 
         if (anyUnderqualified)
         {
@@ -307,7 +314,7 @@ public partial class ReservationFormViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private static void ShowQualificationWarning(Client client)
+    private void ShowQualificationWarning(Client client)
     {
         string message = string.IsNullOrWhiteSpace(client.QualificationHelpText)
             ? "Persoon is te lage rang voor deze boot"
