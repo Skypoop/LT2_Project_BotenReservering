@@ -10,20 +10,12 @@ public class ReservationService: IReservationService
     private readonly IReservationRepository _reservationRepository;
     private readonly IBoatAuthorizationService _boatAuthorizationService;
     private readonly IClientReservationRepository _clientReservationRepository;
-    private IReservationRepository object1;
-    private IBoatAuthorizationService object2;
 
     public ReservationService(IReservationRepository reservationRepository, IBoatAuthorizationService boatAuthorizationService, IClientReservationRepository clientReservationRepository)
     {
         _reservationRepository = reservationRepository;
         _boatAuthorizationService = boatAuthorizationService;
         _clientReservationRepository = clientReservationRepository;
-    }
-
-    public ReservationService(IReservationRepository object1, IBoatAuthorizationService object2)
-    {
-        this.object1 = object1;
-        this.object2 = object2;
     }
 
     public Reservation Add(Reservation reservation)

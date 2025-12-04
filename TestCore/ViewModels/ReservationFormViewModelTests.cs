@@ -19,8 +19,9 @@ namespace TestCore.ViewModels
         {
             Mock<IReservationRepository> repoMock = new Mock<IReservationRepository>();
             Mock<IBoatAuthorizationService> authMock = new Mock<IBoatAuthorizationService>();
+            Mock<IClientReservationRepository> clientMock = new Mock<IClientReservationRepository>();
 
-            _service = new ReservationService(repoMock.Object, authMock.Object);
+            _service = new ReservationService(repoMock.Object, authMock.Object, clientMock.Object);
         }
 
         [Test]
