@@ -7,7 +7,7 @@ using ProjectBotenReservering.App.ViewModels;
 
 namespace ProjectBotenReservering.App.Views;
 
-public partial class BoatTypesView : ContentPage
+public partial class BoatTypesView : ContentView
 {
     public BoatTypesView(BoatTypesViewModel viewModel)
     {
