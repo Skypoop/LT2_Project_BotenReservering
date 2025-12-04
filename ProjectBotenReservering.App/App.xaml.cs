@@ -7,8 +7,10 @@ namespace ProjectBotenReservering.App
         public App(LoginView loginView)
         {
             InitializeComponent();
-            MainPage = loginView;
-
+        }
+        protected override Window CreateWindow(IActivationState? activationState)
+        {
+            return new Window(new AppShell());
         }
     }
 }

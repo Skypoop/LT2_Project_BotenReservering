@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using ProjectBotenReservering.Core.Interfaces.Context;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
+using ProjectBotenReservering.App.Views;
 
 namespace ProjectBotenReservering.App.ViewModels
 {
@@ -15,20 +16,20 @@ namespace ProjectBotenReservering.App.ViewModels
         private string _password = "";
 
         [ObservableProperty]
-        private string _loginMessage;
+        private string? _loginMessage;
 
         [ObservableProperty]
         private bool _isPasswordHidden = true;
 
         [RelayCommand]
-        private void Login()
+        private async Task Login()
         {
             Client? authenticatedClient = authService.Login(Email, Password);
 
             if (authenticatedClient != null)
             {
                 clientContext.SetCurrentClientId(authenticatedClient.Id);
-                Application.Current.MainPage = new AppShell();
+                await Shell.Current.GoToAsync(nameof(BoatTypesView));
             }
             else
             {
@@ -45,7 +46,7 @@ namespace ProjectBotenReservering.App.ViewModels
         [RelayCommand]
         private static async Task NavigateToRegister()
         {
-            //logic for navigating to registering page goes here.
+            await Shell.Current.GoToAsync(nameof(RegisterView));
         }
     }
 }

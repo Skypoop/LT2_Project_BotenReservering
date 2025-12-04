@@ -94,11 +94,11 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:BoatTypeUiItem">
 
-                        <Frame BorderColor="Gray" CornerRadius="10" Padding="0" IsClippedToBounds="True">
-                            <Frame.GestureRecognizers>
+                        <Border Stroke="Gray" StrokeShape="RoundRectangle 10" Padding="0">
+                            <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoatTypesViewModel}}, Path=SelectBoatTypeCommand}"
                                                       CommandParameter="{Binding }"/>
-                            </Frame.GestureRecognizers>
+                            </Border.GestureRecognizers>
 
                             <Grid RowDefinitions="120, Auto">
 
@@ -126,7 +126,7 @@
                                            VerticalOptions="Center" />
                                 </Grid>
                             </Grid>
-                        </Frame>
+                        </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
