@@ -58,18 +58,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="Views\SideBarView.xaml.cs">
-	    <DependentUpon>SideBarView.xaml</DependentUpon>
-	  </Compile>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <MauiXaml Update="Views\SideBarView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	</ItemGroup>
-
-	<ItemGroup>
 		<None Update="Platforms\Windows\Package.appxmanifest">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
