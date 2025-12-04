@@ -5,7 +5,6 @@ using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 using Plugin.Maui.Calendar.Models;
-using System.Threading.Tasks;
 
 namespace ProjectBotenReservering.App.ViewModels;
 

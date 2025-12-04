@@ -48,12 +48,11 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <!-- Changed RowDefinitions to all Auto to stack tightly, avoiding pushing content off screen -->
     <Grid RowDefinitions="Auto, Auto, Auto, Auto" Padding="10" RowSpacing="10">
 
         <!-- Header -->
         <Grid Grid.Row="0" ColumnDefinitions="Auto, *" Margin="0,0,0,10">
-            <Button Grid.Column="0" Text="Back" Command="{Binding BackCommand}" BackgroundColor="LightGray" TextColor="Black" HeightRequest="36" HorizontalOptions="Start" />
+            <Button Grid.Column="0" Text="Terug" Command="{Binding BackCommand}" BackgroundColor="LightGray" TextColor="Black" HeightRequest="36" HorizontalOptions="Start" />
 
             <Label Grid.Column="1" 
                    Text="{Binding CurrentBoatType.Name, TargetNullValue=''}" 
@@ -76,7 +75,6 @@
                     Background="{StaticResource Primary}"
                     Padding="1,1">
                 <VerticalStackLayout Spacing="5" BackgroundColor="{StaticResource Secondary}">
-                    <!-- Reduced HeightRequest from 500 to 420 to save vertical space -->
                     <cal:Calendar 
                         SelectedDate="{Binding SelectedDate}"
                         MinimumDate="{Binding MinDate}"
@@ -126,7 +124,7 @@
                     VerticalOptions="Fill">
                 <Grid RowDefinitions="Auto, *">
                     <Label Grid.Row="0" 
-                           Text="Existing Reservations" 
+                           Text="Huidige reserveringen" 
                            FontSize="16" 
                            FontAttributes="Bold" 
                            TextColor="{StaticResource Primary}" 
@@ -134,7 +132,7 @@
 
                     <CollectionView Grid.Row="1" 
                                     ItemsSource="{Binding Reservations, Mode=TwoWay}"
-                                    EmptyView="No reservations found.">
+                                    EmptyView="Nog geen reserveringen">
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="models:Reservation">
                                 <Frame Margin="0,0,0,8" Padding="10" BorderColor="LightGray" CornerRadius="5" HasShadow="False">
@@ -156,19 +154,16 @@
             </Border>
         </Grid>
 
-        <!-- Time & Clients -->
-        <!-- Removed the huge top margins (140) to bring this section up -->
         <Grid Grid.Row="2" ColumnDefinitions="*, *" ColumnSpacing="40" Margin="20,10,20,0">
 
-            <!-- Left Side: Time -->
             <VerticalStackLayout Grid.Column="0" Spacing="15" VerticalOptions="Start">
-                <Label Text="Time" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
+                <Label Text="Tijd" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
                 <VerticalStackLayout>
-                    <Label Text="Start time:" FontSize="12" TextColor="Gray"/>
+                    <Label Text="Starttijd:" FontSize="12" TextColor="Gray"/>
                     <TimePicker Format="HH:mm" Time="{Binding StartTime}" />
                 </VerticalStackLayout>
                 <VerticalStackLayout>
-                    <Label Text="End time:" FontSize="12" TextColor="Gray"/>
+                    <Label Text="Eindtijd:" FontSize="12" TextColor="Gray"/>
                     <TimePicker Format="HH:mm" Time="{Binding EndTime}" />
                 </VerticalStackLayout>
                 <Label Text="{Binding TimeWarningText}" 
@@ -178,16 +173,14 @@
                        FontAttributes="Bold" />
             </VerticalStackLayout>
 
-            <!-- Right Side: Rowers -->
             <VerticalStackLayout Grid.Column="1" Spacing="10" VerticalOptions="Start">
                 <Grid ColumnDefinitions="*, Auto">
-                    <Label Grid.Column="0" Text="Rowers" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
+                    <Label Grid.Column="0" Text="Roeiers" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
                     <Label Grid.Column="1" Text="{Binding SeatStatusText}" FontSize="18" FontAttributes="Bold" />
                 </Grid>
 
-                <Picker Title="Add rower" ItemsSource="{Binding AvailableClients}" ItemDisplayBinding="{Binding FullName}" SelectedItem="{Binding SelectedClientToAdd}" BackgroundColor="#f0f0f0" />
+                <Picker Title="Roeiers toevoegen" ItemsSource="{Binding AvailableClients}" ItemDisplayBinding="{Binding FullName}" SelectedItem="{Binding SelectedClientToAdd}" BackgroundColor="#f0f0f0" />
 
-                <!-- Reduced height slightly to fit better if many items -->
                 <CollectionView ItemsSource="{Binding SelectedClients}" SelectionMode="None" HorizontalOptions="FillAndExpand" HeightRequest="180">
                     <CollectionView.ItemsLayout>
                         <GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="6" VerticalItemSpacing="6" />
@@ -214,7 +207,6 @@
             </VerticalStackLayout>
         </Grid>
 
-        <!-- Reserve Button -->
-        <Button Grid.Row="3" Text="Reserve" Command="{Binding SaveReservationCommand}" Margin="0,20,0,0" FontSize="18" FontAttributes="Bold" VerticalOptions="End" />
+        <Button Grid.Row="3" Text="Reserveren" Command="{Binding SaveReservationCommand}" Margin="0,20,0,0" FontSize="18" FontAttributes="Bold" VerticalOptions="End" />
     </Grid>
 </ContentPage>
