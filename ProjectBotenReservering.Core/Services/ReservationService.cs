@@ -39,8 +39,7 @@ public class ReservationService: IReservationService
 
     public async Task<List<Reservation>> GetAll()
     {
-        List<Reservation> reservationList = await Task.Run(() => _reservationRepository.GetAll());
-        return reservationList;
+        return _reservationRepository.GetAll();
     }
     
     public bool IsReservationTimeFree(DateTime startTime, DateTime endTime)
