@@ -4,6 +4,7 @@ using ProjectBotenReservering.Core.Models;
 using ProjectBotenReservering.App.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
+using ProjectBotenReservering.Core.Constants;
 using System.Collections.ObjectModel;
 
 namespace ProjectBotenReservering.App.ViewModels;
@@ -24,9 +25,9 @@ public partial class ReservationFormViewModel : BaseViewModel
         IReservationService reservationService,
         IBoatAuthorizationService boatReservationService,
         ISmtpMailService mailservice
-        )
+    )
     {
-        _mailService = mailservice; 
+        _mailService = mailservice;
         _boatTypeService = boatTypeService;
         _clientRepository = clientRepository;
 
@@ -62,7 +63,7 @@ public partial class ReservationFormViewModel : BaseViewModel
 
     [ObservableProperty] private bool _hasTimeWarning;
 
-    private readonly ISmtpMailService _mailService;         
+    private readonly ISmtpMailService _mailService;
     public ObservableCollection<Client> SelectedClients { get; }
     public ObservableCollection<Client> AvailableClients { get; }
 
@@ -138,14 +139,15 @@ public partial class ReservationFormViewModel : BaseViewModel
 
         if (!_reservationService.IsBookingWithinAllowedReservationTime(startDateTime))
         {
-            //TODO: 2 has to be retrieved from the constant
-            DateWarningText = "Deze datum is te ver in de toekomst. max 2 dagen ver";
+            DateWarningText =
+                $"$Deze datum is te ver in de toekomst. max {ReservationRules.MaxDaysBeforeReservation} dagen ver";
             HasDateWarning = true;
         }
         else if (_reservationService.IsBookingWithinAllowedReservationTime(startDateTime) && BoatId != 0)
         {
             {
-                bool weatherAllowed = await _boatAuthorizationService.WeatherAuthorized(BoatId, startDateTime, endDateTime);
+                bool weatherAllowed =
+                    await _boatAuthorizationService.WeatherAuthorized(BoatId, startDateTime, endDateTime);
 
                 if (!weatherAllowed)
                 {
@@ -155,14 +157,15 @@ public partial class ReservationFormViewModel : BaseViewModel
             }
 
 
-        if (EndTime > StartTime)
-        {
-            if (!_reservationService.IsValidReservationLength(startDateTime, endDateTime))
+            if (EndTime > StartTime)
             {
-                TimeWarningText = "De reservering duurt te lang. max 2 uur lang";
-                HasTimeWarning = true;
+                if (!_reservationService.IsValidReservationLength(startDateTime, endDateTime))
+                {
+                    TimeWarningText =
+                        $"De reservering duurt te lang. max {ReservationRules.MaxReservationLength} uur lang";
+                    HasTimeWarning = true;
+                }
             }
-        }
 
             SaveReservationCommand.NotifyCanExecuteChanged();
         }
@@ -212,6 +215,7 @@ public partial class ReservationFormViewModel : BaseViewModel
             Console.WriteLine("Not logged in");
             return;
         }
+
         if (client.Id == currentUser?.Id)
         {
             Shell.Current.DisplayAlert("Info", "Je kan jezelf niet verwijderen.", "OK");
@@ -287,6 +291,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         if (CurrentBoatType == null) return false;
         return SelectedClients.Count == CurrentBoatType.SeatAmount;
     }
+
     private async Task SendReservationEmailAsync()
     {
         string rawBody = await ResourceLoaderHelper
@@ -320,6 +325,7 @@ public partial class ReservationFormViewModel : BaseViewModel
             await _mailService.SendMailAsync(singleReceiver, subject, personalizedBody);
         }
     }
+
     [RelayCommand(CanExecute = nameof(CanSaveReservation))]
     private async Task SaveReservation()
     {
@@ -339,7 +345,7 @@ public partial class ReservationFormViewModel : BaseViewModel
             SelectedDate.Date.Add(StartTime),
             SelectedDate.Date.Add(EndTime),
             _clientService.GetCurrentClient()!.Id,
-            BoatId, 
+            BoatId,
             true);
 
         if (anyUnderqualified)
@@ -353,9 +359,9 @@ public partial class ReservationFormViewModel : BaseViewModel
         else
         {
             _reservationService.Add(currentReservation);
-            _reservationService.AddClientsToReservation(currentReservation, SelectedClients.ToList ());
+            _reservationService.AddClientsToReservation(currentReservation, SelectedClients.ToList());
             await Shell.Current.DisplayAlert("Succes", "Reservering Geslaagd!", "OK");
-            await SendReservationEmailAsync(); 
+            await SendReservationEmailAsync();
         }
 
         await Shell.Current.GoToAsync("..");
