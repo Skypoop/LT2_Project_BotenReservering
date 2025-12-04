@@ -57,6 +57,10 @@
 		</MauiAsset>
 	</ItemGroup>
 
+    <ItemGroup>
+        <EmbeddedResource Include="Resources/Raw/ReservationConfirmation.html" />
+    </ItemGroup>
+
 	<ItemGroup>
 		<None Update="Platforms\Windows\Package.appxmanifest">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
