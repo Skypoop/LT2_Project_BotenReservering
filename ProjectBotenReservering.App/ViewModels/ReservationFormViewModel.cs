@@ -4,8 +4,8 @@ using ProjectBotenReservering.Core.Models;
 using ProjectBotenReservering.App.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
-using ProjectBotenReservering.Core.Models;
 using Plugin.Maui.Calendar.Models;
+using ProjectBotenReservering.Core.Constants;
 using System.Collections.ObjectModel;
 
 namespace ProjectBotenReservering.App.ViewModels;
@@ -28,7 +28,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         ISmtpMailService mailservice
         )
     {
-        _mailService = mailservice; 
+        _mailService = mailservice;
         _boatTypeService = boatTypeService;
         _clientRepository = clientRepository;
 
@@ -78,19 +78,13 @@ public partial class ReservationFormViewModel : BaseViewModel
 
     [ObservableProperty] private bool _hasTimeWarning;
 
-    private readonly ISmtpMailService _mailService;         
+    private readonly ISmtpMailService _mailService;
     public ObservableCollection<Client> SelectedClients { get; }
     public ObservableCollection<Client> AvailableClients { get; }
 
     public ObservableCollection<Reservation> Reservations { get; } = new ObservableCollection<Reservation>();
 
     public EventCollection Events { get; set; } = new EventCollection();
-
-    [ObservableProperty]
-    private Client _selectedClientToAdd;
-
-    [ObservableProperty]
-    private string _seatStatusText = "";
     
     public bool IsMacCatalyst { get; } = DeviceInfo.Current.Platform == DevicePlatform.MacCatalyst;
     public bool IsPickerSupported => !IsMacCatalyst;
@@ -200,8 +194,8 @@ public partial class ReservationFormViewModel : BaseViewModel
 
         if (!_reservationService.IsBookingWithinAllowedReservationTime(startDateTime))
         {
-            //TODO: 2 has to be retrieved from the constant
-            DateWarningText = "Deze datum is te ver in de toekomst. max 2 dagen ver";
+            DateWarningText =
+                $"$Deze datum is te ver in de toekomst. max {ReservationRules.MaxDaysBeforeReservation} dagen ver";
             HasDateWarning = true;
         }
         else if (_reservationService.IsBookingWithinAllowedReservationTime(startDateTime) && BoatId != 0)
@@ -274,6 +268,7 @@ public partial class ReservationFormViewModel : BaseViewModel
             Console.WriteLine("Not logged in");
             return;
         }
+
         if (client.Id == currentUser?.Id)
         {
             Shell.Current.DisplayAlert("Info", "Je kan jezelf niet verwijderen.", "OK");
@@ -349,6 +344,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         if (CurrentBoatType == null) return false;
         return SelectedClients.Count == CurrentBoatType.SeatAmount;
     }
+
     private async Task SendReservationEmailAsync()
     {
         string rawBody = await ResourceLoaderHelper
@@ -382,6 +378,7 @@ public partial class ReservationFormViewModel : BaseViewModel
             await _mailService.SendMailAsync(singleReceiver, subject, personalizedBody);
         }
     }
+
     [RelayCommand(CanExecute = nameof(CanSaveReservation))]
     private async Task SaveReservation()
     {
@@ -401,7 +398,7 @@ public partial class ReservationFormViewModel : BaseViewModel
             SelectedDate.Date.Add(StartTime),
             SelectedDate.Date.Add(EndTime),
             _clientService.GetCurrentClient()!.Id,
-            BoatId, 
+            BoatId,
             true);
 
         if (anyUnderqualified)
@@ -415,9 +412,9 @@ public partial class ReservationFormViewModel : BaseViewModel
         else
         {
             _reservationService.Add(currentReservation);
-            _reservationService.AddClientsToReservation(currentReservation, SelectedClients.ToList ());
+            _reservationService.AddClientsToReservation(currentReservation, SelectedClients.ToList());
             await Shell.Current.DisplayAlert("Succes", "Reservering Geslaagd!", "OK");
-            await SendReservationEmailAsync(); 
+            await SendReservationEmailAsync();
         }
 
         await Shell.Current.GoToAsync("..");

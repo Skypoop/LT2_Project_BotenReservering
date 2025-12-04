@@ -25,9 +25,6 @@ public class ReservationService: IReservationService
     
     public Reservation? Get(int id)
     {
-        this._reservationRepository = reservationRepository;
-        this._boatAuthorizationService = boatAuthorizationService;
-        
         return _reservationRepository.Get(id);
     }
     
