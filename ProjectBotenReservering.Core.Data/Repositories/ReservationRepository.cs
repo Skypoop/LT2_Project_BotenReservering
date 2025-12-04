@@ -15,6 +15,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                             [End_Time] DATETIME NOT NULL,
                             [Client_Id] INT NOT NULL,
                             [Boat_Id] INT NOT NULL,
+                            [Approved] BOOLEAN NOT NULL,
                             FOREIGN KEY (Client_Id) REFERENCES Client(Id),
                             FOREIGN KEY (Boat_Id) REFERENCES Boat(Id))");
             List<Reservation> reservations = GetAll();
@@ -52,8 +53,8 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public Reservation Add(Reservation item)
         {
-            string insertQuery = @"INSERT INTO Reservation(Created_At, Start_Time, End_Time, Client_Id, Boat_Id) 
-                                   VALUES(@CreatedAt, @StartTime, @EndTime, @ClientId, @BoatId);
+            string insertQuery = @"INSERT INTO Reservation(Created_At, Start_Time, End_Time, Client_Id, Boat_Id, Approved) 
+                                   VALUES(@CreatedAt, @StartTime, @EndTime, @ClientId, @BoatId, @Approved);
                                    SELECT last_insert_rowid();";
             OpenConnection();
             using (SqliteCommand command = new(insertQuery, Connection))
@@ -63,6 +64,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                 command.Parameters.AddWithValue("@EndTime", item.EndTime);
                 command.Parameters.AddWithValue("@ClientId", item.ClientId);
                 command.Parameters.AddWithValue("@BoatId", item.BoatId);
+                command.Parameters.AddWithValue("@Approved", item.Approved);
 
                 item.Id = Convert.ToInt32(command.ExecuteScalar());
             }
@@ -73,7 +75,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         public Reservation? Get(int id)
         {
             Reservation? reservation = null;
-            string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id FROM Reservation WHERE Id = @Id";
+            string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id, Approved FROM Reservation WHERE Id = @Id";
             OpenConnection();
 
             using (SqliteCommand command = new(selectQuery, Connection))
@@ -95,7 +97,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         public List<Reservation> GetAll()
         {
             var reservationList = new List<Reservation>();
-            string selectQuery = "SELECT * FROM Reservation";
+            string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id, Approved FROM Reservation";
             OpenConnection();
 
             using (SqliteCommand command = new(selectQuery, Connection))
@@ -116,7 +118,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         public List<Reservation> GetByClientId(int clientId)
         {
             var reservationList = new List<Reservation>();
-            string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id FROM Reservation WHERE Client_Id = @ClientId";
+            string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id, Approved FROM Reservation WHERE Client_Id = @ClientId";
             OpenConnection();
 
             using (SqliteCommand command = new(selectQuery, Connection))
@@ -138,7 +140,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         public List<Reservation> GetByBoatId(int boatId)
         {
             var reservationList = new List<Reservation>();
-            string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id FROM Reservation WHERE Boat_Id = @BoatId";
+            string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id, Approved FROM Reservation WHERE Boat_Id = @BoatId";
             OpenConnection();
 
             using (SqliteCommand command = new(selectQuery, Connection))
@@ -165,6 +167,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                 reader.GetDateTime(3),
                 reader.GetInt32(4),
                 reader.GetInt32(5),
+                reader.GetBoolean(6),
                 reader.GetInt32(0)
             );
         }

@@ -15,10 +15,35 @@ namespace ProjectBotenReservering.Core.Data.Services
             _httpClient.BaseAddress = new Uri("https://api.open-meteo.com/v1/forecast");
         }
 
-        public async Task<int> GetWeatherAsync()
+        private static string FormatDateTime(DateTime dateTime)
         {
-            HttpResponseMessage response = await _httpClient.GetAsync("?latitude=52.51&longitude=6.09&current_weather=true");
+            return dateTime.ToString("yyyy-MM-ddTHH:mm");
+        }
+
+        private static int GetDateIndex(List<string> timeList, string formattedDateTime)
+        {
+            return timeList.FindIndex(str => str == formattedDateTime);
+        }
+
+        // Returns the maximum wind speed between the specified start and end indices (inclusive).
+        // The startIndex and endIndex define the range within the windSpeeds list.
+        private static decimal GetMaxWindSpeedInRange(List<decimal> windSpeeds, int startIndex, int endIndex)
+        {
+            int indexRange = endIndex - startIndex + 1;
+
+            if (indexRange <= 0)
+                throw new InvalidOperationException("Ongeldige index range: index range moet altijd 1 of hoger zijn.");
+
+            return windSpeeds.Skip(startIndex).Take(indexRange).Max();
+        }
+
+        public async Task<int> GetWeatherAsync(DateTime beginDate, DateTime endDate)
+        {
+            HttpResponseMessage response = await _httpClient.GetAsync(
+                "?latitude=52.52&longitude=13.41&current=wind_speed_10m&hourly=wind_speed_10m&current_weather=true"
+            );
             response.EnsureSuccessStatusCode();
+
             string jsonResponse = await response.Content.ReadAsStringAsync();
 
             WeatherData? weatherData = JsonSerializer.Deserialize<WeatherData>(jsonResponse);
@@ -26,12 +51,19 @@ namespace ProjectBotenReservering.Core.Data.Services
             if (weatherData?.CurrentWeather == null)
                 throw new InvalidOperationException("Weather data is missing.");
 
-            decimal windspeedKmh = weatherData.CurrentWeather.Windspeed;
+            if (weatherData?.Hourly == null)
+                throw new InvalidOperationException("Hourly weather data is missing.");
 
-            int windforce = WindforceService.GetWindforce(windspeedKmh);
+            string startDateFormatted = FormatDateTime(beginDate);
+            string endDateFormatted = FormatDateTime(endDate);
+
+            int startDateIndex = GetDateIndex(weatherData.Hourly.Time, startDateFormatted);
+            int endDateIndex = GetDateIndex(weatherData.Hourly.Time, endDateFormatted);
+
+            decimal maxWindSpeed = GetMaxWindSpeedInRange(weatherData.Hourly.WindSpeed10m, startDateIndex, endDateIndex);
+
+            int windforce = WindforceService.GetWindforce(maxWindSpeed);
             return windforce;
         }
     }
 }
-
-  

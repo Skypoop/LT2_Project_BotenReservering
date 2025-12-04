@@ -1,9 +1,10 @@
 ﻿using ProjectBotenReservering.Core.Models;
 
+
 namespace ProjectBotenReservering.Core.Interfaces.Services
 {
-    public interface IWeatherService
+    public interface IAuthService
     {
-        Task<int> GetWeatherAsync(DateTime beginDate, DateTime endDate);
+        Client? Login(string email, string password);
     }
 }
