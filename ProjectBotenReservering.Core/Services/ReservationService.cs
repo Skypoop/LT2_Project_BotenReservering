@@ -42,7 +42,7 @@ public class ReservationService: IReservationService
     public bool IsValidReservationLength(DateTime startTime, DateTime endTime)
     {
         TimeSpan timeDifference = endTime - startTime;
-        if (timeDifference.Hours > ReservationRules.MaxReservationLength)
+        if (timeDifference.TotalMinutes > ReservationRules.MaxReservationLength)
         {
             return false;
         }

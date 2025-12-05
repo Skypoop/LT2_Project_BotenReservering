@@ -47,21 +47,29 @@ public partial class ReservationFormViewModel : BaseViewModel
 
     public DateTime MinDate => DateTime.Today;
 
-    [ObservableProperty] private BoatTypeUiItem? _currentBoatType;
+    [ObservableProperty] 
+    private BoatTypeUiItem _currentBoatType;
 
-    [ObservableProperty] private DateTime _selectedDate;
+    [ObservableProperty] 
+    private DateTime _selectedDate;
 
-    [ObservableProperty] private TimeSpan _startTime;
+    [ObservableProperty] 
+    private TimeSpan _startTime;
 
-    [ObservableProperty] private TimeSpan _endTime;
+    [ObservableProperty] 
+    private TimeSpan _endTime;
 
-    [ObservableProperty] private string? _dateWarningText;
+    [ObservableProperty] 
+    private string _dateWarningText;
 
-    [ObservableProperty] private bool _hasDateWarning;
+    [ObservableProperty] 
+    private bool _hasDateWarning;
 
-    [ObservableProperty] private string? _timeWarningText;
+    [ObservableProperty] 
+    private string _timeWarningText;
 
-    [ObservableProperty] private bool _hasTimeWarning;
+    [ObservableProperty] 
+    private bool _hasTimeWarning;
 
     private readonly ISmtpMailService _mailService;
     public ObservableCollection<Client> SelectedClients { get; }
@@ -70,9 +78,11 @@ public partial class ReservationFormViewModel : BaseViewModel
     public bool IsMacCatalyst { get; } = DeviceInfo.Current.Platform == DevicePlatform.MacCatalyst;
     public bool IsPickerSupported => !IsMacCatalyst;
 
-    [ObservableProperty] private Client? _selectedClientToAdd;
+    [ObservableProperty] 
+    private Client _selectedClientToAdd;
 
-    [ObservableProperty] private string _seatStatusText = "";
+    [ObservableProperty] 
+    private string _seatStatusText = "";
 
     private int _boatId;
 
@@ -368,7 +378,7 @@ public partial class ReservationFormViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private static void ShowQualificationWarning(Client client)
+    private void ShowQualificationWarning(Client client)
     {
         string message = string.IsNullOrWhiteSpace(client.QualificationHelpText)
             ? "Persoon is te lage rang voor deze boot"
