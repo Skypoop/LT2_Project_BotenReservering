@@ -1,12 +1,14 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Configuration;
 using ProjectBotenReservering.Core.Interfaces.Context;
+using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.App.ViewModels
 {
-    public partial class LoginViewModel(IAuthService authService, IClientContext clientContext) : BaseViewModel
+    public partial class LoginViewModel : BaseViewModel
     {
         [ObservableProperty]
         private string _email = "";
@@ -20,14 +22,27 @@ namespace ProjectBotenReservering.App.ViewModels
         [ObservableProperty]
         private bool _isPasswordHidden = true;
 
+        private readonly IAuthService _authService;
+        private readonly IClientContext _clientContext;
+        private readonly IClientRepository _clientRepository;
+        private readonly MailSettings _mailSettings;
+        
+        public LoginViewModel(IAuthService authService, IClientContext clientContext, MailSettings mailSettings, IClientRepository clientRepository)
+        {
+            _authService = authService;
+            _clientContext = clientContext;
+            _mailSettings = mailSettings;
+            _clientRepository = clientRepository;
+        }
+        
         [RelayCommand]
         private void Login()
         {
-            Client? authenticatedClient = authService.Login(Email, Password);
+            Client? authenticatedClient = _authService.Login(Email, Password);
 
             if (authenticatedClient != null)
             {
-                clientContext.SetCurrentClientId(authenticatedClient.Id);
+                _clientContext.SetCurrentClientId(authenticatedClient.Id);
                 Application.Current.MainPage = new AppShell();
             }
             else
@@ -35,7 +50,7 @@ namespace ProjectBotenReservering.App.ViewModels
                 LoginMessage = "Ongeldige inloggegevens.";
             }
         }
-
+        
         [RelayCommand]
         private void TogglePassword()
         {

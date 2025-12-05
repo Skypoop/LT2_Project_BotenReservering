@@ -49,6 +49,11 @@ public class ReservationService: IReservationService
         return true;
     }
 
+    public async Task<List<Reservation>> GetAll()
+    {
+        return _reservationRepository.GetAll();
+    }
+    
     public bool IsReservationTimeFree(DateTime startTime, DateTime endTime)
     {
         throw new NotImplementedException();

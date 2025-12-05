@@ -2,14 +2,26 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:cal="clr-namespace:Plugin.Maui.Calendar.Controls;assembly=Plugin.Maui.Calendar"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:vm="clr-namespace:ProjectBotenReservering.App.ViewModels"
              xmlns:models="clr-namespace:ProjectBotenReservering.Core.Models;assembly=ProjectBotenReservering.Core"
              x:Class="ProjectBotenReservering.App.Views.ReservationFormView"
              x:DataType="vm:ReservationFormViewModel"
              Shell.NavBarIsVisible="False">
 
+    <ContentPage.Behaviors>
+        <toolkit:EventToCommandBehavior EventName="Appearing" 
+                                        Command="{Binding LoadReservationsCommand}" />
+    </ContentPage.Behaviors>
+
     <ContentPage.Resources>
         <ResourceDictionary>
+            <Style x:Key="CalYearLabelStyle" TargetType="Label">
+                <Setter Property="TextColor" Value="{StaticResource Primary}" />
+                <Setter Property="FontSize" Value="20" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="HorizontalTextAlignment" Value="Center" />
+            </Style>
             <Style x:Key="CalMonthLabelStyle" TargetType="Label">
                 <Setter Property="TextColor" Value="{StaticResource Primary}" />
                 <Setter Property="FontSize" Value="20" />
@@ -36,9 +48,10 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <Grid RowDefinitions="Auto, Auto, *, Auto" Padding="10">
-        <!-- Top Header -->
-        <Grid Grid.Row="0" ColumnDefinitions="Auto, *" Margin="0,0,0,0">
+    <Grid RowDefinitions="Auto, Auto, Auto, Auto" Padding="10" RowSpacing="10">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto, *" Margin="0,0,0,10">
             <Button Grid.Column="0" Text="Terug" Command="{Binding BackCommand}" BackgroundColor="LightGray" TextColor="Black" HeightRequest="36" HorizontalOptions="Start" />
 
             <Label Grid.Column="1" 
@@ -49,38 +62,109 @@
                    VerticalOptions="Center" />
         </Grid>
 
-        <!-- Calendar -->
-        <VerticalStackLayout Grid.Row="1" Spacing="5" Margin="0,0,0,16">
-            <cal:Calendar 
-                SelectedDate="{Binding SelectedDate}"
-                MinimumDate="{Binding MinDate}"
-                MonthLabelStyle="{StaticResource CalMonthLabelStyle}"
-                DaysLabelStyle="{StaticResource CalDayLabelStyle}"
-                SelectedDateLabelStyle="{StaticResource CalSelectedDateLabelStyle}"
-                DaysTitleLabelStyle="{StaticResource CalWeekdayTitleStyle}"
-                SelectedDayBackgroundColor="{StaticResource Primary}"
-                TodayOutlineColor="{StaticResource Primary}"
-                EventsScrollViewVisible="False"
-                HeightRequest="320" />
-            <Label Text="{Binding DateWarningText}" 
-                   IsVisible="{Binding HasDateWarning}"
-                   TextColor="Red"
-                   FontSize="12"
-                   FontAttributes="Bold"
-                   HorizontalOptions="Center" />
-        </VerticalStackLayout>
+        <!-- Calendar & Reservation List Area -->
+        <Grid Grid.Row="1" 
+              ColumnDefinitions="Auto, 300" 
+              ColumnSpacing="10" 
+              HorizontalOptions="Center">
 
-        <!-- Time & Clients -->
-        <Grid Grid.Row="2" ColumnDefinitions="*, *" ColumnSpacing="20">
-            <VerticalStackLayout Grid.Column="0" Spacing="15" Margin="80,140,0,0">
-                <Label Text="Tijdstip" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
+            <Border Grid.Column="0" 
+                    Stroke="{StaticResource Primary}"
+                    StrokeThickness="4"
+                    StrokeShape="RoundRectangle 20,0,0,20"
+                    Background="{StaticResource Primary}"
+                    Padding="1,1">
+                <VerticalStackLayout Spacing="5" BackgroundColor="{StaticResource Secondary}">
+                    <cal:Calendar 
+                        SelectedDate="{Binding SelectedDate}"
+                        MinimumDate="{Binding MinDate}"
+                        YearLabelStyle="{StaticResource CalYearLabelStyle}"
+                        MonthLabelStyle="{StaticResource CalMonthLabelStyle}"
+                        DaysLabelStyle="{StaticResource CalDayLabelStyle}"
+                        SelectedDateLabelStyle="{StaticResource CalSelectedDateLabelStyle}"
+                        DaysTitleLabelStyle="{StaticResource CalWeekdayTitleStyle}"
+                        SelectedDayBackgroundColor="{StaticResource Primary}"
+                        TodayOutlineColor="{StaticResource Primary}"
+                        Events="{Binding Events}"
+                        EventsScrollViewVisible="False"
+                        EventIndicatorColor="Blue"
+                        EventIndicatorSelectedColor="LightBlue"
+                        VerticalOptions="Fill"
+                        SwipeUpToHideEnabled="False"
+                        FooterSectionVisible="False"
+                        HeightRequest="420" 
+                        WidthRequest="700"
+                        FirstDayOfWeek="Monday">
+
+                        <cal:Calendar.EventTemplate>
+                            <DataTemplate>
+                                <StackLayout>
+                                    <Label Text="{Binding clientId}" />
+                                    <Label Text="{Binding BoatId}" />
+                                </StackLayout>
+                            </DataTemplate>
+                        </cal:Calendar.EventTemplate>
+                    </cal:Calendar>
+
+                    <Label Text="{Binding DateWarningText}" 
+                           IsVisible="{Binding HasDateWarning}"
+                           TextColor="Red"
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Grid.Column="1"
+                    Stroke="{StaticResource Primary}"
+                    StrokeThickness="2"
+                    StrokeShape="RoundRectangle 10"
+                    BackgroundColor="White"
+                    Padding="10"
+                    VerticalOptions="Fill">
+                <Grid RowDefinitions="Auto, *">
+                    <Label Grid.Row="0" 
+                           Text="Huidige reserveringen" 
+                           FontSize="16" 
+                           FontAttributes="Bold" 
+                           TextColor="{StaticResource Primary}" 
+                           Margin="0,0,0,10"/>
+
+                    <CollectionView Grid.Row="1" 
+                                    ItemsSource="{Binding Reservations, Mode=TwoWay}"
+                                    EmptyView="Nog geen reserveringen">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Reservation">
+                                <Frame Margin="0,0,0,8" Padding="10" BorderColor="LightGray" CornerRadius="5" HasShadow="False">
+                                    <VerticalStackLayout Spacing="2">
+                                        <HorizontalStackLayout Spacing="5">
+                                            <Label Text="{Binding StartTime, StringFormat='{0:HH:mm}'}" FontAttributes="Bold" TextColor="Black"/>
+                                            <Label Text="-" TextColor="Black"/>
+                                            <Label Text="{Binding EndTime, StringFormat='{0:HH:mm}'}" FontAttributes="Bold" TextColor="Black"/>
+                                        </HorizontalStackLayout>
+
+                                        <Label Text="{Binding ClientId, StringFormat='Client ID: {0}'}" FontSize="12" TextColor="Gray"/>
+                                        <Label Text="{Binding BoatId, StringFormat='Boat ID: {0}'}" FontSize="12" TextColor="Gray"/>
+                                    </VerticalStackLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <Grid Grid.Row="2" ColumnDefinitions="*, *" ColumnSpacing="40" Margin="20,10,20,0">
+
+            <VerticalStackLayout Grid.Column="0" Spacing="15" VerticalOptions="Start">
+                <Label Text="Tijd" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
                 <VerticalStackLayout>
                     <Label Text="Starttijd:" FontSize="12" TextColor="Gray"/>
-                    <TimePicker Time="{Binding StartTime}" />
+                    <TimePicker Format="HH:mm" Time="{Binding StartTime}" />
                 </VerticalStackLayout>
                 <VerticalStackLayout>
                     <Label Text="Eindtijd:" FontSize="12" TextColor="Gray"/>
-                    <TimePicker Time="{Binding EndTime}" />
+                    <TimePicker Format="HH:mm" Time="{Binding EndTime}" />
                 </VerticalStackLayout>
                 <Label Text="{Binding TimeWarningText}" 
                        IsVisible="{Binding HasTimeWarning}"
@@ -89,7 +173,7 @@
                        FontAttributes="Bold" />
             </VerticalStackLayout>
 
-            <VerticalStackLayout Grid.Column="1" Spacing="10" Margin="0,140,0,0">
+            <VerticalStackLayout Grid.Column="1" Spacing="10" VerticalOptions="Start">
                 <Grid ColumnDefinitions="*, Auto">
                     <Label Grid.Column="0" Text="Roeiers" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
                     <Label Grid.Column="1" Text="{Binding SeatStatusText}" FontSize="18" FontAttributes="Bold" />
@@ -111,8 +195,8 @@
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </VerticalStackLayout>
-
-                <CollectionView ItemsSource="{Binding SelectedClients}" SelectionMode="None" HorizontalOptions="FillAndExpand" HeightRequest="220">
+                
+                <CollectionView ItemsSource="{Binding SelectedClients}" SelectionMode="None" HorizontalOptions="FillAndExpand" HeightRequest="180">
                     <CollectionView.ItemsLayout>
                         <GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="6" VerticalItemSpacing="6" />
                     </CollectionView.ItemsLayout>
@@ -138,7 +222,6 @@
             </VerticalStackLayout>
         </Grid>
 
-        <!-- Reserve Button -->
-        <Button Grid.Row="3" Text="Reserveer" Command="{Binding SaveReservationCommand}" Margin="0,10,0,0" FontSize="18" FontAttributes="Bold" />
+        <Button Grid.Row="3" Text="Reserveren" Command="{Binding SaveReservationCommand}" Margin="0,20,0,0" FontSize="18" FontAttributes="Bold" VerticalOptions="End" />
     </Grid>
 </ContentPage>
