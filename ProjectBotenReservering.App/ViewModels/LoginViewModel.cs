@@ -43,19 +43,12 @@ namespace ProjectBotenReservering.App.ViewModels
             if (authenticatedClient != null)
             {
                 _clientContext.SetCurrentClientId(authenticatedClient.Id);
-                SetNewMailSettings(authenticatedClient);
                 Application.Current.MainPage = new AppShell();
             }
             else
             {
                 LoginMessage = "Ongeldige inloggegevens.";
             }
-        }
-
-        private void SetNewMailSettings(Client newClient)
-        {
-            _mailSettings.Username = newClient.Email;
-            _mailSettings.Password = newClient.PasswordHash;
         }
         
         [RelayCommand]

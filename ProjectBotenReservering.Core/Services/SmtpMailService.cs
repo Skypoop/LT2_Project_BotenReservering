@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Net;
 using System.Net.Mail;
 using ProjectBotenReservering.Core.Interfaces.Services;
@@ -24,12 +25,20 @@ public class SmtpMailService : ISmtpMailService
         foreach (string receiver in receivers)
         {
             using MailMessage message = new MailMessage();
-            message.From = new MailAddress(_settings.Username);
-            message.To.Add(receiver);
-            message.Subject = subject;
-            message.Body = body;
-            message.IsBodyHtml = true;
-            await smtp.SendMailAsync(message);
+            try
+            {
+                message.From = new MailAddress(_settings.Username);
+                message.To.Add(receiver);
+                message.Subject = subject;
+                message.Body = body;
+                message.IsBodyHtml = true;
+                await smtp.SendMailAsync(message);
+            }
+            catch (Exception e)
+            {
+                WarningException myEx = new WarningException($"Username not set or is incorrect. ensure this is done before sending mails. in {nameof(_settings)}" + e.Message);
+                Console.Write(myEx.ToString());
+            }
         }
     }
 }
