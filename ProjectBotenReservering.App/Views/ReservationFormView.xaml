@@ -195,9 +195,7 @@
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </VerticalStackLayout>
-
-                <Picker Title="Roeiers toevoegen" ItemsSource="{Binding AvailableClients}" ItemDisplayBinding="{Binding FullName}" SelectedItem="{Binding SelectedClientToAdd}" BackgroundColor="#f0f0f0" />
-
+                
                 <CollectionView ItemsSource="{Binding SelectedClients}" SelectionMode="None" HorizontalOptions="FillAndExpand" HeightRequest="180">
                     <CollectionView.ItemsLayout>
                         <GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="6" VerticalItemSpacing="6" />
