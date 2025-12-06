@@ -30,7 +30,7 @@ namespace TestCore.Services
         }
 
         [Test]
-        public void IsBooking_Within_Allowed_ReservationTime()
+        public void IsBookingWithinAllowedReservationTime_WhenBookingDateIsWithinMaxDays_ReturnsTrue()
         {
             //Arrange
             int allowedDays = ReservationRules.MaxDaysBeforeReservation;
@@ -44,7 +44,7 @@ namespace TestCore.Services
         }
 
         [Test]
-        public void IsBooking_Not_Within_Allowed_ReservationTime()
+        public void IsBookingWithinAllowedReservationTime_WhenBookingDateIsBeyondMaxDays_ReturnsFalse()
         {
             //Arrange
             int allowedDays = ReservationRules.MaxDaysBeforeReservation;
@@ -58,7 +58,7 @@ namespace TestCore.Services
         }
 
         [Test]
-        public void IsReservation_Within_Allowed_Length()
+        public void IsValidReservationLength_WhenDurationIsWithinLimit_ReturnsTrue()
         {
             //Arrange
             DateTime startTime = DateTime.Today.AddDays(1);
@@ -72,7 +72,7 @@ namespace TestCore.Services
         }
 
         [Test]
-        public void IsReservation_Not_Within_Allowed_Length()
+        public void IsValidReservationLength_WhenDurationExceedsLimit_ReturnsFalse()
         {
             //Arrange
             DateTime startTime = DateTime.Today.AddDays(1);
