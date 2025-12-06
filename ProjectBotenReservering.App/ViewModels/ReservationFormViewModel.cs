@@ -398,10 +398,6 @@ public partial class ReservationFormViewModel : BaseViewModel
             return;
         }
 
-
-        bool anyUnderqualified = SelectedClients.Any(c => c.IsUnderqualified);
-
-
         Reservation currentReservation = new Reservation
         (
             DateTime.Now,
@@ -411,18 +407,16 @@ public partial class ReservationFormViewModel : BaseViewModel
             BoatId,
             true);
 
-        if (anyUnderqualified)
+        // Use the service to create the reservation, which handles approval logic
+        _reservationService.CreateReservation(currentReservation, SelectedClients.ToList());
+
+        if (!currentReservation.Approved)
         {
-            currentReservation.Approved = false;
-            _reservationService.Add(currentReservation);
-            _reservationService.AddClientsToReservation(currentReservation, SelectedClients.ToList());
             await Shell.Current.DisplayAlert("Info", "Reservering verstuurd naar botencommissaris voor goedkeuring",
                 "OK");
         }
         else
         {
-            _reservationService.Add(currentReservation);
-            _reservationService.AddClientsToReservation(currentReservation, SelectedClients.ToList());
             await Shell.Current.DisplayAlert("Succes", "Reservering Geslaagd!", "OK");
             await SendReservationEmailAsync();
         }
