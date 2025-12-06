@@ -37,60 +37,20 @@ public class BoatAuthorizationServiceTests
 
     // Tests for IsAuthorized(BoatType, int, Client?)
 
-    [Test]
-    public void IsAuthorized_WithClient_ReturnsTrue_WhenScullLevelIsSufficient()
+    [TestCase(BoatType.S, 2, 2, 0, true, TestName = "IsAuthorized_WithClient_Scull_Sufficient_ReturnsTrue")]
+    [TestCase(BoatType.S, 2, 1, 0, false, TestName = "IsAuthorized_WithClient_Scull_Insufficient_ReturnsFalse")]
+    [TestCase(BoatType.B, 3, 0, 3, true, TestName = "IsAuthorized_WithClient_Sweep_Sufficient_ReturnsTrue")]
+    [TestCase(BoatType.B, 3, 0, 2, false, TestName = "IsAuthorized_WithClient_Sweep_Insufficient_ReturnsFalse")]
+    public void IsAuthorized_WithClient_ChecksLevelsCorrectly(BoatType boatType, int boatLevel, int scullLevel, int sweepLevel, bool expected)
     {
         // Arrange
-        var client = new Client("Test User", "test@example.com", 2, 0, "Club", true, "hash", 1);
-        // Scull level 2, Boat level 2 -> Authorized
+        var client = new Client("Test User", "test@example.com", scullLevel, sweepLevel, "Club", true, "hash", 1);
 
         // Act
-        var result = _service.IsAuthorized(BoatType.S, 2, client);
+        var result = _service.IsAuthorized(boatType, boatLevel, client);
 
         // Assert
-        result.Should().BeTrue();
-    }
-
-    [Test]
-    public void IsAuthorized_WithClient_ReturnsFalse_WhenScullLevelIsInsufficient()
-    {
-        // Arrange
-        var client = new Client("Test User", "test@example.com", 1, 0, "Club", true, "hash", 1);
-        // Scull level 1, Boat level 2 -> Not Authorized
-
-        // Act
-        var result = _service.IsAuthorized(BoatType.S, 2, client);
-
-        // Assert
-        result.Should().BeFalse();
-    }
-
-    [Test]
-    public void IsAuthorized_WithClient_ReturnsTrue_WhenSweepLevelIsSufficient()
-    {
-        // Arrange
-        var client = new Client("Test User", "test@example.com", 0, 3, "Club", true, "hash", 1);
-        // Sweep level 3, Boat level 3 -> Authorized
-
-        // Act
-        var result = _service.IsAuthorized(BoatType.B, 3, client);
-
-        // Assert
-        result.Should().BeTrue();
-    }
-
-    [Test]
-    public void IsAuthorized_WithClient_ReturnsFalse_WhenSweepLevelIsInsufficient()
-    {
-        // Arrange
-        var client = new Client("Test User", "test@example.com", 0, 2, "Club", true, "hash", 1);
-        // Sweep level 2, Boat level 3 -> Not Authorized
-
-        // Act
-        var result = _service.IsAuthorized(BoatType.B, 3, client);
-
-        // Assert
-        result.Should().BeFalse();
+        result.Should().Be(expected);
     }
 
     [Test]
@@ -105,33 +65,20 @@ public class BoatAuthorizationServiceTests
 
     // Tests for IsAuthorized(BoatType, int) - using IClientService
 
-    [Test]
-    public void IsAuthorized_UsesCurrentClient_ReturnsTrue_WhenAuthorized()
+    [TestCase(BoatType.S, 2, 2, 0, true, TestName = "IsAuthorized_CurrentClient_Scull_Sufficient_ReturnsTrue")]
+    [TestCase(BoatType.S, 2, 1, 0, false, TestName = "IsAuthorized_CurrentClient_Scull_Insufficient_ReturnsFalse")]
+    public void IsAuthorized_UsesCurrentClient_ChecksLevelsCorrectly(BoatType boatType, int boatLevel, int scullLevel, int sweepLevel, bool expected)
     {
         // Arrange
-        var client = new Client("Test User", "test@example.com", 2, 0, "Club", true, "hash", 1);
+        var client = new Client("Test User", "test@example.com", scullLevel, sweepLevel, "Club", true, "hash", 1);
         _mockClientService.Setup(s => s.GetCurrentClient()).Returns(client);
 
         // Act
-        var result = _service.IsAuthorized(BoatType.S, 2);
+        var result = _service.IsAuthorized(boatType, boatLevel);
 
         // Assert
-        result.Should().BeTrue();
+        result.Should().Be(expected);
         _mockClientService.Verify(s => s.GetCurrentClient(), Times.Once);
-    }
-
-    [Test]
-    public void IsAuthorized_UsesCurrentClient_ReturnsFalse_WhenNotAuthorized()
-    {
-        // Arrange
-        var client = new Client("Test User", "test@example.com", 1, 0, "Club", true, "hash", 1);
-        _mockClientService.Setup(s => s.GetCurrentClient()).Returns(client);
-
-        // Act
-        var result = _service.IsAuthorized(BoatType.S, 2);
-
-        // Assert
-        result.Should().BeFalse();
     }
 
     [Test]
@@ -150,7 +97,7 @@ public class BoatAuthorizationServiceTests
     // Tests for FilterAuthorized
 
     [Test]
-    public void FilterAuthorized_ReturnsOnlyAuthorizedBoats()
+    public void FilterAuthorized_WhenListContainsMixedAuthorization_ReturnsOnlyAuthorizedBoats()
     {
         // Arrange
         var client = new Client("Test User", "test@example.com", 2, 1, "Club", true, "hash", 1);
