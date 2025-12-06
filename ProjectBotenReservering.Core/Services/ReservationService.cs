@@ -22,6 +22,28 @@ public class ReservationService: IReservationService
     {
         return _reservationRepository.Add(reservation);
     }
+
+    public Reservation CreateReservation(Reservation reservation, List<Client> clients)
+    {
+        bool allAuthorized = true;
+        foreach (var client in clients)
+        {
+            if (!_boatAuthorizationService.IsAuthorized(reservation.BoatId, client))
+            {
+                allAuthorized = false;
+                break;
+            }
+        }
+
+        if (!allAuthorized)
+        {
+            reservation.Approved = false;
+        }
+        // If all authorized, we assume Approved is already true (default) or set by caller. 
+        Add(reservation);
+        AddClientsToReservation(reservation, clients);
+        return reservation;
+    }
     
     public Reservation? Get(int id)
     {
