@@ -44,10 +44,10 @@ public class BoatAuthorizationServiceTests
     public void IsAuthorized_WithClient_ChecksLevelsCorrectly(BoatType boatType, int boatLevel, int scullLevel, int sweepLevel, bool expected)
     {
         // Arrange
-        var client = new Client("Test User", "test@example.com", scullLevel, sweepLevel, "Club", true, "hash", 1);
+        Client client = new Client("Test User", "test@example.com", scullLevel, sweepLevel, "Club", true, "hash", 1);
 
         // Act
-        var result = _service.IsAuthorized(boatType, boatLevel, client);
+        bool result = _service.IsAuthorized(boatType, boatLevel, client);
 
         // Assert
         result.Should().Be(expected);
@@ -57,7 +57,7 @@ public class BoatAuthorizationServiceTests
     public void IsAuthorized_WithClient_ReturnsFalse_WhenClientIsNull()
     {
         // Act
-        var result = _service.IsAuthorized(BoatType.S, 1, null);
+        bool result = _service.IsAuthorized(BoatType.S, 1, null);
 
         // Assert
         result.Should().BeFalse();
@@ -70,11 +70,11 @@ public class BoatAuthorizationServiceTests
     public void IsAuthorized_UsesCurrentClient_ChecksLevelsCorrectly(BoatType boatType, int boatLevel, int scullLevel, int sweepLevel, bool expected)
     {
         // Arrange
-        var client = new Client("Test User", "test@example.com", scullLevel, sweepLevel, "Club", true, "hash", 1);
+        Client client = new Client("Test User", "test@example.com", scullLevel, sweepLevel, "Club", true, "hash", 1);
         _mockClientService.Setup(s => s.GetCurrentClient()).Returns(client);
 
         // Act
-        var result = _service.IsAuthorized(boatType, boatLevel);
+        bool result = _service.IsAuthorized(boatType, boatLevel);
 
         // Assert
         result.Should().Be(expected);
@@ -88,7 +88,7 @@ public class BoatAuthorizationServiceTests
         _mockClientService.Setup(s => s.GetCurrentClient()).Returns((Client?)null);
 
         // Act
-        var result = _service.IsAuthorized(BoatType.S, 1);
+        bool result = _service.IsAuthorized(BoatType.S, 1);
 
         // Assert
         result.Should().BeFalse();
@@ -100,10 +100,10 @@ public class BoatAuthorizationServiceTests
     public void FilterAuthorized_WhenListContainsMixedAuthorization_ReturnsOnlyAuthorizedBoats()
     {
         // Arrange
-        var client = new Client("Test User", "test@example.com", 2, 1, "Club", true, "hash", 1);
+        Client client = new Client("Test User", "test@example.com", 2, 1, "Club", true, "hash", 1);
         _mockClientService.Setup(s => s.GetCurrentClient()).Returns(client);
 
-        var boats = new List<Boat>
+        List<Boat> boats = new List<Boat>
         {
             new Boat("Boat1", true, 1, 2, BoatType.S, 80, true, "Club", 1), // Auth (Scull 2 >= 2)
             new Boat("Boat2", true, 1, 3, BoatType.S, 80, true, "Club", 2), // Not Auth (Scull 2 < 3)
@@ -112,7 +112,7 @@ public class BoatAuthorizationServiceTests
         };
 
         // Act
-        var result = _service.FilterAuthorized(boats, b => b.Type, b => b.Level).ToList();
+        List<Boat> result = _service.FilterAuthorized(boats, b => b.Type, b => b.Level).ToList();
 
         // Assert
         result.Should().HaveCount(2);
