@@ -60,6 +60,13 @@ public class BoatAuthorizationService : IBoatAuthorizationService
         return authorizationCheck(boatType, boatLevel, client); 
     }
 
+    public bool IsAuthorized(int boatId, Client client)
+    {
+        Boat? boat = _boatRepository.Get(boatId);
+        if (boat == null) return false;
+        return IsAuthorized(boat.Type, boat.Level, client);
+    }
+
     public IEnumerable<T> FilterAuthorized<T>(IEnumerable<T> items, Func<T, BoatType> boatTypeSelector, Func<T, int> boatLevelSelector)
     {
         return items.Where(item => IsAuthorized(boatTypeSelector(item), boatLevelSelector(item)));
