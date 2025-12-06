@@ -35,7 +35,6 @@ public class ReservationService: IReservationService
             }
         }
         reservation.Approved = allAuthorized;
-        // If all authorized, we assume Approved is already true (default) or set by caller. 
         Add(reservation);
         AddClientsToReservation(reservation, clients);
         return reservation;
