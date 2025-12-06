@@ -5,9 +5,11 @@ using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.Core.Services;
 
-public class AuthService(IClientRepository clientRepository) : IAuthService
+public class AuthService(IClientRepository clientRepository, IClientRoleRepository clientRoleRepository, IRoleRepository roleRepository) : IAuthService
 {
     private readonly IClientRepository _clientRepository = clientRepository;
+    private readonly IClientRoleRepository _clientRoleRepository = clientRoleRepository;
+    private readonly IRoleRepository _roleRepository = roleRepository;
 
     public Client? Login(string email, string password)
     {
@@ -23,7 +25,7 @@ public class AuthService(IClientRepository clientRepository) : IAuthService
         return _clientRepository.Get(email) != null;
     }
 
-    public bool Register(Client newClient, string password)
+    public bool Register(Client newClient, string password, string roleName)
     {
         Client? existingClient = _clientRepository.Get(newClient.Email);
         if (existingClient != null)
@@ -34,7 +36,15 @@ public class AuthService(IClientRepository clientRepository) : IAuthService
         newClient.PasswordHash = PasswordHelper.HashPassword(password);
 
         _clientRepository.Add(newClient);
+        _clientRoleRepository.Add(new ClientRole(roleName, newClient.Id));
 
         return true;
+    }
+
+    public string GetUserRole(int clientId)
+    {
+        List<ClientRole> roles = _clientRoleRepository.GetByClientId(clientId);
+        ClientRole clientRole = roles.FirstOrDefault();
+        return clientRole?.RoleName ?? string.Empty;
     }
 }

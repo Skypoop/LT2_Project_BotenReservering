@@ -10,6 +10,12 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         {
             CreateTable(@"CREATE TABLE IF NOT EXISTS Role (
                             [Name] VARCHAR(50) NOT NULL PRIMARY KEY UNIQUE)");
+            if (GetAll().Count == 0)
+            {
+                Add(new Role("Lid"));
+                Add(new Role("Nieuw Lid"));
+                Add(new Role("Gast"));
+            }
         }
 
         public Role Add(Role item)

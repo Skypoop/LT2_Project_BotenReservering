@@ -28,9 +28,18 @@ namespace ProjectBotenReservering.App.ViewModels
 
             if (authenticatedClient != null)
             {
+                string role = authService.GetUserRole(authenticatedClient.Id);
+                    
+                if(string.Equals(role, "Gast", StringComparison.OrdinalIgnoreCase))
+                {
+                    await Shell.Current.DisplayAlert("Toegang Geweigerd", "Er is nog geen functioneel scherm beschikbaar voor een account ingelogd als Gast.", "OK");
+                    return;
+                }
+
                 clientContext.SetCurrentClientId(authenticatedClient.Id);
                 await Shell.Current.GoToAsync(nameof(BoatTypesView));
             }
+
             else
             {
                 LoginMessage = "Ongeldige inloggegevens.";

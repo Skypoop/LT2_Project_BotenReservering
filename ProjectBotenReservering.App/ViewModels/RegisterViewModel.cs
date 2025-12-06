@@ -1,9 +1,9 @@
-﻿using System.Collections.ObjectModel;
-using System.Text.RegularExpressions;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
+using System.Collections.ObjectModel;
+using System.Text.RegularExpressions;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
@@ -75,36 +75,19 @@ public partial class RegisterViewModel : BaseViewModel
     [RelayCommand]
     private void ValidateName()
     {
-        if (string.IsNullOrWhiteSpace(Name))
-        {
-            IsNameInvalid = true;
-            return;
-        }
-
-        string trimmedName = Name.Trim();
-        string[] parts = trimmedName.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-
-        if (parts.Length < 2)
-        {
-            IsNameInvalid = true;
-            return;
-        }
-
+        string trimmedName = Name?.Trim() ?? string.Empty;
+        string[] parts = trimmedName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         Regex nameRegex = new(@"^[\p{L}\s\-\']+$");
-        IsNameInvalid = !nameRegex.IsMatch(trimmedName);
+
+        IsNameInvalid = string.IsNullOrWhiteSpace(trimmedName) || parts.Length < 2 || !nameRegex.IsMatch(trimmedName);
     }
 
     [RelayCommand]
     private void ValidateEmail()
     {
-        if (string.IsNullOrWhiteSpace(Email))
-        {
-            IsEmailInvalid = true;
-            return;
-        }
-
+        string trimmedEmail = Email?.Trim() ?? string.Empty;
         Regex regex = new(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
-        IsEmailInvalid = !regex.IsMatch(Email);
+        IsEmailInvalid = string.IsNullOrWhiteSpace(trimmedEmail) || !regex.IsMatch(trimmedEmail);
     }
 
     [RelayCommand]
@@ -112,7 +95,7 @@ public partial class RegisterViewModel : BaseViewModel
     {
         if (string.IsNullOrWhiteSpace(SweepLevel))
         {
-            IsSweepLevelInvalid = false; 
+            IsSweepLevelInvalid = false;
             return;
         }
         bool isInt = int.TryParse(SweepLevel, out int val);
@@ -134,15 +117,12 @@ public partial class RegisterViewModel : BaseViewModel
     [RelayCommand]
     private void ValidatePasswordMatch()
     {
-        if (!string.IsNullOrEmpty(Password) && !string.IsNullOrEmpty(ConfirmPassword))
-        {
-            IsPasswordMismatch = Password != ConfirmPassword;
-        }
-        else
-        {
-            IsPasswordMismatch = false;
-        }
+        IsPasswordMismatch =
+        !string.IsNullOrEmpty(Password) &&
+        !string.IsNullOrEmpty(ConfirmPassword) &&
+        Password != ConfirmPassword;
     }
+
 
     [RelayCommand]
     private async Task Register()
@@ -174,18 +154,21 @@ public partial class RegisterViewModel : BaseViewModel
         _ = int.TryParse(SweepLevel, out int sweepLevelInt);
         _ = int.TryParse(ScullLevel, out int scullLevelInt);
 
-        Client newClient = new Client(
-            Name,
-            Email,
-            scullLevelInt,
-            sweepLevelInt,
-            null,
-            true,
-            string.Empty,
-            0
-        );
+        string? clubValue;
+        clubValue = (SelectedRole == "Gast") ? "Extern" : "Remus Invictus";
 
-        bool success = _authService.Register(newClient, Password);
+        Client newClient = new Client(
+                Name,
+                Email,
+                scullLevelInt,
+                sweepLevelInt,
+                clubValue,
+                true,    // Approved by default (for now)
+                string.Empty,
+                0
+            );
+
+        bool success = _authService.Register(newClient, Password, SelectedRole);
 
         if (success)
         {
