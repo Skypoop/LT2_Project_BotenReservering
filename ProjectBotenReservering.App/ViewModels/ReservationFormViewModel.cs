@@ -63,7 +63,7 @@ public partial class ReservationFormViewModel : BaseViewModel
     private ObservableCollection<Reservation> _reservationList { get; set; } = [];
 
     [ObservableProperty] 
-    private BoatTypeUiItem _currentBoatType;
+    private BoatTypeUiItem? _currentBoatType;
 
     [ObservableProperty] 
     private DateTime _selectedDate;
@@ -75,13 +75,13 @@ public partial class ReservationFormViewModel : BaseViewModel
     private TimeSpan _endTime;
 
     [ObservableProperty] 
-    private string _dateWarningText;
+    private string? _dateWarningText;
 
     [ObservableProperty] 
     private bool _hasDateWarning;
 
     [ObservableProperty] 
-    private string _timeWarningText;
+    private string? _timeWarningText;
 
     [ObservableProperty] 
     private bool _hasTimeWarning;
@@ -98,7 +98,7 @@ public partial class ReservationFormViewModel : BaseViewModel
     public bool IsPickerSupported => !IsMacCatalyst;
 
     [ObservableProperty] 
-    private Client _selectedClientToAdd;
+    private Client? _selectedClientToAdd;
 
     [ObservableProperty] 
     private string _seatStatusText = "";
@@ -234,7 +234,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         }
     }
 
-    partial void OnSelectedClientToAddChanged(Client value)
+    partial void OnSelectedClientToAddChanged(Client? value)
     {
         if (value == null) return;
         Client clientToAdd = value;

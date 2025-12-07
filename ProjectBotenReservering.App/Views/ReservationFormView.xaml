@@ -135,7 +135,7 @@
                                     EmptyView="Nog geen reserveringen">
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="models:Reservation">
-                                <Frame Margin="0,0,0,8" Padding="10" BorderColor="LightGray" CornerRadius="5" HasShadow="False">
+                                <Border Margin="0,0,0,8" Padding="10" Stroke="LightGray" StrokeShape="5">
                                     <VerticalStackLayout Spacing="2">
                                         <HorizontalStackLayout Spacing="5">
                                             <Label Text="{Binding StartTime, StringFormat='{0:HH:mm}'}" FontAttributes="Bold" TextColor="Black"/>
@@ -146,7 +146,7 @@
                                         <Label Text="{Binding ClientId, StringFormat='Client ID: {0}'}" FontSize="12" TextColor="Gray"/>
                                         <Label Text="{Binding BoatId, StringFormat='Boat ID: {0}'}" FontSize="12" TextColor="Gray"/>
                                     </VerticalStackLayout>
-                                </Frame>
+                                </Border>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
@@ -211,7 +211,7 @@
                                             BackgroundColor="Transparent"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ReservationFormViewModel}}, Path=ShowQualificationWarningCommand}"
                                             CommandParameter="{Binding .}"
-                                            AutomationProperties.HelpText="{Binding QualificationHelpText}"
+                                            SemanticProperties.Hint="{Binding QualificationHelpText}"
                                             IsVisible="{Binding IsUnderqualified}" />
 
                                     <Button Grid.Column="2" Text="X" TextColor="Red" BackgroundColor="Transparent" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ReservationFormViewModel}}, Path=RemoveClientCommand}" CommandParameter="{Binding .}" HeightRequest="28" WidthRequest="28" Padding="0" HorizontalOptions="End"/>

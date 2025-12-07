@@ -52,7 +52,7 @@ namespace ProjectBotenReservering.App.ViewModels
                 }
 
                 _clientContext.SetCurrentClientId(authenticatedClient.Id);
-                await Shell.Current.GoToAsync(nameof(BoatTypesView));
+                await Shell.Current.GoToAsync($"//{nameof(BoatTypesView)}");
             }
 
             else

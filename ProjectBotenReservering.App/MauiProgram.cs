@@ -1,16 +1,17 @@
 ﻿using CommunityToolkit.Maui;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using ProjectBotenReservering.Core.Context;
+using ProjectBotenReservering.App.Helpers;
 using ProjectBotenReservering.App.ViewModels;
 using ProjectBotenReservering.App.Views;
-using ProjectBotenReservering.Core.Interfaces.Services;
-using ProjectBotenReservering.Core.Interfaces.Repositories;
+using ProjectBotenReservering.Core.Context;
 using ProjectBotenReservering.Core.Data.Repositories;
-using ProjectBotenReservering.Core.Services;
 using ProjectBotenReservering.Core.Data.Services;
 using ProjectBotenReservering.Core.Interfaces.Context;
+using ProjectBotenReservering.Core.Interfaces.Repositories;
+using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
+using ProjectBotenReservering.Core.Services;
 
 namespace ProjectBotenReservering.App
 {
@@ -36,6 +37,8 @@ namespace ProjectBotenReservering.App
             MailSettings mailSettings = configuration.GetSection("MailConnection").Get<MailSettings>()!;
             IServiceCollection serviceCollection = builder.Services.AddSingleton(mailSettings);
 
+            builder.Services.AddSingleton<App>();
+            builder.Services.AddSingleton<TabItemToViewHelper>();
             builder.Services.AddSingleton<IBoatRepository, BoatRepository>();
             builder.Services.AddSingleton<IClientRepository, ClientRepository>();
             builder.Services.AddSingleton<IReservationRepository, ReservationRepository>();

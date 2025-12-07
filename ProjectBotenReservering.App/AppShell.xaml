@@ -11,8 +11,11 @@
         Route="Login"
         Shell.FlyoutBehavior="Disabled" />
 
-    <ShellContent
-        ContentTemplate="{DataTemplate views:SideBarView}"
-        Route="BoatTypesView" />
+    <FlyoutItem Title="Menu">
+        <ShellContent
+            Title="Boten Reserveren"
+            ContentTemplate="{DataTemplate views:SideBarView}"
+            Route="BoatTypesView" />
+    </FlyoutItem>
 
 </Shell>

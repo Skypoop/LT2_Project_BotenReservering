@@ -44,7 +44,7 @@ public class AuthService(IClientRepository clientRepository, IClientRoleReposito
     public string GetUserRole(int clientId)
     {
         List<ClientRole> roles = _clientRoleRepository.GetByClientId(clientId);
-        ClientRole clientRole = roles.FirstOrDefault();
+        ClientRole? clientRole = roles.FirstOrDefault();
         return clientRole?.RoleName ?? string.Empty;
     }
 }
