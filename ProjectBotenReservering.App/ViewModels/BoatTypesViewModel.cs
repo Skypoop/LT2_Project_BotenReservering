@@ -36,7 +36,21 @@ public partial class BoatTypesViewModel : BaseViewModel
         SelectedSteeringOption = SteeringOptions.First();
         ApplyFilterOption();
     }
+    
+    public async Task OnApearing()
+    {
+        await ValidateBoatTypeList();
+    }
 
+    private async Task ValidateBoatTypeList()
+    {
+        if (AllBoatTypes.Count == 0)
+            await Shell.Current.DisplayAlert(
+                "Alert",
+                "Geen boten binnen client rang gevonden. Neem contact op met de beheerder.",
+                "OK");
+    }
+    
     private void ApplyFilterOption()
     {
         bool? steeringValue = SelectedSteeringOption?.Value;

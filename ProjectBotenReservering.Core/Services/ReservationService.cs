@@ -22,6 +22,23 @@ public class ReservationService: IReservationService
     {
         return _reservationRepository.Add(reservation);
     }
+
+    public Reservation CreateReservation(Reservation reservation, List<Client> clients)
+    {
+        bool allAuthorized = true;
+        foreach (Client client in clients)
+        {
+            if (!_boatAuthorizationService.IsAuthorized(reservation.BoatId, client))
+            {
+                allAuthorized = false;
+                break;
+            }
+        }
+        reservation.Approved = allAuthorized;
+        Add(reservation);
+        AddClientsToReservation(reservation, clients);
+        return reservation;
+    }
     
     public Reservation? Get(int id)
     {
@@ -42,13 +59,18 @@ public class ReservationService: IReservationService
     public bool IsValidReservationLength(DateTime startTime, DateTime endTime)
     {
         TimeSpan timeDifference = endTime - startTime;
-        if (timeDifference.Hours > ReservationRules.MaxReservationLength)
+        if (timeDifference.TotalMinutes > ReservationRules.MaxReservationLength)
         {
             return false;
         }
         return true;
     }
 
+    public async Task<List<Reservation>> GetAll()
+    {
+        return _reservationRepository.GetAll();
+    }
+    
     public bool IsReservationTimeFree(DateTime startTime, DateTime endTime)
     {
         throw new NotImplementedException();

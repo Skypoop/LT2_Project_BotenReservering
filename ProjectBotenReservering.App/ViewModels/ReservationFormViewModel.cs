@@ -4,6 +4,8 @@ using ProjectBotenReservering.Core.Models;
 using ProjectBotenReservering.App.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
+using Plugin.Maui.Calendar.Models;
+using ProjectBotenReservering.Core.Constants;
 using System.Collections.ObjectModel;
 
 namespace ProjectBotenReservering.App.ViewModels;
@@ -26,7 +28,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         ISmtpMailService mailservice
         )
     {
-        _mailService = mailservice; 
+        _mailService = mailservice;
         _boatTypeService = boatTypeService;
         _clientRepository = clientRepository;
 
@@ -42,36 +44,64 @@ public partial class ReservationFormViewModel : BaseViewModel
 
         SelectedClients = new ObservableCollection<Client>();
         AvailableClients = new ObservableCollection<Client>();
+        
+        MinDate = DateTime.Today;
     }
 
-    public DateTime MinDate => DateTime.Today;
+    private DateTime _minimumDate;
+    public DateTime MinDate
+    {
+        get => _minimumDate;
+        set
+        {
+            _minimumDate = value;
+            OnPropertyChanged();
+            
+        }
+    }
 
-    [ObservableProperty] private BoatTypeUiItem? _currentBoatType;
+    private ObservableCollection<Reservation> _reservationList { get; set; } = [];
 
-    [ObservableProperty] private DateTime _selectedDate;
+    [ObservableProperty] 
+    private BoatTypeUiItem _currentBoatType;
 
-    [ObservableProperty] private TimeSpan _startTime;
+    [ObservableProperty] 
+    private DateTime _selectedDate;
 
-    [ObservableProperty] private TimeSpan _endTime;
+    [ObservableProperty] 
+    private TimeSpan _startTime;
 
-    [ObservableProperty] private string? _dateWarningText;
+    [ObservableProperty] 
+    private TimeSpan _endTime;
 
-    [ObservableProperty] private bool _hasDateWarning;
+    [ObservableProperty] 
+    private string _dateWarningText;
 
-    [ObservableProperty] private string? _timeWarningText;
+    [ObservableProperty] 
+    private bool _hasDateWarning;
 
-    [ObservableProperty] private bool _hasTimeWarning;
+    [ObservableProperty] 
+    private string _timeWarningText;
 
-    private readonly ISmtpMailService _mailService;         
+    [ObservableProperty] 
+    private bool _hasTimeWarning;
+
+    private readonly ISmtpMailService _mailService;
     public ObservableCollection<Client> SelectedClients { get; }
     public ObservableCollection<Client> AvailableClients { get; }
 
+    public ObservableCollection<Reservation> Reservations { get; } = new ObservableCollection<Reservation>();
+
+    public EventCollection Events { get; set; } = new EventCollection();
+    
     public bool IsMacCatalyst { get; } = DeviceInfo.Current.Platform == DevicePlatform.MacCatalyst;
     public bool IsPickerSupported => !IsMacCatalyst;
 
-    [ObservableProperty] private Client? _selectedClientToAdd;
+    [ObservableProperty] 
+    private Client _selectedClientToAdd;
 
-    [ObservableProperty] private string _seatStatusText = "";
+    [ObservableProperty] 
+    private string _seatStatusText = "";
 
     private int _boatId;
 
@@ -98,6 +128,38 @@ public partial class ReservationFormViewModel : BaseViewModel
         UpdateSeatStatus();
         UpdateQualificationFlags();
     }
+    
+    [RelayCommand]
+    public async Task LoadReservationsAsync()
+    {
+        List<Reservation> reservations = await _reservationService.GetAll();
+        foreach (Reservation res in reservations) _reservationList.Add(res);
+        InitializeEvents();
+    }
+
+    public void InitializeEvents()
+    {
+        foreach (var res in _reservationList)
+        {
+            DateTime dayOfReservation = res.StartTime;
+            // Due to the events only allowing one entry per day, we only add the first reservation found for that day. It only uses these events to show the dots on the calendar.
+            if (Events.ContainsKey(dayOfReservation)) continue;
+            
+            Events.Add(dayOfReservation, new List<object>{res});
+        }
+    }
+
+    public void RefreshReservationList(DateTime value)
+    {
+        Reservations.Clear();
+        foreach (var res in _reservationList)
+        {
+            if (res.StartTime.Day == value.Date.Day)
+            {
+                Reservations.Add(res);
+            }
+        }
+    }
 
     private void InitializeClients()
     {
@@ -122,10 +184,14 @@ public partial class ReservationFormViewModel : BaseViewModel
         UpdateQualificationFlags();
     }
 
-    partial void OnSelectedDateChanged(DateTime value) => ValidateReservationRules();
+    partial void OnSelectedDateChanged(DateTime value)
+    {
+        ValidateReservationRules();
+        RefreshReservationList(value);
+    }
     partial void OnStartTimeChanged(TimeSpan value) => ValidateReservationRules();
     partial void OnEndTimeChanged(TimeSpan value) => ValidateReservationRules();
-
+    
     private async Task ValidateReservationRules()
     {
         HasDateWarning = false;
@@ -138,8 +204,8 @@ public partial class ReservationFormViewModel : BaseViewModel
 
         if (!_reservationService.IsBookingWithinAllowedReservationTime(startDateTime))
         {
-            //TODO: 2 has to be retrieved from the constant
-            DateWarningText = "Deze datum is te ver in de toekomst. max 2 dagen ver";
+            DateWarningText =
+                $"$Deze datum is te ver in de toekomst. max {ReservationRules.MaxDaysBeforeReservation} dagen ver";
             HasDateWarning = true;
         }
         else if (_reservationService.IsBookingWithinAllowedReservationTime(startDateTime) && BoatId != 0)
@@ -212,6 +278,7 @@ public partial class ReservationFormViewModel : BaseViewModel
             Console.WriteLine("Not logged in");
             return;
         }
+
         if (client.Id == currentUser?.Id)
         {
             Shell.Current.DisplayAlert("Info", "Je kan jezelf niet verwijderen.", "OK");
@@ -287,6 +354,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         if (CurrentBoatType == null) return false;
         return SelectedClients.Count == CurrentBoatType.SeatAmount;
     }
+
     private async Task SendReservationEmailAsync()
     {
         string rawBody = await ResourceLoaderHelper
@@ -320,6 +388,7 @@ public partial class ReservationFormViewModel : BaseViewModel
             await _mailService.SendMailAsync(singleReceiver, subject, personalizedBody);
         }
     }
+
     [RelayCommand(CanExecute = nameof(CanSaveReservation))]
     private async Task SaveReservation()
     {
@@ -329,40 +398,34 @@ public partial class ReservationFormViewModel : BaseViewModel
             return;
         }
 
-
-        bool anyUnderqualified = SelectedClients.Any(c => c.IsUnderqualified);
-
-
         Reservation currentReservation = new Reservation
         (
             DateTime.Now,
             SelectedDate.Date.Add(StartTime),
             SelectedDate.Date.Add(EndTime),
             _clientService.GetCurrentClient()!.Id,
-            BoatId, 
+            BoatId,
             true);
 
-        if (anyUnderqualified)
+        // Use the service to create the reservation, which handles approval logic
+        _reservationService.CreateReservation(currentReservation, SelectedClients.ToList());
+
+        if (!currentReservation.Approved)
         {
-            currentReservation.Approved = false;
-            _reservationService.Add(currentReservation);
-            _reservationService.AddClientsToReservation(currentReservation, SelectedClients.ToList());
             await Shell.Current.DisplayAlert("Info", "Reservering verstuurd naar botencommissaris voor goedkeuring",
                 "OK");
         }
         else
         {
-            _reservationService.Add(currentReservation);
-            _reservationService.AddClientsToReservation(currentReservation, SelectedClients.ToList ());
             await Shell.Current.DisplayAlert("Succes", "Reservering Geslaagd!", "OK");
-            await SendReservationEmailAsync(); 
+            await SendReservationEmailAsync();
         }
 
         await Shell.Current.GoToAsync("..");
     }
 
     [RelayCommand]
-    private static void ShowQualificationWarning(Client client)
+    private void ShowQualificationWarning(Client client)
     {
         string message = string.IsNullOrWhiteSpace(client.QualificationHelpText)
             ? "Persoon is te lage rang voor deze boot"

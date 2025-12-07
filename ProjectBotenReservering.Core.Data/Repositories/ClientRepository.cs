@@ -22,7 +22,6 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
             List<Client> clients = GetAll();
             bool anyClientExists = clients.Count > 0;
-            
             if (!anyClientExists)
             {
                 // demo clients to populate the 

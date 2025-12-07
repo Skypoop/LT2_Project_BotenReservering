@@ -1,11 +1,18 @@
-<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-       xmlns:views="clr-namespace:ProjectBotenReservering.App.Views"
-       x:Class="ProjectBotenReservering.App.AppShell">
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="ProjectBotenReservering.App.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:ProjectBotenReservering.App.Views"
+    Title="Remus Invictus Roeien">
 
     <ShellContent 
         ContentTemplate="{DataTemplate views:LoginView}"
         Route="Login"
         Shell.FlyoutBehavior="Disabled" />
+
+    <ShellContent
+        ContentTemplate="{DataTemplate views:SideBarView}"
+        Route="BoatTypesView" />
 
 </Shell>
