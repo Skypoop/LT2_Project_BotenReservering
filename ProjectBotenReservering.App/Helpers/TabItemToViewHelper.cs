@@ -14,7 +14,7 @@ public class TabItemToViewHelper : IValueConverter
 
         Type viewType = tabItem.ContentType;
 
-        View view = (View)App.ServiceProvider.GetRequiredService(viewType);
+        View view = (View)App.ServiceProvider!.GetRequiredService(viewType);
 
         return view;
     }

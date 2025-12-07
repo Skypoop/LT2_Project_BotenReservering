@@ -1,8 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ProjectBotenReservering.Core.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
-using ProjectBotenReservering.Core.Helpers;
 using System.Collections.ObjectModel;
 
 namespace ProjectBotenReservering.App.ViewModels;
@@ -12,58 +12,45 @@ public partial class RegisterViewModel : BaseViewModel
     private readonly IAuthService _authService;
 
     [ObservableProperty]
-    private string _name = string.Empty;
-
+    public partial string Name { get; set; } = string.Empty;
     [ObservableProperty]
-    private string _email = string.Empty;
-
+    public partial string Email { get; set; } = string.Empty;
     [ObservableProperty]
-    private string _sweepLevel = string.Empty;
-
+    public partial string SweepLevel { get; set; } = string.Empty;
     [ObservableProperty]
-    private string _scullLevel = string.Empty;
-
+    public partial string ScullLevel { get; set; } = string.Empty;
     [ObservableProperty]
-    private string _password = string.Empty;
-
+    public partial string Password { get; set; } = string.Empty;
     [ObservableProperty]
-    private string _confirmPassword = string.Empty;
-
+    public partial string ConfirmPassword { get; set; } = string.Empty;
     [ObservableProperty]
-    private ObservableCollection<string> _roles;
-
+    public partial ObservableCollection<string> Roles { get; set; } = new ObservableCollection<string>();
     [ObservableProperty]
-    private string _selectedRole;
-
+    public partial string SelectedRole { get; set; } = string.Empty;
     [ObservableProperty]
-    private bool _isNameInvalid;
-
+    public partial bool IsNameInvalid { get; set; }
     [ObservableProperty]
-    private bool _isEmailInvalid;
-
+    public partial bool IsEmailInvalid { get; set; }
     [ObservableProperty]
-    private bool _isSweepLevelInvalid;
-
+    public partial bool IsSweepLevelInvalid { get; set; }
     [ObservableProperty]
-    private bool _isScullLevelInvalid;
-
+    public partial bool IsScullLevelInvalid { get; set; }
     [ObservableProperty]
-    private bool _isPasswordMismatch;
-
+    public partial bool IsPasswordMismatch { get; set; }
     [ObservableProperty]
-    private bool _isPasswordHidden = true;
+    public partial bool IsPasswordHidden { get; set; } = true;
 
     public RegisterViewModel(IAuthService authService)
     {
         _authService = authService;
 
-        _roles = new ObservableCollection<string>
+        Roles = new ObservableCollection<string>
         {
             "Lid",
             "Nieuw Lid",
             "Gast"
         };
-        _selectedRole = _roles[0];
+        SelectedRole = Roles[0];
     }
 
     [RelayCommand]

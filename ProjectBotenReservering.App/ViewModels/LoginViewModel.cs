@@ -12,16 +12,13 @@ namespace ProjectBotenReservering.App.ViewModels
     public partial class LoginViewModel : BaseViewModel
     {
         [ObservableProperty]
-        private string _email = "";
-
+        public partial string Email { get; set; } = "";
         [ObservableProperty]
-        private string _password = "";
-
+        public partial string Password { get; set; } = "";
         [ObservableProperty]
-        private string? _loginMessage;
-
+        public partial string? LoginMessage { get; set; }
         [ObservableProperty]
-        private bool _isPasswordHidden = true;
+        public partial bool IsPasswordHidden { get; set; } = true;
 
         private readonly IAuthService _authService;
         private readonly IClientContext _clientContext;
