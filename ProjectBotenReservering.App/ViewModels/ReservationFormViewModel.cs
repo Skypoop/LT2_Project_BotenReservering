@@ -101,7 +101,7 @@ public partial class ReservationFormViewModel : BaseViewModel
     private Client? _selectedClientToAdd;
 
     [ObservableProperty] 
-    private string _seatStatusText = "";
+    private string? _seatStatusText = "";
 
     private int _boatId;
 

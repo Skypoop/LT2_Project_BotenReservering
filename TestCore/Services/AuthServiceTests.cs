@@ -32,9 +32,8 @@ public class AuthServiceTests
     }
 
     [Test]
-    public void Login_ReturnsClient_WhenCredentialsAreValid()
+    public void Login_ValidCredentials_ReturnsClient()
     {
-        // Arrange
         string email = "test@test.nl";
         string password = "Password123";
         string hashedPassword = PasswordHelper.HashPassword(password);
@@ -43,34 +42,28 @@ public class AuthServiceTests
 
         _mockClientRepo.Setup(repo => repo.Get(email)).Returns(client);
 
-        // Act
         Client? result = _service.Login(email, password);
 
-        // Assert
         result.Should().NotBeNull();
         result!.Email.Should().Be(email);
     }
 
     [Test]
-    public void Login_ReturnsNull_WhenUserDoesNotExist()
+    public void Login_UserDoesNotExist_ReturnsNull()
     {
-        // Arrange
         string email = "unknown@test.nl";
         string password = "Password123";
 
         _mockClientRepo.Setup(repo => repo.Get(email)).Returns((Client?)null);
 
-        // Act
         Client? result = _service.Login(email, password);
 
-        // Assert
         result.Should().BeNull();
     }
 
     [Test]
-    public void Login_ReturnsNull_WhenPasswordIsInvalid()
+    public void Login_InvalidPassword_ReturnsNull()
     {
-        // Arrange
         string email = "test@test.nl";
         string correctPassword = "Password123";
         string wrongPassword = "WrongPassword";
@@ -80,48 +73,39 @@ public class AuthServiceTests
 
         _mockClientRepo.Setup(repo => repo.Get(email)).Returns(client);
 
-        // Act
         Client? result = _service.Login(email, wrongPassword);
 
-        // Assert
         result.Should().BeNull();
     }
 
     [Test]
-    public void EmailExists_ReturnsTrue_WhenClientExists()
+    public void EmailExists_ClientExists_ReturnsTrue()
     {
-        // Arrange
         string email = "existing@test.nl";
         Client client = new Client("User", email, 0, 0, "Club", true, "hash", 1);
 
         _mockClientRepo.Setup(repo => repo.Get(email)).Returns(client);
 
-        // Act
         bool result = _service.EmailExists(email);
 
-        // Assert
         result.Should().BeTrue();
     }
 
     [Test]
-    public void EmailExists_ReturnsFalse_WhenClientDoesNotExist()
+    public void EmailExists_ClientDoesNotExist_ReturnsFalse()
     {
-        // Arrange
         string email = "new@test.nl";
 
         _mockClientRepo.Setup(repo => repo.Get(email)).Returns((Client?)null);
 
-        // Act
         bool result = _service.EmailExists(email);
 
-        // Assert
         result.Should().BeFalse();
     }
 
     [Test]
-    public void GetUserRole_ReturnsCorrectRole_WhenClientExists()
+    public void GetUserRole_ClientHasRole_ReturnsCorrectRole()
     {
-        // Arrange
         int clientId = 1;
         string expectedRole = "Lid";
         List<ClientRole> clientRoles = new List<ClientRole>
@@ -131,61 +115,53 @@ public class AuthServiceTests
 
         _mockClientRoleRepo.Setup(repo => repo.GetByClientId(clientId)).Returns(clientRoles);
 
-        // Act
         string result = _service.GetUserRole(clientId);
 
-        // Assert
         result.Should().Be(expectedRole);
     }
 
     [Test]
-    public void GetUserRole_ReturnsEmptyString_WhenClientHasNoRole()
+    public void GetUserRole_ClientHasNoRole_ReturnsEmptyString()
     {
-        // Arrange
         int clientId = 1;
         List<ClientRole> emptyRoles = new List<ClientRole>();
 
         _mockClientRoleRepo.Setup(repo => repo.GetByClientId(clientId)).Returns(emptyRoles);
 
-        // Act
         string result = _service.GetUserRole(clientId);
 
-        // Assert
         result.Should().Be(string.Empty);
     }
 
     [Test]
-    public void Register_ReturnsFalse_WhenEmailAlreadyExists()
+    public void Register_EmailAlreadyExists_ReturnsFalse()
     {
-        // Arrange
         Client client = new Client("Existing User", "existing@test.nl", 0, 0, "TestClub", true, "hash", 1);
 
-        _mockClientRepo.Setup(repo => repo.Get(client.Email)).Returns(new Client("Existing User", "existing@test.nl", 0, 0, "TestClub", true, "hash", 1));
+        _mockClientRepo.Setup(repo => repo.Get(client.Email)).Returns(client);
 
-        // Act
         bool result = _service.Register(client, "password", "Lid");
 
-        // Assert
         result.Should().BeFalse();
         _mockClientRepo.Verify(repo => repo.Add(It.IsAny<Client>()), Times.Never);
     }
 
     [Test]
-    public void Register_SavesClientAndRole_WhenDataIsValid()
+    public void Register_ValidData_SavesClientAndRole()
     {
-        // Arrange
         Client client = new Client("New User", "new@test.nl", 0, 0, "TestClub", true, "hash", 10);
         string password = "SafePassword";
         string role = "Lid";
 
         _mockClientRepo.Setup(repo => repo.Get(client.Email)).Returns((Client?)null);
 
-        // Act
         bool result = _service.Register(client, password, role);
 
-        // Assert
         result.Should().BeTrue();
         _mockClientRepo.Verify(repo => repo.Add(client), Times.Once);
-        _mockClientRoleRepo.Verify(repo => repo.Add(It.Is<ClientRole>(cr => cr.ClientId == client.Id && cr.RoleName == role)), Times.Once);
+        _mockClientRoleRepo.Verify(
+            repo => repo.Add(It.Is<ClientRole>(cr => cr.ClientId == client.Id && cr.RoleName == role)),
+            Times.Once
+        );
     }
 }

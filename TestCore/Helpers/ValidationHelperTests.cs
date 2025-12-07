@@ -16,15 +16,9 @@ public class ValidationHelperTests
     [TestCase(" Jan Jansen ", true, TestName = "IsValidName_Untrimmed_ReturnsTrue")]
     [TestCase("René Één", true, TestName = "IsValidName_Accents_ReturnsTrue")]
     [TestCase("Jan Jansen!", false, TestName = "IsValidName_SpecialCharExclamation_ReturnsFalse")]
-    public void IsValidName_ChecksFormatCorrectly(string? input, bool expected)
+    public void IsValidName_Scenarios_ReturnExpected(string? input, bool expected)
     {
-        // Arrange
-        string? name = input;
-
-        // Act
-        bool result = ValidationHelper.IsValidName(name!);
-
-        // Assert
+        bool result = ValidationHelper.IsValidName(input!);
         result.Should().Be(expected);
     }
 
@@ -35,15 +29,9 @@ public class ValidationHelperTests
     [TestCase("test@domain", false, TestName = "IsValidEmail_NoExtension_ReturnsFalse")]
     [TestCase("test@.nl", false, TestName = "IsValidEmail_NoDomainName_ReturnsFalse")]
     [TestCase("test @test.nl", false, TestName = "IsValidEmail_SpaceInMail_ReturnsFalse")]
-    public void IsValidEmail_ChecksFormatCorrectly(string? input, bool expected)
+    public void IsValidEmail_Scenarios_ReturnExpected(string? input, bool expected)
     {
-        // Arrange
-        string? email = input;
-
-        // Act
-        bool result = ValidationHelper.IsValidEmail(email!);
-
-        // Assert
+        bool result = ValidationHelper.IsValidEmail(input!);
         result.Should().Be(expected);
     }
 
@@ -55,15 +43,9 @@ public class ValidationHelperTests
     [TestCase("", true, TestName = "IsValidLevel_Empty_ReturnsTrue")]
     [TestCase(null, true, TestName = "IsValidLevel_Null_ReturnsTrue")]
     [TestCase(" 2 ", true, TestName = "IsValidLevel_UntrimmedNumber_ReturnsTrue")]
-    public void IsValidLevel_ChecksRangeAndTypeCorrectly(string? input, bool expected)
+    public void IsValidLevel_Scenarios_ReturnExpected(string? input, bool expected)
     {
-        // Arrange
-        string? level = input;
-
-        // Act
-        bool result = ValidationHelper.IsValidLevel(level!);
-
-        // Assert
+        bool result = ValidationHelper.IsValidLevel(input!);
         result.Should().Be(expected);
     }
 }
