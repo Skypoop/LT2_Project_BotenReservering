@@ -2,8 +2,8 @@
 using CommunityToolkit.Mvvm.Input;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
+using ProjectBotenReservering.Core.Helpers;
 using System.Collections.ObjectModel;
-using System.Text.RegularExpressions;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
@@ -75,43 +75,25 @@ public partial class RegisterViewModel : BaseViewModel
     [RelayCommand]
     private void ValidateName()
     {
-        string trimmedName = Name?.Trim() ?? string.Empty;
-        string[] parts = trimmedName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        Regex nameRegex = new(@"^[\p{L}\s\-\']+$");
-
-        IsNameInvalid = string.IsNullOrWhiteSpace(trimmedName) || parts.Length < 2 || !nameRegex.IsMatch(trimmedName);
+        IsNameInvalid = !ValidationHelper.IsValidName(Name);
     }
 
     [RelayCommand]
     private void ValidateEmail()
     {
-        string trimmedEmail = Email?.Trim() ?? string.Empty;
-        Regex regex = new(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
-        IsEmailInvalid = string.IsNullOrWhiteSpace(trimmedEmail) || !regex.IsMatch(trimmedEmail);
+        IsEmailInvalid = !ValidationHelper.IsValidEmail(Email);
     }
 
     [RelayCommand]
     private void ValidateSweepLevel()
     {
-        if (string.IsNullOrWhiteSpace(SweepLevel))
-        {
-            IsSweepLevelInvalid = false;
-            return;
-        }
-        bool isInt = int.TryParse(SweepLevel, out int val);
-        IsSweepLevelInvalid = !isInt || val < 0 || val > 3;
+        IsSweepLevelInvalid = !ValidationHelper.IsValidLevel(SweepLevel);
     }
 
     [RelayCommand]
     private void ValidateScullLevel()
     {
-        if (string.IsNullOrWhiteSpace(ScullLevel))
-        {
-            IsScullLevelInvalid = false;
-            return;
-        }
-        bool isInt = int.TryParse(ScullLevel, out int val);
-        IsScullLevelInvalid = !isInt || val < 0 || val > 3;
+        IsScullLevelInvalid = !ValidationHelper.IsValidLevel(ScullLevel);
     }
 
     [RelayCommand]
@@ -122,7 +104,6 @@ public partial class RegisterViewModel : BaseViewModel
         !string.IsNullOrEmpty(ConfirmPassword) &&
         Password != ConfirmPassword;
     }
-
 
     [RelayCommand]
     private async Task Register()
@@ -163,7 +144,7 @@ public partial class RegisterViewModel : BaseViewModel
                 scullLevelInt,
                 sweepLevelInt,
                 clubValue,
-                true,    // Approved by default (for now)
+                true,
                 string.Empty,
                 0
             );
