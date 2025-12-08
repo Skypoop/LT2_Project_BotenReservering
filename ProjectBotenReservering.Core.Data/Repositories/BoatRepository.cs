@@ -25,15 +25,15 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             if (anyBoatExists == false)
             {
                 // Add boats to database if none exist
-                Add(new Boat("Skiff van Kunststof", false, 1, 1, BoatType.S, 45, true,"Local Club"));
-                Add(new Boat("Dubbel Twee van Kunststof", false, 2, 1, BoatType.S, 46, true, "Local Club"));
+                Add(new Boat("Skiff van Kunststof", false, 1, 3, BoatType.S, 45, true,"Local Club"));
+                Add(new Boat("Dubbel Twee van Kunststof", false, 2, 3, BoatType.S, 46, true, "Local Club"));
                 Add(new Boat("Twee zonder van Kunststof", false, 2, 3, BoatType.B, 46, true,"Local Club"));
-                Add(new Boat("Twee met van Kunststof", true, 3, 3, BoatType.B, 46, true,"Local Club"));
+                Add(new Boat("Twee met van Kunststof", true, 3, 2, BoatType.B, 46, true,"Local Club"));
                 Add(new Boat("Dubbel vier van Kunststof", false, 4, 3, BoatType.S, 50, true,"Local Club"));
-                Add(new Boat("Dubbel vier met van Kunststof", true, 5, 3, BoatType.B, 52, true,"Local Club"));
+                Add(new Boat("Dubbel vier met van Kunststof", true, 5, 2, BoatType.B, 52, true,"Local Club"));
                 Add(new Boat("Vier zonder van Kunststof", false, 4, 3, BoatType.B, 50, true,"Local Club"));
-                Add(new Boat("Vier met van Kunststof", true, 5, 3, BoatType.B, 52, true,"Local Club"));
-                Add(new Boat("Acht van Kunststof", true, 9, 3, BoatType.B, 55, true,"Local Club"));
+                Add(new Boat("Vier met van Kunststof", true, 5, 2, BoatType.B, 52, true,"Local Club"));
+                Add(new Boat("Acht van Kunststof", true, 9, 2, BoatType.B, 55, true,"Local Club"));
             }
         }
 
