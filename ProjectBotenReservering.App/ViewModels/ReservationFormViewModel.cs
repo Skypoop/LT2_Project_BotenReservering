@@ -48,10 +48,10 @@ public partial class ReservationFormViewModel : BaseViewModel
         MinDate = DateTime.Today;
     }
 
-    private DateTime _minimumDate;
+    private DateTime? _minimumDate;
     public DateTime MinDate
     {
-        get => _minimumDate;
+        get => _minimumDate ?? DateTime.Today;
         set
         {
             _minimumDate = value;
@@ -214,17 +214,18 @@ public partial class ReservationFormViewModel : BaseViewModel
             }
 
 
-        if (EndTime > StartTime)
-        {
-            if (!_reservationService.IsValidReservationLength(startDateTime, endDateTime))
+            if (EndTime > StartTime)
             {
-                TimeWarningText = "De reservering duurt te lang. max 2 uur lang";
-                HasTimeWarning = true;
+                if (!_reservationService.IsValidReservationLength(startDateTime, endDateTime))
+                {
+                    TimeWarningText = "De reservering duurt te lang. max 2 uur lang";
+                    HasTimeWarning = true;
+                }
             }
-        }
 
-            SaveReservationCommand.NotifyCanExecuteChanged();
         }
+        
+        SaveReservationCommand.NotifyCanExecuteChanged();
     }
 
     partial void OnSelectedClientToAddChanged(Client? value)

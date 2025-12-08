@@ -86,7 +86,7 @@ Shell.NavBarIsVisible="False">
             <VerticalStackLayout Spacing="5" 
                                  BackgroundColor="{StaticResource Secondary}">
                 <cal:Calendar SelectedDate="{Binding SelectedDate}" 
-                              MinimumDate="{Binding MinDate, FallbackValue={x:Static sys:DateTime.Now}}" 
+                              MinimumDate="{Binding MinDate, FallbackValue={x:Static sys:DateTime.Today}}" 
                               YearLabelStyle="{StaticResource CalYearLabelStyle}" 
                               MonthLabelStyle="{StaticResource CalMonthLabelStyle}" 
                               DaysLabelStyle="{StaticResource CalDayLabelStyle}" 
@@ -103,6 +103,7 @@ Shell.NavBarIsVisible="False">
                               FooterSectionVisible="False" 
                               HeightRequest="420" 
                               WidthRequest="700" 
+                              AllowDeselecting="False"
                               FirstDayOfWeek="Monday">
                     <cal:Calendar.EventTemplate>
                         <DataTemplate x:DataType="models:Reservation">
