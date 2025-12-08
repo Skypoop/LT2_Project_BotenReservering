@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:viewModels="clr-namespace:ProjectBotenReservering.App.ViewModels"
+             x:Class="ProjectBotenReservering.App.Views.RegisterView"
+             x:DataType="viewModels:RegisterViewModel"
+             Title="Registreren">
+
+    <ScrollView>
+        <VerticalStackLayout VerticalOptions="Center" Padding="0, 30">
+
+            <Grid ColumnDefinitions="*, 550, *" 
+                  RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto"
+                  ColumnSpacing="15"
+                  RowSpacing="25">
+
+                <!-- ROW 0: Name -->
+
+                <!-- Error (Left Column) -->
+                <HorizontalStackLayout Grid.Row="0" Grid.Column="0" 
+                                       IsVisible="{Binding IsNameInvalid}"
+                                       HorizontalOptions="End" 
+                                       VerticalOptions="End" 
+                                       Spacing="8"
+                                       Margin="0,0,0,15">
+                    <Label Text="❗" TextColor="Red" FontSize="20" FontAttributes="Bold" VerticalOptions="Center"/>
+                    <Label Text="Voor- en achternaam" TextColor="Red" VerticalOptions="Center" FontSize="16" FontAttributes="Bold"/>
+                </HorizontalStackLayout>
+
+                <!-- Input (Center Column) -->
+                <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="5">
+                    <Label Text="Naam" FontAttributes="Bold" FontSize="18" TextColor="Black"/>
+                    <Border Stroke="Black" StrokeThickness="1" StrokeShape="RoundRectangle 5" HeightRequest="55">
+                        <Entry Text="{Binding Name}" FontSize="18" Margin="15,0" VerticalOptions="Center">
+                            <Entry.Behaviors>
+                                <toolkit:EventToCommandBehavior EventName="Unfocused" Command="{Binding ValidateNameCommand}" />
+                            </Entry.Behaviors>
+                        </Entry>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- ROW 1: Ranks (Split) -->
+                <!-- Errors (Left Column - Aligned against the input) -->
+                <VerticalStackLayout Grid.Row="1" Grid.Column="0" 
+                                     VerticalOptions="End" HorizontalOptions="End" 
+                                     Spacing="0" Margin="0,0,0,15">
+
+                    <!-- Sweep Error -->
+                    <HorizontalStackLayout Spacing="8" IsVisible="{Binding IsSweepLevelInvalid}" HorizontalOptions="End">
+                        <Label Text="❗" TextColor="Red" FontSize="20" FontAttributes="Bold" VerticalOptions="Center"/>
+                        <Label Text="Boord rang 0-3" TextColor="Red" VerticalOptions="Center" FontSize="16" FontAttributes="Bold"/>
+                    </HorizontalStackLayout>
+
+                    <!-- Scull Error -->
+                    <HorizontalStackLayout Spacing="8" IsVisible="{Binding IsScullLevelInvalid}" HorizontalOptions="End">
+                        <Label Text="❗" TextColor="Red" FontSize="20" FontAttributes="Bold" VerticalOptions="Center"/>
+                        <Label Text="Scull rang 0-3" TextColor="Red" VerticalOptions="Center" FontSize="16" FontAttributes="Bold"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Inputs (Center Column) -->
+                <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="*, 30, *" ColumnSpacing="0">
+                    <VerticalStackLayout Grid.Column="0" Spacing="5">
+                        <Label Text="Boord Roeien rang" FontAttributes="Bold" FontSize="18" TextColor="Black"/>
+                        <Border Stroke="Black" StrokeThickness="1" StrokeShape="RoundRectangle 5" HeightRequest="55">
+                            <Entry Text="{Binding SweepLevel}" Keyboard="Numeric" FontSize="18" Margin="15,0" VerticalOptions="Center">
+                                <Entry.Behaviors>
+                                    <toolkit:EventToCommandBehavior EventName="Unfocused" Command="{Binding ValidateSweepLevelCommand}" />
+                                </Entry.Behaviors>
+                            </Entry>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Grid.Column="2" Spacing="5">
+                        <Label Text="Scull rang" FontAttributes="Bold" FontSize="18" TextColor="Black"/>
+                        <Border Stroke="Black" StrokeThickness="1" StrokeShape="RoundRectangle 5" HeightRequest="55">
+                            <Entry Text="{Binding ScullLevel}" Keyboard="Numeric" FontSize="18" Margin="15,0" VerticalOptions="Center">
+                                <Entry.Behaviors>
+                                    <toolkit:EventToCommandBehavior EventName="Unfocused" Command="{Binding ValidateScullLevelCommand}" />
+                                </Entry.Behaviors>
+                            </Entry>
+                        </Border>
+                    </VerticalStackLayout>
+                </Grid>
+
+                <!-- ROW 2: Email -->
+
+                <!-- Error (Left Column) -->
+                <HorizontalStackLayout Grid.Row="2" Grid.Column="0" 
+                                       IsVisible="{Binding IsEmailInvalid}"
+                                       HorizontalOptions="End" 
+                                       VerticalOptions="End" 
+                                       Spacing="8"
+                                       Margin="0,0,0,15">
+                    <Label Text="❗" TextColor="Red" FontSize="20" FontAttributes="Bold" VerticalOptions="Center"/>
+                    <Label Text="Invalide email" TextColor="Red" VerticalOptions="Center" FontSize="16" FontAttributes="Bold"/>
+                </HorizontalStackLayout>
+
+                <!-- Input (Center Column) -->
+                <VerticalStackLayout Grid.Row="2" Grid.Column="1" Spacing="5">
+                    <Label Text="Email" FontAttributes="Bold" FontSize="18" TextColor="Black"/>
+                    <Border Stroke="Black" StrokeThickness="1" StrokeShape="RoundRectangle 5" HeightRequest="55">
+                        <Entry Text="{Binding Email}" Keyboard="Email" FontSize="18" Margin="15,0" VerticalOptions="Center">
+                            <Entry.Behaviors>
+                                <toolkit:EventToCommandBehavior EventName="Unfocused" Command="{Binding ValidateEmailCommand}" />
+                            </Entry.Behaviors>
+                        </Entry>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- ROW 3: Password -->
+                <VerticalStackLayout Grid.Row="3" Grid.Column="1" Spacing="5">
+                    <Label Text="Wachtwoord" FontAttributes="Bold" FontSize="18" TextColor="Black"/>
+                    <Border Stroke="Black" StrokeThickness="1" StrokeShape="RoundRectangle 5" HeightRequest="55" Padding="5,0">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Entry Grid.Column="0" 
+                                   Text="{Binding Password}" 
+                                   IsPassword="{Binding IsPasswordHidden}" 
+                                   Placeholder="****************"
+                                   FontSize="18"
+                                   VerticalOptions="Center"
+                                   TextColor="Black">
+                                <Entry.Behaviors>
+                                    <toolkit:EventToCommandBehavior EventName="Unfocused" Command="{Binding ValidatePasswordMatchCommand}" />
+                                </Entry.Behaviors>
+                            </Entry>
+                            <Button Grid.Column="1"
+                                    Text="👁"
+                                    Command="{Binding TogglePasswordCommand}"
+                                    BackgroundColor="Transparent"
+                                    TextColor="Gray"
+                                    FontSize="22"
+                                    WidthRequest="60"
+                                    HeightRequest="55"
+                                    VerticalOptions="Center"/>
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- ROW 4: Confirm Password -->
+
+                <!-- Error (Left Column) -->
+                <HorizontalStackLayout Grid.Row="4" Grid.Column="0" 
+                                       IsVisible="{Binding IsPasswordMismatch}"
+                                       HorizontalOptions="End" 
+                                       VerticalOptions="End" 
+                                       Spacing="8"
+                                       Margin="0,0,0,15">
+                    <Label Text="❗" TextColor="Red" FontSize="20" FontAttributes="Bold" VerticalOptions="Center"/>
+                    <Label Text="Wachtwoord onjuist" TextColor="Red" VerticalOptions="Center" FontSize="16" FontAttributes="Bold"/>
+                </HorizontalStackLayout>
+
+                <!-- Input (Center Column) -->
+                <VerticalStackLayout Grid.Row="4" Grid.Column="1" Spacing="5">
+                    <Label Text="Wachtwoord bevestigen" FontAttributes="Bold" FontSize="18" TextColor="Black"/>
+                    <Border Stroke="Black" StrokeThickness="1" StrokeShape="RoundRectangle 5" HeightRequest="55" Padding="5,0">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Entry Grid.Column="0" 
+                                   Text="{Binding ConfirmPassword}" 
+                                   IsPassword="{Binding IsPasswordHidden}" 
+                                   Placeholder="****************"
+                                   FontSize="18"
+                                   VerticalOptions="Center"
+                                   TextColor="Black">
+                                <Entry.Behaviors>
+                                    <toolkit:EventToCommandBehavior EventName="Unfocused" Command="{Binding ValidatePasswordMatchCommand}" />
+                                </Entry.Behaviors>
+                            </Entry>
+                            <Button Grid.Column="1"
+                                    Text="👁"
+                                    Command="{Binding TogglePasswordCommand}"
+                                    BackgroundColor="Transparent"
+                                    TextColor="Gray"
+                                    FontSize="22"
+                                    WidthRequest="60"
+                                    HeightRequest="55"
+                                    VerticalOptions="Center"/>
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- ROW 5: Role -->
+                <VerticalStackLayout Grid.Row="5" Grid.Column="1" Spacing="5">
+                    <Label Text="Aanmelden als" FontAttributes="Bold" FontSize="18" TextColor="Black"/>
+                    <Border Stroke="Black" StrokeThickness="1" StrokeShape="RoundRectangle 5" HeightRequest="55">
+                        <Picker ItemsSource="{Binding Roles}" 
+                                SelectedItem="{Binding SelectedRole}" 
+                                FontSize="18"
+                                Margin="10,0"
+                                VerticalOptions="Center"/>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- ROW 6: Register Button -->
+                <Button Grid.Row="6" Grid.Column="1"
+                        Text="Registreren" 
+                        Command="{Binding RegisterCommand}" 
+                        BackgroundColor="White"
+                        TextColor="Black"
+                        BorderColor="Black"
+                        BorderWidth="2"
+                        CornerRadius="25"
+                        FontSize="20"
+                        FontAttributes="Bold"
+                        HeightRequest="60"
+                        Margin="0,30,0,0"/>
+
+                <!-- ROW 7: Login Link -->
+                <Label Grid.Row="7" Grid.Column="1"
+                       Text="Al een account? Log hier in" 
+                       TextColor="#2196F3" 
+                       TextDecorations="Underline" 
+                       HorizontalOptions="Center"
+                       FontSize="18">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateToLoginCommand}" />
+                    </Label.GestureRecognizers>
+                </Label>
+
+            </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

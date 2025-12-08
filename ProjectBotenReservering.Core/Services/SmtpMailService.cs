@@ -27,7 +27,7 @@ public class SmtpMailService : ISmtpMailService
             using MailMessage message = new MailMessage();
             try
             {
-                message.From = new MailAddress(_settings.Username);
+                message.From = new MailAddress(_settings.Username!);
                 message.To.Add(receiver);
                 message.Subject = subject;
                 message.Body = body;

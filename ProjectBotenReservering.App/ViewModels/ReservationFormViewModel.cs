@@ -60,31 +60,24 @@ public partial class ReservationFormViewModel : BaseViewModel
         }
     }
 
-    private ObservableCollection<Reservation> _reservationList { get; set; } = [];
+    private ObservableCollection<Reservation> reservationList { get; set; } = new ObservableCollection<Reservation>();
 
-    [ObservableProperty] 
-    private BoatTypeUiItem _currentBoatType;
-
-    [ObservableProperty] 
-    private DateTime _selectedDate;
-
-    [ObservableProperty] 
-    private TimeSpan _startTime;
-
-    [ObservableProperty] 
-    private TimeSpan _endTime;
-
-    [ObservableProperty] 
-    private string _dateWarningText;
-
-    [ObservableProperty] 
-    private bool _hasDateWarning;
-
-    [ObservableProperty] 
-    private string _timeWarningText;
-
-    [ObservableProperty] 
-    private bool _hasTimeWarning;
+    [ObservableProperty]
+    public partial BoatTypeUiItem? CurrentBoatType { get; set; }
+    [ObservableProperty]
+    public partial DateTime SelectedDate { get; set; }
+    [ObservableProperty]
+    public partial TimeSpan StartTime { get; set; }
+    [ObservableProperty]
+    public partial TimeSpan EndTime { get; set; }
+    [ObservableProperty]
+    public partial string? DateWarningText { get; set; }
+    [ObservableProperty]
+    public partial bool HasDateWarning { get; set; }
+    [ObservableProperty]
+    public partial string? TimeWarningText { get; set; }
+    [ObservableProperty]
+    public partial bool HasTimeWarning { get; set; }
 
     private readonly ISmtpMailService _mailService;
     public ObservableCollection<Client> SelectedClients { get; }
@@ -97,11 +90,10 @@ public partial class ReservationFormViewModel : BaseViewModel
     public bool IsMacCatalyst { get; } = DeviceInfo.Current.Platform == DevicePlatform.MacCatalyst;
     public bool IsPickerSupported => !IsMacCatalyst;
 
-    [ObservableProperty] 
-    private Client _selectedClientToAdd;
-
-    [ObservableProperty] 
-    private string _seatStatusText = "";
+    [ObservableProperty]
+    public partial Client? SelectedClientToAdd { get; set; }
+    [ObservableProperty]
+    public partial string? SeatStatusText { get; set; } = "";
 
     private int _boatId;
 
@@ -133,13 +125,13 @@ public partial class ReservationFormViewModel : BaseViewModel
     public async Task LoadReservationsAsync()
     {
         List<Reservation> reservations = await _reservationService.GetAll();
-        foreach (Reservation res in reservations) _reservationList.Add(res);
+        foreach (Reservation res in reservations) reservationList.Add(res);
         InitializeEvents();
     }
 
     public void InitializeEvents()
     {
-        foreach (var res in _reservationList)
+        foreach (var res in reservationList)
         {
             DateTime dayOfReservation = res.StartTime;
             // Due to the events only allowing one entry per day, we only add the first reservation found for that day. It only uses these events to show the dots on the calendar.
@@ -149,16 +141,17 @@ public partial class ReservationFormViewModel : BaseViewModel
         }
     }
 
-    public void RefreshReservationList(DateTime value)
+    public Task RefreshReservationListAsync(DateTime value)
     {
         Reservations.Clear();
-        foreach (var res in _reservationList)
+        foreach (Reservation res in reservationList)
         {
-            if (res.StartTime.Day == value.Date.Day)
+            if (res.StartTime.Date == value.Date)
             {
                 Reservations.Add(res);
             }
         }
+        return Task.CompletedTask;
     }
 
     private void InitializeClients()
@@ -186,13 +179,13 @@ public partial class ReservationFormViewModel : BaseViewModel
 
     partial void OnSelectedDateChanged(DateTime value)
     {
-        ValidateReservationRules();
-        RefreshReservationList(value);
+        _ = ValidateReservationRulesAsync();
+        _ = RefreshReservationListAsync(value);
     }
-    partial void OnStartTimeChanged(TimeSpan value) => ValidateReservationRules();
-    partial void OnEndTimeChanged(TimeSpan value) => ValidateReservationRules();
-    
-    private async Task ValidateReservationRules()
+    partial void OnStartTimeChanged(TimeSpan value) => _ = ValidateReservationRulesAsync();
+    partial void OnEndTimeChanged(TimeSpan value) => _ = ValidateReservationRulesAsync();
+
+    private async Task ValidateReservationRulesAsync()
     {
         HasDateWarning = false;
         DateWarningText = string.Empty;
@@ -234,7 +227,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         }
     }
 
-    partial void OnSelectedClientToAddChanged(Client value)
+    partial void OnSelectedClientToAddChanged(Client? value)
     {
         if (value == null) return;
         Client clientToAdd = value;

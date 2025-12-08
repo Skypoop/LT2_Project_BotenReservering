@@ -4,8 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 public partial class BaseViewModel : ObservableObject
 {
     [ObservableProperty]
-    string title = "";
-
+    public partial string Title { get; set; } = "";
     public virtual void Load() { }
     public virtual void OnAppearing() { }
     public virtual void OnDisappearing() { }

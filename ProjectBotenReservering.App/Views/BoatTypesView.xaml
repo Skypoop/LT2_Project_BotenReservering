@@ -7,127 +7,45 @@
     x:Class="ProjectBotenReservering.App.Views.BoatTypesView"
     x:DataType="vm:BoatTypesViewModel"
     BackgroundColor="White">
-
     <ContentView.Content>
         <Grid RowDefinitions="Auto, *">
-
             <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Padding="20">
-
                 <VerticalStackLayout Grid.Column="0" VerticalOptions="Start">
-                    <Label Text="Reservering" 
-                           FontSize="24" 
-                           FontAttributes="Bold" 
-                           TextColor="Black" />
-                    <Label Text="Selecteer een boot" 
-                           FontSize="16" 
-                           TextColor="Gray" 
-                           Margin="0,5,0,0"/>
+                    <Label Text="Reservering" FontSize="24" FontAttributes="Bold" TextColor="Black" />
+                    <Label Text="Selecteer een boot" FontSize="16" TextColor="Gray" Margin="0,5,0,0"/>
                 </VerticalStackLayout>
-
-                <Grid Grid.Column="1" 
-                      RowDefinitions="Auto, Auto" 
-                      ColumnDefinitions="Auto, Auto, Auto" 
-                      ColumnSpacing="10"
-                      RowSpacing="5">
-
-                    <Label Grid.Row="0" Grid.Column="0" 
-                           Text="Min. gewicht" 
-                           FontSize="12" 
-                           TextColor="Black" />
-
-                    <Border Grid.Row="1" Grid.Column="0" 
-                            Stroke="Gray" 
-                            StrokeShape="RoundRectangle 5"
-                            HeightRequest="40"
-                            WidthRequest="80"
-                            VerticalOptions="Start">
-                        <Entry Placeholder="0" 
-                               Keyboard="Numeric" 
-                               TextColor="Black"
-                               VerticalTextAlignment="Center"
-                               HorizontalTextAlignment="Center"
-                               Text="{Binding MinWeightFilter, Mode=TwoWay}"
-                               Margin="0"/>
+                <Grid Grid.Column="1" RowDefinitions="Auto, Auto" ColumnDefinitions="Auto, Auto, Auto" ColumnSpacing="10" RowSpacing="5">
+                    <Label Grid.Row="0" Grid.Column="0" Text="Min. gewicht" FontSize="12" TextColor="Black" />
+                    <Border Grid.Row="1" Grid.Column="0" Stroke="Gray" StrokeShape="RoundRectangle 5" HeightRequest="40" WidthRequest="80" VerticalOptions="Start">
+                        <Entry Placeholder="0" Keyboard="Numeric" TextColor="Black" VerticalTextAlignment="Center" HorizontalTextAlignment="Center" Text="{Binding MinWeightFilter, Mode=TwoWay}" Margin="0"/>
                     </Border>
-
-                    <Label Grid.Row="0" Grid.Column="1" 
-                           Text="Stuurtype" 
-                           FontSize="12" 
-                           TextColor="Black" />
-
-                    <Border Grid.Row="1" Grid.Column="1"
-                            Stroke="Gray"
-                            StrokeShape="RoundRectangle 5"
-                            HeightRequest="40"
-                            WidthRequest="160"
-                            VerticalOptions="Start">
-
-                        <Picker ItemsSource="{Binding SteeringOptions}"
-                                ItemDisplayBinding="{Binding DisplayName}"
-                                SelectedItem="{Binding SelectedSteeringOption, Mode=TwoWay}"
-                                TextColor="Black"
-                                BackgroundColor="Transparent"
-                                HorizontalOptions="Fill"
-                                VerticalOptions="Center"
-                                Margin="5,0" />
+                    <Label Grid.Row="0" Grid.Column="1" Text="Stuurtype" FontSize="12" TextColor="Black" />
+                    <Border Grid.Row="1" Grid.Column="1" Stroke="Gray" StrokeShape="RoundRectangle 5" HeightRequest="40" WidthRequest="160" VerticalOptions="Start">
+                        <Picker ItemsSource="{Binding SteeringOptions}" ItemDisplayBinding="{Binding DisplayName}" SelectedItem="{Binding SelectedSteeringOption, Mode=TwoWay}" TextColor="Black" BackgroundColor="Transparent" HorizontalOptions="Fill" VerticalOptions="Center" Margin="5,0" />
                     </Border>
-
-                    <Border Grid.Row="1" Grid.Column="2" 
-                            Stroke="Gray"
-                            StrokeShape="RoundRectangle 20"
-                            HeightRequest="40"
-                            VerticalOptions="Start">
-                        <SearchBar Placeholder="Zoeken..." 
-                                   WidthRequest="180" 
-                                   VerticalTextAlignment="Center"
-                                   TextColor="Black"
-                                   PlaceholderColor="Gray"
-                                   Text="{Binding StringInNameFilter, Mode=TwoWay}"/>
+                    <Border Grid.Row="1" Grid.Column="2" Stroke="Gray" StrokeShape="RoundRectangle 20" HeightRequest="40" VerticalOptions="Start">
+                        <SearchBar Placeholder="Zoeken..." WidthRequest="180" VerticalTextAlignment="Center" TextColor="Black" PlaceholderColor="Gray" Text="{Binding StringInNameFilter, Mode=TwoWay}"/>
                     </Border>
                 </Grid>
             </Grid>
-
             <CollectionView Grid.Row="1" ItemsSource="{Binding BoatTypeItems}" SelectionMode="None" Margin="10">
                 <CollectionView.ItemsLayout>
                     <GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="10" VerticalItemSpacing="10" />
                 </CollectionView.ItemsLayout>
-
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:BoatTypeUiItem">
-
-                        <Frame BorderColor="Gray" CornerRadius="10" Padding="0" IsClippedToBounds="True">
-                            <Frame.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BoatTypesViewModel}}, Path=SelectBoatTypeCommand}"
-                                                      CommandParameter="{Binding }"/>
-                            </Frame.GestureRecognizers>
-
+                        <Border Stroke="Gray" StrokeShape="RoundRectangle 10" Padding="0">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnBoatTypeTapped" />
+                            </Border.GestureRecognizers>
                             <Grid RowDefinitions="120, Auto">
-
-                                <Image Grid.Row="0"
-                                       Source="{Binding ImagePath}"
-                                       Aspect="AspectFill"
-                                       HorizontalOptions="Fill"
-                                       VerticalOptions="Fill" />
-
-                                <Grid Grid.Row="1"
-                                      Padding="10"
-                                      BackgroundColor="White">
-
-                                    <Label Text="{Binding Name}"
-                                           FontSize="16"
-                                           FontAttributes="Bold"
-                                           HorizontalOptions="Start"
-                                           VerticalOptions="Center"
-                                           TextColor="Black" />
-
-                                    <Label Text="{Binding Amount}"
-                                           FontSize="12"
-                                           TextColor="Gray"
-                                           HorizontalOptions="End"
-                                           VerticalOptions="Center" />
+                                <Image Grid.Row="0" Source="{Binding ImagePath}" Aspect="AspectFill" HorizontalOptions="Fill" VerticalOptions="Fill" />
+                                <Grid Grid.Row="1" Padding="10" BackgroundColor="White">
+                                    <Label Text="{Binding Name}" FontSize="16" FontAttributes="Bold" HorizontalOptions="Start" VerticalOptions="Center" TextColor="Black" />
+                                    <Label Text="{Binding Amount}" FontSize="12" TextColor="Gray" HorizontalOptions="End" VerticalOptions="Center" />
                                 </Grid>
                             </Grid>
-                        </Frame>
+                        </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>

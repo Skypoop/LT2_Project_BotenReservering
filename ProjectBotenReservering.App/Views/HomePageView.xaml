@@ -5,7 +5,4 @@
              xmlns:vm="clr-namespace:ProjectBotenReservering.App.ViewModels"
              x:Class="ProjectBotenReservering.App.Views.HomePageView"
              x:DataType="vm:HomePageViewModel">
-    <ContentPage.Content>
-
-    </ContentPage.Content>
 </ContentPage>

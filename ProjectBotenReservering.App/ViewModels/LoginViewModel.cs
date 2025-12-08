@@ -5,22 +5,20 @@ using ProjectBotenReservering.Core.Interfaces.Context;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
+using ProjectBotenReservering.App.Views;
 
 namespace ProjectBotenReservering.App.ViewModels
 {
     public partial class LoginViewModel : BaseViewModel
     {
         [ObservableProperty]
-        private string _email = "";
-
+        public partial string Email { get; set; } = "";
         [ObservableProperty]
-        private string _password = "";
-
+        public partial string Password { get; set; } = "";
         [ObservableProperty]
-        private string _loginMessage;
-
+        public partial string? LoginMessage { get; set; }
         [ObservableProperty]
-        private bool _isPasswordHidden = true;
+        public partial bool IsPasswordHidden { get; set; } = true;
 
         private readonly IAuthService _authService;
         private readonly IClientContext _clientContext;
@@ -36,15 +34,24 @@ namespace ProjectBotenReservering.App.ViewModels
         }
         
         [RelayCommand]
-        private void Login()
+        private async Task Login()
         {
             Client? authenticatedClient = _authService.Login(Email, Password);
 
             if (authenticatedClient != null)
             {
+                string role = _authService.GetUserRole(authenticatedClient.Id);
+
+                if(string.Equals(role, "Gast", StringComparison.OrdinalIgnoreCase))
+                {
+                    await Shell.Current.DisplayAlert("Toegang Geweigerd", "Er is nog geen functioneel scherm beschikbaar voor een account ingelogd als Gast.", "OK");
+                    return;
+                }
+
                 _clientContext.SetCurrentClientId(authenticatedClient.Id);
-                Application.Current.MainPage = new AppShell();
+                await Shell.Current.GoToAsync($"//{nameof(BoatTypesView)}");
             }
+
             else
             {
                 LoginMessage = "Ongeldige inloggegevens.";
@@ -60,7 +67,7 @@ namespace ProjectBotenReservering.App.ViewModels
         [RelayCommand]
         private static async Task NavigateToRegister()
         {
-            //logic for navigating to registering page goes here.
+            await Shell.Current.GoToAsync(nameof(RegisterView));
         }
     }
 }

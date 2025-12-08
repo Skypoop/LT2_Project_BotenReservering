@@ -19,14 +19,14 @@ public partial class BoatTypesViewModel : BaseViewModel
     };
 
     [ObservableProperty]
-    public SteeringOption selectedSteeringOption;
-    
+    public partial SteeringOption SelectedSteeringOption { get; set; }
+
     [ObservableProperty]
-    public string stringInNameFilter = String.Empty;
-    
+    public partial string StringInNameFilter { get; set; } = string.Empty;
+
     [ObservableProperty]
-    public int minWeightFilter = 0;
-    
+    public partial int MinWeightFilter { get; set; } = 0;
+
     private readonly IBoatTypeService _boatTypeService;
     
     public BoatTypesViewModel(IBoatTypeService boatTypeService)

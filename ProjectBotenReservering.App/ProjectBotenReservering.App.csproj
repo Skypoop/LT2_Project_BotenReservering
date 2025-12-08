@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net9.0-android;net9.0-windows10.0.19041.0;net9.0-maccatalyst</TargetFrameworks>
+		<TargetFrameworks>net9.0-maccatalyst;net9.0-windows10.0.19041.0;net9.0-android</TargetFrameworks>
 		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
+		<LangVersion>preview</LangVersion>
 
 		<OutputType>Exe</OutputType>
 		<RootNamespace>ProjectBotenReservering.App</RootNamespace>
@@ -10,6 +11,7 @@
 		<SingleProject>true</SingleProject>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
 
 		<ApplicationTitle>ProjectBotenReservering.App</ApplicationTitle>
 		<ApplicationId>com.companyname.projectbotenreservering.app</ApplicationId>
