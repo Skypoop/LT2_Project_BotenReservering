@@ -1,17 +1,19 @@
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
+using ProjectBotenReservering.Core.Helpers;
 using ProjectBotenReservering.Core.Constants;
 
 namespace ProjectBotenReservering.Core.Services;
 
-public class ReservationService: IReservationService
+public class ReservationService : IReservationService
 {
     private readonly IReservationRepository _reservationRepository;
     private readonly IBoatAuthorizationService _boatAuthorizationService;
     private readonly IClientReservationRepository _clientReservationRepository;
 
-    public ReservationService(IReservationRepository reservationRepository, IBoatAuthorizationService boatAuthorizationService, IClientReservationRepository clientReservationRepository)
+    public ReservationService(IReservationRepository reservationRepository,
+        IBoatAuthorizationService boatAuthorizationService, IClientReservationRepository clientReservationRepository)
     {
         _reservationRepository = reservationRepository;
         _boatAuthorizationService = boatAuthorizationService;
@@ -34,25 +36,27 @@ public class ReservationService: IReservationService
                 break;
             }
         }
+
         reservation.Approved = allAuthorized;
         Add(reservation);
         AddClientsToReservation(reservation, clients);
         return reservation;
     }
-    
+
     public Reservation? Get(int id)
     {
         return _reservationRepository.Get(id);
     }
-    
+
     public bool IsBookingWithinAllowedReservationTime(DateTime startTime)
     {
         DateTime today = DateTime.Today;
-        TimeSpan daysFromNow =  startTime.Subtract(today);
+        TimeSpan daysFromNow = startTime.Subtract(today);
         if (daysFromNow.Days > ReservationRules.MaxDaysBeforeReservation)
         {
             return false;
         }
+
         return true;
     }
 
@@ -63,6 +67,7 @@ public class ReservationService: IReservationService
         {
             return false;
         }
+
         return true;
     }
 
@@ -70,10 +75,15 @@ public class ReservationService: IReservationService
     {
         return _reservationRepository.GetAll();
     }
-    
-    public bool IsReservationTimeFree(DateTime startTime, DateTime endTime)
+
+    public bool IsReservationTimeBlocked(IEnumerable<Reservation> reservations, DateTime startTime, DateTime endTime)
     {
-        throw new NotImplementedException();
+        float[][] existingTimes = reservations
+            .Select(r => IntervalHelper.TimeSlotToInterval(r.StartTime, r.EndTime))
+            .ToArray();
+        float[] enteredTimes = IntervalHelper.TimeSlotToInterval(startTime, endTime);
+
+        return IntervalHelper.isIntersectingWithIntervalList(enteredTimes, existingTimes);
     }
 
     public void AddClientsToReservation(Reservation reservation, List<Client> clients)
@@ -81,7 +91,7 @@ public class ReservationService: IReservationService
         foreach (Client client in clients)
         {
             ClientReservation clientReservation = new(client.Id, reservation.Id);
-    
+
             _clientReservationRepository.Add(clientReservation);
         }
     }
