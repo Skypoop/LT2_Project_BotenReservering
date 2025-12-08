@@ -1,6 +1,7 @@
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
+using ProjectBotenReservering.Core.Helpers;
 using ProjectBotenReservering.Core.Constants;
 
 namespace ProjectBotenReservering.Core.Services;
@@ -71,9 +72,11 @@ public class ReservationService: IReservationService
         return _reservationRepository.GetAll();
     }
     
-    public bool IsReservationTimeFree(DateTime startTime, DateTime endTime)
+    public bool IsReservationTimeBlocked(List<Reservation> reservations, DateTime startTime, DateTime endTime)
     {
-        throw new NotImplementedException();
+        float[][] intervalReservationList = TimeSlotListToIntervalList(reservations.Select(r => r.startTime), reservations.Select(r => r.endTime));
+        float[] intervalInputTimes = TimeSlotToInterval(startTime, endTime);
+        return isIntersectingWithIntervalList(intervalReservationList, intervalInputTimes);
     }
 
     public void AddClientsToReservation(Reservation reservation, List<Client> clients)

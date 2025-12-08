@@ -3,15 +3,18 @@ namespace ProjectBotenReservering.Core.Helpers;
 public static class IntervalHelper {
 
     private static float dateTimeToFloat(DateTime date) {
-        return ((float)startTime.Hour + ((float)startTime.Minute * 0.01f))
+        return ((float)date.Hour + ((float)date.Minute * 60.0f));
     }
 
     public static float[] TimeSlotToInterval(DateTime StartTime, DateTime EndTime) {
-        return [startTime.dateTimeToFloat(), endTime.dateTimeToFloat()]
+        return new float[] { dateTimeToFloat(StartTime), dateTimeToFloat(EndTime) };
     }
 
-    public static float[][] TimeSlotListToIntervalList() {
-        
+    public static float[][] TimeSlotListToIntervalList(DateTime[] startTimes, DateTime[] endTimes) {
+        for (int i = 0; i < startTimes.Length; i++) {
+        intervalList.Add(TimeSlotToInterval(startTimes[i], endTimes[i]));
+        }
+        return intervalList.ToArray();
     }
 
     private static bool isIntersecting(float[] a, float[] b) {
