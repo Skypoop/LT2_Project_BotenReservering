@@ -301,7 +301,7 @@ public partial class ReservationFormViewModel : BaseViewModel
 
             if (SelectedClients.Count != CurrentBoatType.SeatAmount)
             {
-                mandatoryText = "Verplicht updated:";
+                mandatoryText = "Verplicht:";
             }
             else
             {
