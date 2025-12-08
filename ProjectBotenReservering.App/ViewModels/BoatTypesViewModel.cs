@@ -19,29 +19,43 @@ public partial class BoatTypesViewModel : BaseViewModel
     };
 
     [ObservableProperty]
-    public SteeringOption selectedSteeringOption;
-    
+    public partial SteeringOption SelectedSteeringOption { get; set; }
+
     [ObservableProperty]
-    public string stringInNameFilter = String.Empty;
-    
+    public partial string StringInNameFilter { get; set; } = string.Empty;
+
     [ObservableProperty]
-    public int minWeightFilter = 0;
-    
-    private readonly IBoatTypeService BoatTypeService;
+    public partial int MinWeightFilter { get; set; } = 0;
+
+    private readonly IBoatTypeService _boatTypeService;
     
     public BoatTypesViewModel(IBoatTypeService boatTypeService)
     {
-        BoatTypeService = boatTypeService;
-        AllBoatTypes = BoatTypeService.GetBoatTypes();
+        _boatTypeService = boatTypeService;
+        AllBoatTypes = _boatTypeService.GetBoatTypes();
         SelectedSteeringOption = SteeringOptions.First();
         ApplyFilterOption();
     }
+    
+    public async Task OnApearing()
+    {
+        await ValidateBoatTypeList();
+    }
 
+    private async Task ValidateBoatTypeList()
+    {
+        if (AllBoatTypes.Count == 0)
+            await Shell.Current.DisplayAlert(
+                "Alert",
+                "Geen boten binnen client rang gevonden. Neem contact op met de beheerder.",
+                "OK");
+    }
+    
     private void ApplyFilterOption()
     {
         bool? steeringValue = SelectedSteeringOption?.Value;
 
-        List<BoatTypeUiItem> boatTypeList = BoatTypeService.FilterBoatTypes(AllBoatTypes, steeringValue, StringInNameFilter, MinWeightFilter);
+        List<BoatTypeUiItem> boatTypeList = _boatTypeService.FilterBoatTypes(AllBoatTypes, steeringValue, StringInNameFilter, MinWeightFilter);
         BoatTypeItems.Clear();
         
         List<BoatTypeUiItem> orderedBoatTypeList = boatTypeList.OrderBy(x => x.Weight).ToList();

@@ -1,6 +1,7 @@
+using Microsoft.Data.Sqlite;
+using ProjectBotenReservering.Core.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Models;
-using Microsoft.Data.Sqlite;
 using System.Collections.Generic;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
@@ -9,7 +10,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
     {
         public ClientRepository()
         {
-            CreateTable(@"DROP TABLE IF EXISTS Client; CREATE TABLE IF NOT EXISTS Client (
+            CreateTable(@"CREATE TABLE IF NOT EXISTS Client (
                             [Id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                             [Full_Name] VARCHAR NOT NULL,
                             [Email] VARCHAR NOT NULL UNIQUE,
@@ -21,15 +22,15 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
             List<Client> clients = GetAll();
             bool anyClientExists = clients.Count > 0;
-            
             if (!anyClientExists)
             {
-                // demo clients to populate the database
-                Add(new Client("Joe Doe", "joe.doe@example.com", 1, 2, "River Club", true, "hash1", 0));
-                Add(new Client("Jane Smith", "jane.smith@example.com", 2, 1, "Lakeside Club", false, "hash2", 0));
-                Add(new Client("Bob Brown", "bob.brown@example.com", 3, 3, null, false, "hash3", 0));
-                Add(new Client("Alice Green", "alice.green@example.com", 0, 1, "Harbor Club", true, "hash4", 0));
-                Add(new Client("Eve White", "eve.white@example.com", 1, 0, "Coast Club", false, "hash5", 0));
+                // demo clients to populate the 
+                    Add(new Client("Joe Doe", "joe.doe@example.com", 1, 2, "River Club", true, PasswordHelper.HashPassword("hash1"), 0));
+                    Add(new Client("Jane Smith", "jane.smith@example.com", 2, 1, "Lakeside Club", false, PasswordHelper.HashPassword("hash2"), 0));
+                    Add(new Client("Bob Brown", "bob.brown@example.com", 3, 3, null, false, PasswordHelper.HashPassword("hash3"), 0));
+                    Add(new Client("Alice Green", "alice.green@example.com", 0, 1, "Harbor Club", true, PasswordHelper.HashPassword("hash4"), 0));
+                    Add(new Client("Eve White", "eve.white@example.com", 1, 0, "Coast Club", false, PasswordHelper.HashPassword("hash5"), 0));
+
             }
         }
 

@@ -1,14 +1,17 @@
 ﻿using CommunityToolkit.Maui;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using ProjectBotenReservering.App.Context;
+using ProjectBotenReservering.App.Helpers;
 using ProjectBotenReservering.App.ViewModels;
 using ProjectBotenReservering.App.Views;
-using ProjectBotenReservering.Core.Interfaces.Services;
-using ProjectBotenReservering.Core.Interfaces.Repositories;
+using ProjectBotenReservering.Core.Context;
 using ProjectBotenReservering.Core.Data.Repositories;
-using ProjectBotenReservering.Core.Services;
 using ProjectBotenReservering.Core.Data.Services;
 using ProjectBotenReservering.Core.Interfaces.Context;
+using ProjectBotenReservering.Core.Interfaces.Repositories;
+using ProjectBotenReservering.Core.Interfaces.Services;
+using ProjectBotenReservering.Core.Models;
+using ProjectBotenReservering.Core.Services;
 
 namespace ProjectBotenReservering.App
 {
@@ -16,7 +19,7 @@ namespace ProjectBotenReservering.App
     {
         public static MauiApp CreateMauiApp()
         {
-            var builder = MauiApp.CreateBuilder();
+            MauiAppBuilder builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
                 .UseMauiCommunityToolkit()
@@ -26,6 +29,16 @@ namespace ProjectBotenReservering.App
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+            IConfigurationRoot configuration = new ConfigurationBuilder()
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json")
+                .Build();
+
+            MailSettings mailSettings = configuration.GetSection("MailConnection").Get<MailSettings>()!;
+            IServiceCollection serviceCollection = builder.Services.AddSingleton(mailSettings);
+
+            builder.Services.AddSingleton<App>();
+            builder.Services.AddSingleton<TabItemToViewHelper>();
             builder.Services.AddSingleton<IBoatRepository, BoatRepository>();
             builder.Services.AddSingleton<IClientRepository, ClientRepository>();
             builder.Services.AddSingleton<IReservationRepository, ReservationRepository>();
@@ -39,18 +52,21 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IClientManagementTaskRepository, ClientManagementTaskRepository>();
             builder.Services.AddSingleton<IRoleManagementTaskRepository, RoleManagementTaskRepository>();
 
-            builder.Services.AddSingleton<IMailService, SmtpMailService>();
+            builder.Services.AddSingleton<ISmtpMailService, SmtpMailService>();
             builder.Services.AddSingleton<IWeatherService, WeatherService>();
             builder.Services.AddSingleton<IBoatTypeService, BoatTypeService>();
             builder.Services.AddSingleton<IBoatAuthorizationService, BoatAuthorizationService>();
             builder.Services.AddSingleton<IClientService, ClientService>();
             builder.Services.AddSingleton<IReservationService, ReservationService>();
-            
-            builder.Services.AddSingleton<IClientContext, HardcodedClientContext>();
-            
+            builder.Services.AddSingleton<IClientContext, ClientContext>();
+            builder.Services.AddSingleton<IAuthService, AuthService>();
+
             builder.Services.AddTransient<HomePageView>().AddTransient<HomePageViewModel>();
             builder.Services.AddTransient<BoatTypesView>().AddTransient<BoatTypesViewModel>();
             builder.Services.AddTransient<ReservationFormView>().AddTransient<ReservationFormViewModel>();
+            builder.Services.AddTransient<SideBarView>().AddTransient<SideBarViewModel>();
+            builder.Services.AddTransient<LoginView>().AddTransient<LoginViewModel>();
+            builder.Services.AddTransient<RegisterView>().AddTransient<RegisterViewModel>();
 
 
 #if DEBUG

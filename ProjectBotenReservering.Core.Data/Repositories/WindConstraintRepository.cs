@@ -12,6 +12,18 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                             [Windforce] INT NOT NULL PRIMARY KEY,
                             [Min_Scull_level] INT NOT NULL,
                             [Min_Sweep_level] INT NOT NULL)");
+
+            List<WindConstraint> windConstraints = GetAll();
+            bool anyWindConstraintsExist = windConstraints.Count > 0;
+
+            if (anyWindConstraintsExist == false)
+            {
+                for(int i = 1; i < 12; i++)
+                {
+                    int minLevel = Math.Clamp((int)MathF.Ceiling( (i + 2) / 2f), 2, 4);
+                    Add(new WindConstraint(i, minLevel, minLevel));
+                }
+            }
         }
 
         public WindConstraint Add(WindConstraint item)

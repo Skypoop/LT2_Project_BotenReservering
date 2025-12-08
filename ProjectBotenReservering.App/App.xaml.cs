@@ -1,15 +1,15 @@
-﻿using ProjectBotenReservering.App.ViewModels;
-using ProjectBotenReservering.App.Views;
+﻿namespace ProjectBotenReservering.App;
 
-namespace ProjectBotenReservering.App
+public partial class App : Application
 {
-    public partial class App : Application
+    public static IServiceProvider? ServiceProvider { get; private set; }
+    public App(IServiceProvider serviceProvider)
     {
-        public App(HomePageViewModel viewModel)
-        {
-            InitializeComponent();
-
-            MainPage = new AppShell();
-        }
+        InitializeComponent();
+        ServiceProvider = serviceProvider;
+    }
+    protected override Window CreateWindow(IActivationState? activationState)
+    {
+        return new Window(new AppShell());
     }
 }

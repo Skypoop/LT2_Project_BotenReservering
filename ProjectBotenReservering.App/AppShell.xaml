@@ -3,12 +3,19 @@
     x:Class="ProjectBotenReservering.App.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:ProjectBotenReservering.App.Views"
-    Title="ProjectBotenReservering.App">
+    xmlns:views="clr-namespace:ProjectBotenReservering.App.Views"
+    Title="Remus Invictus Roeien">
 
-    <ShellContent
-        ContentTemplate="{DataTemplate local:BoatTypesView}"
-        Route="BoatTypesView" />
-    
+    <ShellContent 
+        ContentTemplate="{DataTemplate views:LoginView}"
+        Route="Login"
+        Shell.FlyoutBehavior="Disabled" />
+
+    <FlyoutItem Title="Menu">
+        <ShellContent
+            Title="Boten Reserveren"
+            ContentTemplate="{DataTemplate views:SideBarView}"
+            Route="BoatTypesView" />
+    </FlyoutItem>
 
 </Shell>
