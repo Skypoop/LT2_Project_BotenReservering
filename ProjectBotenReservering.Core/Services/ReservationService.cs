@@ -72,11 +72,14 @@ public class ReservationService: IReservationService
         return _reservationRepository.GetAll();
     }
     
-    public bool IsReservationTimeBlocked(List<Reservation> reservations, DateTime startTime, DateTime endTime)
+    public bool IsReservationTimeBlocked(IEnumerable<Reservation> reservations, DateTime startTime, DateTime endTime)
     {
-        float[][] intervalReservationList = TimeSlotListToIntervalList(reservations.Select(r => r.startTime), reservations.Select(r => r.endTime));
-        float[] intervalInputTimes = TimeSlotToInterval(startTime, endTime);
-        return isIntersectingWithIntervalList(intervalReservationList, intervalInputTimes);
+        float[][] existingTimes = reservations
+            .Select(r => IntervalHelper.TimeSlotToInterval(r.StartTime, r.EndTime))
+            .ToArray();        
+            float[] enteredTimes = IntervalHelper.TimeSlotToInterval(startTime, endTime);
+            
+        return IntervalHelper.isIntersectingWithIntervalList(enteredTimes, existingTimes);
     }
 
     public void AddClientsToReservation(Reservation reservation, List<Client> clients)

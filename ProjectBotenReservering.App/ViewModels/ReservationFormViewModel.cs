@@ -301,7 +301,7 @@ public partial class ReservationFormViewModel : BaseViewModel
 
             if (SelectedClients.Count != CurrentBoatType.SeatAmount)
             {
-                mandatoryText = "Verplicht:";
+                mandatoryText = "Verplicht updated:";
             }
             else
             {
@@ -385,12 +385,17 @@ public partial class ReservationFormViewModel : BaseViewModel
     [RelayCommand(CanExecute = nameof(CanSaveReservation))]
     private async Task SaveReservation()
     {
+        DateTime startDateTime = SelectedDate.Date.Add(StartTime);
+        DateTime endDateTime   = SelectedDate.Date.Add(EndTime);
         if (EndTime <= StartTime)
         {
             await Shell.Current.DisplayAlert("Error", "Eindtijd moet na starttijd zijn.", "OK");
             return;
         }
-
+        if (_reservationService.IsReservationTimeBlocked(Reservations, startDateTime, endDateTime)) {
+            await Shell.Current.DisplayAlert("Error", "Reservering is al geplaatst op dezelfde tijd", "OK");
+            return;
+        }
         Reservation currentReservation = new Reservation
         (
             DateTime.Now,

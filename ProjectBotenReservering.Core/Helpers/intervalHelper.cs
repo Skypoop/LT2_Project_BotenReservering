@@ -2,8 +2,9 @@ namespace ProjectBotenReservering.Core.Helpers;
 
 public static class IntervalHelper {
 
+    // Convert datetimes to a float so we can easilier check for overlaps
     private static float dateTimeToFloat(DateTime date) {
-        return ((float)date.Hour + ((float)date.Minute * 60.0f));
+        return (float)date.TimeOfDay.TotalMinutes;
     }
 
     public static float[] TimeSlotToInterval(DateTime StartTime, DateTime EndTime) {
@@ -11,6 +12,8 @@ public static class IntervalHelper {
     }
 
     public static float[][] TimeSlotListToIntervalList(DateTime[] startTimes, DateTime[] endTimes) {
+        List<float[]> intervalList = new List<float[]>();
+        // there will always be as much start times as end times so no check is needed
         for (int i = 0; i < startTimes.Length; i++) {
         intervalList.Add(TimeSlotToInterval(startTimes[i], endTimes[i]));
         }
