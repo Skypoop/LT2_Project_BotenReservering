@@ -73,6 +73,8 @@ public partial class ReservationFormViewModel : BaseViewModel
     [ObservableProperty]
     public partial string? DateWarningText { get; set; }
     [ObservableProperty]
+    public partial bool HasWeatherWarning { get; set; }
+    [ObservableProperty]
     public partial bool HasDateWarning { get; set; }
     [ObservableProperty]
     public partial string? TimeWarningText { get; set; }
@@ -191,7 +193,8 @@ public partial class ReservationFormViewModel : BaseViewModel
         DateWarningText = string.Empty;
         HasTimeWarning = false;
         TimeWarningText = string.Empty;
-
+        HasWeatherWarning = false;
+        
         DateTime startDateTime = SelectedDate.Date + StartTime;
         DateTime endDateTime = SelectedDate.Date + EndTime;
 
@@ -208,8 +211,8 @@ public partial class ReservationFormViewModel : BaseViewModel
 
                 if (!weatherAllowed)
                 {
-                    DateWarningText = "LET OP: Voor deze datum is het weer te heftig!";
-                    HasDateWarning = true;
+                    DateWarningText = "LET OP: Voor deze datum en tijd is het weer heftig voor deze boot type!";
+                    HasWeatherWarning = true;
                 }
             }
 

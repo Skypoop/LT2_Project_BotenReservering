@@ -18,9 +18,10 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
             if (anyWindConstraintsExist == false)
             {
-                for(int i = 0; i < 12; i++)
+                for(int i = 1; i < 12; i++)
                 {
-                    Add(new WindConstraint(i + 1, 1, 1));
+                    int minLevel = Math.Clamp((int)MathF.Ceiling( (i + 2) / 2f), 2, 4);
+                    Add(new WindConstraint(i, minLevel, minLevel));
                 }
             }
         }
