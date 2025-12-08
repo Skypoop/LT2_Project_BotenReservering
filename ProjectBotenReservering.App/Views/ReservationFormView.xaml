@@ -89,8 +89,8 @@
                 </Grid>
             </Border>
         </Grid>
-        <Grid Grid.Row="2" ColumnDefinitions="*, *" ColumnSpacing="40" Margin="20,10,20,0">
-            <VerticalStackLayout Grid.Column="0" Spacing="15" VerticalOptions="Start">
+        <Grid Grid.Row="3" ColumnDefinitions="*, *" ColumnSpacing="40" Margin="20,10,20,0">
+            <VerticalStackLayout Grid.Column="0" Spacing="30" VerticalOptions="Start" Margin="420,0,0,0">
                 <Label Text="Tijd" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
                 <VerticalStackLayout>
                     <Label Text="Starttijd:" FontSize="12" TextColor="Gray"/>
@@ -102,12 +102,19 @@
                 </VerticalStackLayout>
                 <Label Text="{Binding TimeWarningText}" IsVisible="{Binding HasTimeWarning}" TextColor="Red" FontSize="12" FontAttributes="Bold" />
             </VerticalStackLayout>
-            <Grid Grid.Column="1" RowDefinitions="Auto, Auto, Auto, *" RowSpacing="10" Margin="0,140,0,0">
-                <Grid Grid.Row="0" ColumnDefinitions="*, Auto">
-                    <Label Grid.Column="0" Text="Roeiers" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource Primary}" />
-                    <Label Grid.Column="1" Text="{Binding SeatStatusText}" FontSize="18" FontAttributes="Bold" />
+            <Grid Grid.Column="1" RowDefinitions="Auto, Auto, Auto, *" RowSpacing="10" Margin="-150,0,0,0">
+                <Grid Grid.Row="0" ColumnDefinitions="*, Auto" VerticalOptions="Center">
+                    <Label Grid.Column="0" Text="Roeiers" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource Primary}" VerticalOptions="Center"/>
+                    <Label Grid.Column="1" Text="{Binding SeatStatusText}" FontSize="18" FontAttributes="Bold" VerticalOptions="Center" TranslationX="-420"/>
                 </Grid>
-                <Picker Grid.Row="1" Title="Voeg roeier toe" ItemsSource="{Binding AvailableClients}" ItemDisplayBinding="{Binding FullName}" SelectedItem="{Binding SelectedClientToAdd}" BackgroundColor="#f0f0f0" IsVisible="{Binding IsPickerSupported}" />
+                <Picker Grid.Row="1" Title="Voeg roeier toe"
+                    ItemsSource="{Binding AvailableClients}"
+                    ItemDisplayBinding="{Binding FullName}"
+                    SelectedItem="{Binding SelectedClientToAdd}"
+                    BackgroundColor="#f0f0f0"
+                    WidthRequest="640"
+                    HorizontalOptions="Start"
+                    IsVisible="{Binding IsPickerSupported}" />      
                 <VerticalStackLayout Grid.Row="2" IsVisible="{Binding IsMacCatalyst}" Spacing="6">
                     <Label Text="Selecteer roeier:" FontSize="12" TextColor="Gray" />
                     <CollectionView ItemsSource="{Binding AvailableClients}" SelectionMode="None" HeightRequest="180">
@@ -123,7 +130,11 @@
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </VerticalStackLayout>
-                <CollectionView Grid.Row="3" ItemsSource="{Binding SelectedClients}" SelectionMode="None" HorizontalOptions="Fill" HeightRequest="180">
+                <CollectionView Grid.Row="3" ItemsSource="{Binding SelectedClients}" 
+                SelectionMode="None" 
+                HorizontalOptions="Start" 
+                WidthRequest="646" 
+                VerticalOptions="Start">
                     <CollectionView.ItemsLayout>
                         <GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="6" VerticalItemSpacing="6" />
                     </CollectionView.ItemsLayout>
@@ -133,7 +144,7 @@
                                 <Grid ColumnDefinitions="*, Auto, Auto" VerticalOptions="Center">
                                     <Label Grid.Column="0" Text="{Binding FullName}" VerticalOptions="Center" FontSize="14" LineBreakMode="WordWrap" />
                                     <Button Grid.Column="1" Text="!" TextColor="Red" FontAttributes="Bold" FontSize="18" VerticalOptions="Center" Margin="8,0,8,0" BackgroundColor="Transparent" Clicked="OnShowWarningClicked" SemanticProperties.Hint="{Binding QualificationHelpText}" IsVisible="{Binding IsUnderqualified}" />
-                                    <Button Grid.Column="2" Text="X" TextColor="Red" BackgroundColor="Transparent" Clicked="OnRemoveClientClicked" HeightRequest="28" WidthRequest="28" Padding="0" HorizontalOptions="End"/>
+                                    <Button Grid.Column="2" Text="X" TextColor="Red" BackgroundColor="Transparent" Clicked="OnRemoveClientClicked" HeightRequest="28" WidthRequest="32" Padding="0" HorizontalOptions="End"/>
                                 </Grid>
                             </Border>
                         </DataTemplate>
@@ -141,6 +152,6 @@
                 </CollectionView>
             </Grid>
         </Grid>
-        <Button Grid.Row="3" Text="Reserveren" Command="{Binding SaveReservationCommand}" Margin="0,20,0,0" FontSize="18" FontAttributes="Bold" VerticalOptions="End" />
+        <Button Grid.Row="3" Text="Reserveren" Command="{Binding SaveReservationCommand}" Margin="0,444,0,0" FontSize="18" FontAttributes="Bold" VerticalOptions="End" />
     </Grid>
 </ContentPage>
