@@ -21,7 +21,7 @@ public static class IntervalHelper {
     }
 
     private static bool isIntersecting(float[] a, float[] b) {
-        if (a[1] < b[0] || b[1] < a[0])
+        if (a[1] <= b[0] || b[1] <= a[0])
             return false;
         return true;
     }

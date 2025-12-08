@@ -393,7 +393,7 @@ public partial class ReservationFormViewModel : BaseViewModel
             return;
         }
         if (_reservationService.IsReservationTimeBlocked(Reservations, startDateTime, endDateTime)) {
-            await Shell.Current.DisplayAlert("Error", "Reservering is al geplaatst op dezelfde tijd", "OK");
+            await Shell.Current.DisplayAlert("Error", "Er zijn geen boten meer beschikbaar van dit type boot op deze tijd", "OK");
             return;
         }
         Reservation currentReservation = new Reservation
