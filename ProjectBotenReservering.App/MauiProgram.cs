@@ -51,6 +51,8 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IClientRoleRepository, ClientRoleRepository>();
             builder.Services.AddSingleton<IClientManagementTaskRepository, ClientManagementTaskRepository>();
             builder.Services.AddSingleton<IRoleManagementTaskRepository, RoleManagementTaskRepository>();
+            builder.Services.AddSingleton<IMatchRepository, MatchRepository>();
+            builder.Services.AddSingleton<IReservationMatchRepository, ReservationMatchRepository>();
 
             builder.Services.AddSingleton<ISmtpMailService, SmtpMailService>();
             builder.Services.AddSingleton<IWeatherService, WeatherService>();
