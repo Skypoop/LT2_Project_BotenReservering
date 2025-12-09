@@ -15,6 +15,10 @@ Shell.NavBarIsVisible="False">
                                     Command="{Binding LoadReservationsCommand}" />
 </ContentPage.Behaviors>
 
+<Shell.BackButtonBehavior>
+    <BackButtonBehavior IsVisible="False" />
+</Shell.BackButtonBehavior>    
+
 <ContentPage.Resources>
     <ResourceDictionary>
         <Style x:Key="CalYearLabelStyle" TargetType="Label">
