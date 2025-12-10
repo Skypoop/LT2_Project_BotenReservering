@@ -8,5 +8,7 @@ namespace ProjectBotenReservering.Core.Interfaces.Repositories
         Match? Get(int id);
         List<Match> GetAll();
         void Delete(int id);
+        Match SaveMatchWithReservations(Match match, List<int> reservationIds, List<string> teamNames);
+        void CancelReservationAndUpdateStatus(int reservationId, int matchId);
     }
 }
