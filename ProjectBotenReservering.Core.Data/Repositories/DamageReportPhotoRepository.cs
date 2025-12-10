@@ -1,6 +1,6 @@
+using Microsoft.Data.Sqlite;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Models;
-using Microsoft.Data.Sqlite;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
 {
@@ -59,7 +59,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public List<DamageReportPhoto> GetByDamageReportId(int damageReportId)
         {
-            var list = new List<DamageReportPhoto>();
+            List<DamageReportPhoto> list = new List<DamageReportPhoto>();
             string selectQuery = "SELECT Id, DamageReport_Id, Url FROM DamageReportPhotos WHERE DamageReport_Id = @DamageReportId";
             OpenConnection();
 

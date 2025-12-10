@@ -13,5 +13,10 @@
     <ShellContent 
         ContentTemplate="{DataTemplate views:SideBarView}"
         Route="BoatTypesView"/>
+    
+            Title="Boten Reserveren"
+            ContentTemplate="{DataTemplate views:SideBarView}"
+            Route="BoatTypesView" />
+    </FlyoutItem>
 
 </Shell>

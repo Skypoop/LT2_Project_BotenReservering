@@ -52,6 +52,7 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IClientManagementTaskRepository, ClientManagementTaskRepository>();
             builder.Services.AddSingleton<IRoleManagementTaskRepository, RoleManagementTaskRepository>();
             builder.Services.AddSingleton<IMatchRepository, MatchRepository>();
+            builder.Services.AddSingleton<IReservationMatchRepository, ReservationMatchRepository>();
 
             builder.Services.AddSingleton<ISmtpMailService, SmtpMailService>();
             builder.Services.AddSingleton<IWeatherService, WeatherService>();
@@ -63,14 +64,12 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IAuthService, AuthService>();
             builder.Services.AddSingleton<IMatchService, MatchService>();
 
-            builder.Services.AddTransient<HomePageView>().AddTransient<HomePageViewModel>();
             builder.Services.AddTransient<BoatTypesView>().AddTransient<BoatTypesViewModel>();
             builder.Services.AddTransient<ReservationFormView>().AddTransient<ReservationFormViewModel>();
             builder.Services.AddTransient<SideBarView>().AddTransient<SideBarViewModel>();
             builder.Services.AddTransient<LoginView>().AddTransient<LoginViewModel>();
             builder.Services.AddTransient<RegisterView>().AddTransient<RegisterViewModel>();
             builder.Services.AddTransient<CompetitionView>().AddTransient<CompetitionViewModel>();
-
 
 #if DEBUG
             builder.Logging.AddDebug();

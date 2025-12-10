@@ -20,10 +20,10 @@ namespace ProjectBotenReservering.Core.Data.Helpers
                 return null;
             }
 
-                IConfigurationRoot config = new ConfigurationBuilder()
-                    .SetBasePath(Path.GetDirectoryName(resourcePath)!)
-                    .AddJsonFile(Path.GetFileName(resourcePath)!, optional: false, reloadOnChange: true)
-                    .Build();
+            IConfigurationRoot config = new ConfigurationBuilder()
+                .SetBasePath(Path.GetDirectoryName(resourcePath)!)
+                .AddJsonFile(Path.GetFileName(resourcePath)!, optional: false, reloadOnChange: true)
+                .Build();
 
             IConfigurationSection section = config.GetSection("ConnectionStrings");
             return section.GetValue<string>(name);

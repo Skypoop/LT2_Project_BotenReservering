@@ -10,3 +10,4 @@ namespace ProjectBotenReservering.Core.Models
         public string? MatchName { get; set; }
     }
 }
+

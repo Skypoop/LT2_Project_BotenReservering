@@ -3,6 +3,7 @@ using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace ProjectBotenReservering.App.ViewModels
 {
@@ -111,6 +112,7 @@ namespace ProjectBotenReservering.App.ViewModels
                 }
             }
         }
+namespace ProjectBotenReservering.App.ViewModels;
 
         public int TeamCount
         {
@@ -121,13 +123,16 @@ namespace ProjectBotenReservering.App.ViewModels
             set
             {
                 if (_teamCount != value)
-                {
+public partial class CompetitionViewModel : BaseViewModel
+{
                     _teamCount = value;
                     OnPropertyChanged();
                     RecalculateCounts();
                 }
             }
         }
+    [ObservableProperty]
+    public partial string CompetitionName { get; set; } = string.Empty;
 
         public int CalculatedBoatCount
         {
@@ -144,6 +149,8 @@ namespace ProjectBotenReservering.App.ViewModels
                 }
             }
         }
+    [ObservableProperty]
+    public partial DateTime StartDate { get; set; } = DateTime.Today;
 
         public int CalculatedPersonCount
         {
@@ -160,31 +167,44 @@ namespace ProjectBotenReservering.App.ViewModels
                 }
             }
         }
+    [ObservableProperty]
+    public partial TimeSpan StartTime { get; set; } = TimeSpan.Zero;
 
         private void RecalculateCounts()
         {
             int boatsNeeded = _teamCount;
             int peopleTotal = _teamCount * 2;
+    [ObservableProperty]
+    public partial DateTime EndDate { get; set; } = DateTime.Today;
 
             CalculatedBoatCount = boatsNeeded;
             CalculatedPersonCount = peopleTotal;
         }
+    [ObservableProperty]
+    public partial TimeSpan EndTime { get; set; } = TimeSpan.Zero;
 
         public event PropertyChangedEventHandler? PropertyChanged;
+    [ObservableProperty]
+    public partial int TeamCount { get; set; }
 
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+    [ObservableProperty]
+    public partial int CalculatedBoatCount { get; set; }
 
         [RelayCommand]
         private async Task CreateMatch()
         {
             DateTime startDateTime = StartDate.Date + StartTime;
             DateTime endDateTime = EndDate.Date + EndTime;
+    [ObservableProperty]
+    public partial int CalculatedPersonCount { get; set; }
 
             if (_matchService.FindOverlappingReservationForMatch(startDateTime, endDateTime, _selectedBoatType.Select(b => b.Id).ToList()).Count == 0)
-            {
+    public CompetitionViewModel()
+    {
                 int amountLappingReservations = _matchService.FindOverlappingReservationForMatch(startDateTime, endDateTime, _selectedBoatType.Select(b => b.Id).ToList()).Count;
                 bool answer = await Shell.Current.DisplayAlert("Waarschuwing", $"LET OP: Er zijn {amountLappingReservations}", "Inplannen", "Terug");
 

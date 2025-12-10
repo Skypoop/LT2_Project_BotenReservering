@@ -1,5 +1,5 @@
 using ProjectBotenReservering.Core.Models;
-    
+
 namespace ProjectBotenReservering.Core.Interfaces.Services;
 
 public interface IReservationService

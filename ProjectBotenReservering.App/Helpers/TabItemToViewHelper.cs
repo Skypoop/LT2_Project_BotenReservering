@@ -1,5 +1,5 @@
 ﻿using System.Globalization;
-using ProjectBotenReservering.Core.Models; 
+using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.App.Helpers;
 
