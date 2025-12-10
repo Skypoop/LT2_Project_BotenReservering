@@ -14,8 +14,11 @@ Shell.NavBarIsVisible="False">
     <toolkit:EventToCommandBehavior EventName="Appearing" 
                                     Command="{Binding LoadReservationsCommand}" />
 </ContentPage.Behaviors>
-
-<ContentPage.Resources>
+<Shell.BackButtonBehavior>
+    <BackButtonBehavior IsVisible="False" />
+</Shell.BackButtonBehavior>
+    
+    <ContentPage.Resources>
     <ResourceDictionary>
         <Style x:Key="CalYearLabelStyle" TargetType="Label">
             <Setter Property="TextColor" Value="{StaticResource Primary}" />
