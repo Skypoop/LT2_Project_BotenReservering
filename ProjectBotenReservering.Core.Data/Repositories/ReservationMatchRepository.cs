@@ -58,7 +58,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public List<ReservationMatch> GetByMatchId(int matchId)
         {
-            var list = new List<ReservationMatch>();
+            List<ReservationMatch> list = new List<ReservationMatch>();
             string selectQuery = "SELECT Match_Id, Reservation_Id, Team_Name FROM Reservation_Match WHERE Match_Id = @MatchId";
             OpenConnection();
 
@@ -80,7 +80,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public List<ReservationMatch> GetByReservationId(int reservationId)
         {
-            var list = new List<ReservationMatch>();
+            List<ReservationMatch> list = new List<ReservationMatch>();
             string selectQuery = "SELECT Match_Id, Reservation_Id, Team_Name FROM Reservation_Match WHERE Reservation_Id = @ReservationId";
             OpenConnection();
 

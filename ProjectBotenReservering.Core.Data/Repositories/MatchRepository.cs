@@ -1,6 +1,6 @@
+using Microsoft.Data.Sqlite;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Models;
-using Microsoft.Data.Sqlite;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
 {
@@ -58,7 +58,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public List<Match> GetAll()
         {
-            var matchList = new List<Match>();
+            List<Match> matchList = new List<Match>();
             string selectQuery = "SELECT Id, Start_DateTime, End_DateTime, Match_Name FROM Match";
             OpenConnection();
 
@@ -104,7 +104,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         public Match SaveMatchWithReservations(Match match, List<int> reservationIds, List<string> teamNames)
         {
             OpenConnection();
-            using (var transaction = Connection.BeginTransaction())
+            using (SqliteTransaction transaction = Connection.BeginTransaction())
             {
                 try
                 {
@@ -152,7 +152,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         public void CancelReservationAndUpdateStatus(int reservationId, int matchId)
         {
             OpenConnection();
-            using (var transaction = Connection.BeginTransaction())
+            using (SqliteTransaction transaction = Connection.BeginTransaction())
             {
                 try
                 {
