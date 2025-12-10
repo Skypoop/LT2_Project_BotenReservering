@@ -166,8 +166,8 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                         command.ExecuteNonQuery();
                     }
 
-                    // Update reservation status to cancelled (Approved = false)
-                    string updateStatusQuery = "UPDATE Reservation SET Approved = 0 WHERE Id = @ReservationId";
+                    // Update reservation status to cancelled (Active = false)
+                    string updateStatusQuery = "UPDATE Reservation SET Active = 0 WHERE Id = @ReservationId";
                     using (SqliteCommand command = new(updateStatusQuery, Connection, transaction))
                     {
                         command.Parameters.AddWithValue("@ReservationId", reservationId);
