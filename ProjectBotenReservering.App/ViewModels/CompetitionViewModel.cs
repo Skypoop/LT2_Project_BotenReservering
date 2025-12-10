@@ -50,9 +50,9 @@ public partial class CompetitionViewModel : BaseViewModel
 
         List<Reservation> reservations = _matchService.FindOverlappingReservationForMatch(startDateTime, endDateTime, _selectedBoatType.Select(b => b.Id).ToList());
 
-        if (reservations.Count > 0)
+        if (reservations.Count == 0)
         {
-            bool answer = await Shell.Current.DisplayAlert("Atten reserveringen worden beinvloed", $"Om ruimtem te maken voor deze wedstrijd worden er {reservations.Count} reserveringen geannuleerd. Tijdens het aanmaken, Ga je akkoord hiermee?", "OK", "Terug");
+            bool answer = await Shell.Current.DisplayAlert("Attentie reserveringen worden beinvloed", $"Om ruimtem te maken voor deze wedstrijd worden er {reservations.Count} reserveringen geannuleerd. Tijdens het aanmaken, Ga je akkoord hiermee?", "OK", "Terug");
 
             if (answer)
             {
