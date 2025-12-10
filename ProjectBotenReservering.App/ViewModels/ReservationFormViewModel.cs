@@ -392,7 +392,7 @@ public partial class ReservationFormViewModel : BaseViewModel
             await Shell.Current.DisplayAlert("Error", "Eindtijd moet na starttijd zijn.", "OK");
             return;
         }
-        if (_reservationService.IsReservationTimeBlocked(Reservations, startDateTime, endDateTime)) {
+        if (_reservationService.IsReservationTimeBlocked(Reservations, startDateTime, endDateTime, BoatId)) {
             await Shell.Current.DisplayAlert("Error", "Er zijn geen boten meer beschikbaar van dit type boot op deze tijd", "OK");
             return;
         }

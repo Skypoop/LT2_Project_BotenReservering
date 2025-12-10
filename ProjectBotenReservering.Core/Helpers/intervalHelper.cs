@@ -26,11 +26,13 @@ public static class IntervalHelper {
         return true;
     }
 
-    public static bool isIntersectingWithIntervalList(float[] a, float[][] intervalList ) {
+    public static int CountIntersectionsWithIntervalList(float[] a, float[][] intervalList )
+    {
+        int intersectionCount = 0;
         for (int i = 0; i < intervalList.Length; i++) {
             if(isIntersecting(a, intervalList[i])) 
-                return true;
+                intersectionCount++;
         }
-        return false;
+        return intersectionCount;
     }
 }

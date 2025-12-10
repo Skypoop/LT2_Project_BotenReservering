@@ -12,7 +12,11 @@ public class ReservationService: IReservationService
     private readonly IBoatAuthorizationService _boatAuthorizationService;
     private readonly IClientReservationRepository _clientReservationRepository;
 
-    public ReservationService(IReservationRepository reservationRepository, IBoatAuthorizationService boatAuthorizationService, IClientReservationRepository clientReservationRepository)
+    public ReservationService(
+        IReservationRepository reservationRepository,
+        IBoatAuthorizationService boatAuthorizationService,
+        IClientReservationRepository clientReservationRepository
+    )
     {
         _reservationRepository = reservationRepository;
         _boatAuthorizationService = boatAuthorizationService;
@@ -72,14 +76,14 @@ public class ReservationService: IReservationService
         return _reservationRepository.GetAll();
     }
     
-    public bool IsReservationTimeBlocked(IEnumerable<Reservation> reservations, DateTime startTime, DateTime endTime)
+    public bool IsReservationTimeBlocked(IEnumerable<Reservation> reservations, DateTime startTime, DateTime endTime, BoatTypeUiItem boatType)
     {
         float[][] existingTimes = reservations
             .Select(r => IntervalHelper.TimeSlotToInterval(r.StartTime, r.EndTime))
             .ToArray();        
             float[] enteredTimes = IntervalHelper.TimeSlotToInterval(startTime, endTime);
-            
-        return IntervalHelper.isIntersectingWithIntervalList(enteredTimes, existingTimes);
+
+            return IntervalHelper.CountIntersectionsWithIntervalList(enteredTimes, existingTimes) > boatType.Amount;
     }
 
     public void AddClientsToReservation(Reservation reservation, List<Client> clients)
