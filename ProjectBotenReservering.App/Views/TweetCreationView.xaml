@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ProjectBotenReservering.App.ViewModels"
+             x:Class="ProjectBotenReservering.App.Views.TweetCreationView"
+             x:DataType="vm:TweetCreationViewModel">
+             
+    <ScrollView>
+        <VerticalStackLayout Spacing="20" Padding="30">
+
+            <VerticalStackLayout Spacing="5">
+                <Label Text="Wedstrijden" 
+                       FontSize="32"
+                       FontAttributes="Bold"
+                       TextColor="Black" />
+                
+                <Label Text="Wedstrijd promoten" 
+                       FontSize="20"
+                       TextColor="#505050" />
+            </VerticalStackLayout>
+
+            <Border Stroke="#000000"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 5"
+                    Padding="10"
+                    BackgroundColor="White">
+                <Grid ColumnDefinitions="50, *" ColumnSpacing="10">
+                    <Label Text="🤖" 
+                           FontSize="30" 
+                           VerticalOptions="Start"
+                           HorizontalOptions="Center"/>
+                    
+                    <Label Grid.Column="1" x:Name="WelcomeLabel" 
+                           Text="{Binding PageWelcomeMessage}"
+                           FontSize="14"
+                           TextColor="Black"
+                           LineBreakMode="WordWrap"/>
+                </Grid>
+            </Border>
+
+            <Border Stroke="#000000"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 0"
+                    BackgroundColor="White"
+                    HeightRequest="200">
+                
+                <Grid RowDefinitions="*, Auto">
+                    
+                    <Editor x:Name="TweetEditor"
+                            Grid.Row="0"
+                            Placeholder="Tweet wordt gegenereerd... Even gedult aub."
+                            Text="{Binding TweetContent}"
+                            TextColor="Black"
+                            AutoSize="TextChanges"
+                            VerticalOptions="Fill"
+                            BackgroundColor="Transparent"
+                            IsEnabled="{Binding TweetContentEditableByUser}"
+                            Margin="5,5,30,5"/> 
+                    
+                    <Label Text="✏️"
+                           Grid.Row="0"
+                           HorizontalOptions="End"
+                           VerticalOptions="Start"
+                           FontSize="20"
+                           Margin="10"/>
+
+                    <Label Text="0/280"
+                           Grid.Row="1"
+                           HorizontalOptions="End"
+                           VerticalOptions="End"
+                           FontSize="12"
+                           TextColor="Gray"
+                           Margin="10,0,10,5"/>
+                </Grid>
+            </Border>
+
+            <Grid ColumnDefinitions="Auto, *, Auto" 
+                  ColumnSpacing="10" 
+                  VerticalOptions="Center">
+                
+                <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
+                    <Label Text="Foto toevoegen" TextColor="Black" FontSize="14"/>
+                    <Label Text="(optioneel)" TextColor="Black" FontSize="12" FontAttributes="Bold"/>
+                </VerticalStackLayout>
+
+                <Border Grid.Column="1" 
+                        Stroke="Black" 
+                        StrokeThickness="1" 
+                        BackgroundColor="#D3D3D3"
+                        HeightRequest="30">
+                    <Entry IsReadOnly="True" 
+                           Placeholder=""
+                           Text="{Binding SelectedFileName}"
+                           BackgroundColor="Transparent"
+                           VerticalOptions="Center"/>
+                </Border>
+
+                <Button Grid.Column="2"
+                        Text="Browse..."
+                        Command="{Binding PickFileCommand}"
+                        TextColor="Black"
+                        BackgroundColor="White"
+                        BorderColor="Black"
+                        BorderWidth="1"
+                        CornerRadius="2"
+                        HeightRequest="30"
+                        Padding="10,0"
+                        FontSize="12"
+                        VerticalOptions="Center"/>
+            </Grid>
+            
+            <Image Source="{Binding SelectedImagePreview}"
+                   IsVisible="{Binding IsImagePreviewVisible}"
+                   HeightRequest="200"
+                   Aspect="AspectFit"
+                   HorizontalOptions="Center"
+                   BackgroundColor="#F0F0F0"/>
+            
+            <Button Text="Publiceren"
+                    Command="{Binding PublishTweetCommand}"
+                    HorizontalOptions="End"
+                    WidthRequest="120"
+                    BackgroundColor="White"
+                    TextColor="Black"
+                    BorderColor="Black"
+                    BorderWidth="1"
+                    CornerRadius="5"
+                    Margin="0,30,0,0"
+                    />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>
