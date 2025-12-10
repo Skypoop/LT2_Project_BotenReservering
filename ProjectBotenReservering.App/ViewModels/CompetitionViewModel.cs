@@ -190,14 +190,14 @@ namespace ProjectBotenReservering.App.ViewModels
 
                 if (answer)
                 {
-                    //Implement here make the accually match
+                    //Implement here make the accually match make function
                 } else
                 {
                     return;
                 }
             } else
             {
-                //Implement here make the accually match
+                //Implement here make the accually match make function
             }
         }
     }
