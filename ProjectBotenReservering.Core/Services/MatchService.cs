@@ -28,9 +28,7 @@ namespace ProjectBotenReservering.Core.Services
         {
             List<Reservation> reservations = _reservationRepository.GetAll();
 
-            reservations.Where(r => r.StartTime >= startDate && r.EndTime <= endDate && boatIds.Contains(r.BoatId));
-
-            return reservations;
+            return reservations.Where(r => r.StartTime < endDate && r.EndTime > startDate && boatIds.Contains(r.BoatId)).ToList();
         }
     }
 }

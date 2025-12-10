@@ -51,6 +51,7 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IClientRoleRepository, ClientRoleRepository>();
             builder.Services.AddSingleton<IClientManagementTaskRepository, ClientManagementTaskRepository>();
             builder.Services.AddSingleton<IRoleManagementTaskRepository, RoleManagementTaskRepository>();
+            builder.Services.AddSingleton<IMatchRepository, MatchRepository>();
 
             builder.Services.AddSingleton<ISmtpMailService, SmtpMailService>();
             builder.Services.AddSingleton<IWeatherService, WeatherService>();
@@ -68,6 +69,7 @@ namespace ProjectBotenReservering.App
             builder.Services.AddTransient<SideBarView>().AddTransient<SideBarViewModel>();
             builder.Services.AddTransient<LoginView>().AddTransient<LoginViewModel>();
             builder.Services.AddTransient<RegisterView>().AddTransient<RegisterViewModel>();
+            builder.Services.AddTransient<CompetitionView>().AddTransient<CompetitionViewModel>();
 
 
 #if DEBUG
