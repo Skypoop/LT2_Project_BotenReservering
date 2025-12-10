@@ -9,7 +9,6 @@ public partial class AppShell : Shell
         InitializeComponent();
 
         Routing.RegisterRoute(nameof(RegisterView), typeof(RegisterView));
-        Routing.RegisterRoute(nameof(HomePageView), typeof(HomePageView));
         Routing.RegisterRoute(nameof(ReservationFormView), typeof(ReservationFormView));
     }
 }

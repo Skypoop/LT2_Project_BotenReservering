@@ -21,7 +21,8 @@ public partial class SideBarViewModel : BaseViewModel
     {
         Tabs = new ObservableCollection<TabItem>
         {
-            new TabItem("calendar_regular_full.png", typeof(BoatTypesView))
+            new TabItem("boat_image.png", typeof(BoatTypesView)),
+            new TabItem("competition_image.png", typeof(CompetitionView)),
         };
 
         SelectedTab = Tabs[0];
