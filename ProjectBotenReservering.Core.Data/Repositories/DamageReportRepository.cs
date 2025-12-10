@@ -63,7 +63,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public List<DamageReport> GetAll()
         {
-            var damageReportList = new List<DamageReport>();
+            List<DamageReport> damageReportList = new List<DamageReport>();
             string selectQuery = "SELECT Id, Client_Id, Boat_Id, Damage_Information, Date, Approved FROM DamageReport";
             OpenConnection();
 
@@ -84,7 +84,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public List<DamageReport> GetByClientId(int clientId)
         {
-            var damageReportList = new List<DamageReport>();
+            List<DamageReport> damageReportList = new List<DamageReport>();
             string selectQuery = "SELECT Id, Client_Id, Boat_Id, Damage_Information, Date, Approved FROM DamageReport WHERE Client_Id = @ClientId";
             OpenConnection();
 
@@ -106,7 +106,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public List<DamageReport> GetByBoatId(int boatId)
         {
-            var damageReportList = new List<DamageReport>();
+            List<DamageReport> damageReportList = new List<DamageReport>();
             string selectQuery = "SELECT Id, Client_Id, Boat_Id, Damage_Information, Date, Approved FROM DamageReport WHERE Boat_Id = @BoatId";
             OpenConnection();
 

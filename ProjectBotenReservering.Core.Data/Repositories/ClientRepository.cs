@@ -101,7 +101,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public List<Client> GetAll()
         {
-            var clientList = new List<Client>();
+            List<Client> clientList = new List<Client>();
             string selectQuery = "SELECT * FROM Client";
             OpenConnection();
 

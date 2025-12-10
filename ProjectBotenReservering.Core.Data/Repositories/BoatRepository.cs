@@ -107,7 +107,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public List<Boat> GetAll()
         {
-            var boatList = new List<Boat>();
+            List<Boat> boatList = new List<Boat>();
             string selectQuery = "SELECT * FROM Boat";
             OpenConnection();
 
@@ -128,7 +128,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public List<Boat> GetOperationalBoats()
         {
-            var boatList = new List<Boat>();
+            List<Boat> boatList = new List<Boat>();
             string selectQuery = "SELECT Id, Name, Steering_Wheel, Seats, Level, Type, Kg, Operational, Club FROM Boat WHERE Operational = 1";
             OpenConnection();
 

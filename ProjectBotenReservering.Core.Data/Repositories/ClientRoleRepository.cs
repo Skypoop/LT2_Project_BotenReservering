@@ -33,7 +33,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public List<ClientRole> GetByClientId(int clientId)
         {
-            var list = new List<ClientRole>();
+            List<ClientRole> list = new List<ClientRole>();
             string selectQuery = "SELECT Role_Name, Client_Id FROM Client_Role WHERE Client_Id = @ClientId";
             OpenConnection();
 
@@ -55,7 +55,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public List<ClientRole> GetByRoleName(string roleName)
         {
-            var list = new List<ClientRole>();
+            List<ClientRole> list = new List<ClientRole>();
             string selectQuery = "SELECT Role_Name, Client_Id FROM Client_Role WHERE Role_Name = @RoleName";
             OpenConnection();
 

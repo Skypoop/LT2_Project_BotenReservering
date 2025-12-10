@@ -61,7 +61,7 @@
                 </HorizontalStackLayout>
             </Grid>
 
-            <!-- DATE SECTION (UPDATED) -->
+            <!-- DATE SECTION -->
             <Grid ColumnDefinitions="Auto, Auto, Auto, Auto"
                   ColumnSpacing="20"
                   Margin="320,10,20,0">
@@ -97,7 +97,7 @@
                                      VerticalOptions="Fill" 
                                      Margin="0,5,10,5"/>
 
-                            <!-- Time (Military Format) -->
+                            <!-- Time -->
                             <TimePicker Grid.Column="3"
                                         Time="{Binding StartTime}"
                                         Format="HH:mm"
@@ -153,7 +153,7 @@
                                      VerticalOptions="Fill" 
                                      Margin="0,5,10,5"/>
 
-                            <!-- Time (Military Format) -->
+                            <!-- Time -->
                             <TimePicker Grid.Column="3"
                                         Time="{Binding EndTime}"
                                         Format="HH:mm"

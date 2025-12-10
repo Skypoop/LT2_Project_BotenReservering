@@ -96,7 +96,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public List<Reservation> GetAll()
         {
-            var reservationList = new List<Reservation>();
+            List<Reservation> reservationList = new List<Reservation>();
             string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id, Approved FROM Reservation";
             OpenConnection();
 
@@ -117,7 +117,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public List<Reservation> GetByClientId(int clientId)
         {
-            var reservationList = new List<Reservation>();
+            List<Reservation> reservationList = new List<Reservation>();
             string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id, Approved FROM Reservation WHERE Client_Id = @ClientId";
             OpenConnection();
 
@@ -139,7 +139,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public List<Reservation> GetByBoatId(int boatId)
         {
-            var reservationList = new List<Reservation>();
+            List<Reservation> reservationList = new List<Reservation>();
             string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id, Approved FROM Reservation WHERE Boat_Id = @BoatId";
             OpenConnection();
 

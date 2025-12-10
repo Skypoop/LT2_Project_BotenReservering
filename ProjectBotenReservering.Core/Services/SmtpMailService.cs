@@ -1,8 +1,8 @@
-using ProjectBotenReservering.Core.Interfaces.Services;
-using ProjectBotenReservering.Core.Models;
 using System.ComponentModel;
 using System.Net;
 using System.Net.Mail;
+using ProjectBotenReservering.Core.Interfaces.Services;
+using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.Core.Services;
 

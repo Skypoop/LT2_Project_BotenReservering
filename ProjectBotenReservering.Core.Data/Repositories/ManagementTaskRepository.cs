@@ -51,7 +51,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public List<ManagementTask> GetAll()
         {
-            var taskList = new List<ManagementTask>();
+            List<ManagementTask> taskList = new List<ManagementTask>();
             string selectQuery = "SELECT Id, Name FROM ManagementTask";
             OpenConnection();
 

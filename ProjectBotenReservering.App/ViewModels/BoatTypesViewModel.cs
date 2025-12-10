@@ -1,9 +1,9 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ProjectBotenReservering.App.Views;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
-using System.Collections.ObjectModel;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
@@ -59,7 +59,7 @@ public partial class BoatTypesViewModel : BaseViewModel
         BoatTypeItems.Clear();
 
         List<BoatTypeUiItem> orderedBoatTypeList = boatTypeList.OrderBy(x => x.Weight).ToList();
-        foreach (var boatType in orderedBoatTypeList)
+        foreach (BoatTypeUiItem boatType in orderedBoatTypeList)
         {
             BoatTypeItems.Add(boatType);
         }

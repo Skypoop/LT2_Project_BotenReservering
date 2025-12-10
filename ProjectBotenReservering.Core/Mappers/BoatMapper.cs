@@ -23,7 +23,7 @@ public static class BoatMapper
     public static List<BoatTypeUiItem> BoatsToBoatTypeUiItems(List<Boat> boats)
     {
         List<BoatTypeUiItem> boatTypeUiItems = new List<BoatTypeUiItem>();
-        foreach (var boat in boats)
+        foreach (Boat boat in boats)
         {
             if (boatTypeUiItems.Any(x => x.Name == boat.Name))
             {
@@ -31,7 +31,7 @@ public static class BoatMapper
             }
             else
             {
-                var boatTypeUiItem = BoatToBoatTypeUiItem(boat);
+                BoatTypeUiItem boatTypeUiItem = BoatToBoatTypeUiItem(boat);
                 boatTypeUiItems.Add(boatTypeUiItem);
             }
         }

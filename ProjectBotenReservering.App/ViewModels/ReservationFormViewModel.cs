@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Plugin.Maui.Calendar.Models;
@@ -6,7 +7,6 @@ using ProjectBotenReservering.Core.Constants;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
-using System.Collections.ObjectModel;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
@@ -60,7 +60,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         }
     }
 
-    private ObservableCollection<Reservation> reservationList { get; set; } = new ObservableCollection<Reservation>();
+    private ObservableCollection<Reservation> ReservationList { get; set; } = new ObservableCollection<Reservation>();
 
     [ObservableProperty]
     public partial BoatTypeUiItem? CurrentBoatType { get; set; }
@@ -127,13 +127,13 @@ public partial class ReservationFormViewModel : BaseViewModel
     public async Task LoadReservationsAsync()
     {
         List<Reservation> reservations = await _reservationService.GetAll();
-        foreach (Reservation res in reservations) reservationList.Add(res);
+        foreach (Reservation res in reservations) ReservationList.Add(res);
         InitializeEvents();
     }
 
     public void InitializeEvents()
     {
-        foreach (var res in reservationList)
+        foreach (Reservation res in ReservationList)
         {
             DateTime dayOfReservation = res.StartTime;
             // Due to the events only allowing one entry per day, we only add the first reservation found for that day. It only uses these events to show the dots on the calendar.
@@ -146,7 +146,7 @@ public partial class ReservationFormViewModel : BaseViewModel
     public Task RefreshReservationListAsync(DateTime value)
     {
         Reservations.Clear();
-        foreach (Reservation res in reservationList)
+        foreach (Reservation res in ReservationList)
         {
             if (res.StartTime.Date == value.Date)
             {
@@ -169,7 +169,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         }
 
         List<Client> allClients = _clientRepository.GetAll();
-        foreach (var client in allClients)
+        foreach (Client client in allClients)
         {
             if (currentUser != null && client.Id == currentUser.Id) continue;
 

@@ -32,7 +32,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public List<ClientReservation> GetByClientId(int clientId)
         {
-            var list = new List<ClientReservation>();
+            List<ClientReservation> list = new List<ClientReservation>();
             string selectQuery = "SELECT Client_Id, Reservation_Id FROM Client_Reservation WHERE Client_Id = @ClientId";
             OpenConnection();
 
@@ -57,7 +57,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public List<ClientReservation> GetByReservationId(int reservationId)
         {
-            var list = new List<ClientReservation>();
+            List<ClientReservation> list = new List<ClientReservation>();
             string selectQuery = "SELECT Client_Id, Reservation_Id FROM Client_Reservation WHERE Reservation_Id = @ReservationId";
             OpenConnection();
 

@@ -70,7 +70,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public List<WindConstraint> GetAll()
         {
-            var list = new List<WindConstraint>();
+            List<WindConstraint> list = new List<WindConstraint>();
             string selectQuery = "SELECT Windforce, Min_Scull_level, Min_Sweep_level FROM WindConstraint";
             OpenConnection();
 
