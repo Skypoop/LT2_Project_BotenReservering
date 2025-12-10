@@ -10,4 +10,3 @@ public interface IReservationRepository
     List<Reservation> GetByClientId(int clientId);
     List<Reservation> GetByBoatId(int boatId);
 }
-

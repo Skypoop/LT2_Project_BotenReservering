@@ -60,6 +60,7 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IReservationService, ReservationService>();
             builder.Services.AddSingleton<IClientContext, ClientContext>();
             builder.Services.AddSingleton<IAuthService, AuthService>();
+            builder.Services.AddSingleton<IMatchService, MatchService>();
 
             builder.Services.AddTransient<HomePageView>().AddTransient<HomePageViewModel>();
             builder.Services.AddTransient<BoatTypesView>().AddTransient<BoatTypesViewModel>();
