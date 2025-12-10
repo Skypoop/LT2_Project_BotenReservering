@@ -13,5 +13,5 @@
     <ShellContent 
         ContentTemplate="{DataTemplate views:SideBarView}"
         Route="BoatTypesView"/>
-
+    
 </Shell>
