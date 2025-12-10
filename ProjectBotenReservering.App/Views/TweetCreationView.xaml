@@ -54,7 +54,7 @@
                             AutoSize="TextChanges"
                             VerticalOptions="Fill"
                             BackgroundColor="Transparent"
-                            IsEnabled="{Binding TweetContentEditableByUser}"
+                            IsEnabled="{Binding IsTweetContentEditableByUser}"
                             Margin="5,5,30,5"/> 
                     
                     <Label Text="✏️"

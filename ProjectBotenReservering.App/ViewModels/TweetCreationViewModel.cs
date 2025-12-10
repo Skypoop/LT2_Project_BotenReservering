@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ProjectBotenReservering.App.Views;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 
@@ -7,7 +8,8 @@ namespace ProjectBotenReservering.App.ViewModels;
 
 public partial class TweetCreationViewModel : BaseViewModel
 {
-    [ObservableProperty] public partial string PageWelcomeMessage { get; set; } = string.Empty;
+    [ObservableProperty] 
+    public partial string PageWelcomeMessage { get; set; } = string.Empty;
     
     [ObservableProperty]
     public partial string TweetContent { get; set; } = string.Empty;
@@ -17,9 +19,12 @@ public partial class TweetCreationViewModel : BaseViewModel
     
     [ObservableProperty]
     public partial ImageSource? SelectedImagePreview { get; set; }
-    public bool IsImagePreviewVisible => SelectedImagePreview != null;
 
-    public bool TweetContentEditableByUser { get; set; } = false;
+    [ObservableProperty] 
+    public partial bool IsImagePreviewVisible { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsTweetContentEditableByUser { get; set; }
     
     private readonly IClientService _clientService;
     
@@ -31,11 +36,14 @@ public partial class TweetCreationViewModel : BaseViewModel
         // Call a tweet generation service here to generate Tweet content
     }
 
-    private void SetupPage()
+    private async void SetupPage()
     {
         Client? currentClient = _clientService.GetCurrentClient();
         if (currentClient == null)
-            Console.WriteLine($"Called before login of client");
+        {
+            await Shell.Current.DisplayAlert("Client not found", "De huidige client is onbekend, neem contact op met een beheerder.", "OK");
+            await Shell.Current.GoToAsync(nameof(LoginView));
+        }
         else
             SetupPageWelcomeMessage(currentClient.FullName);
     }
@@ -57,7 +65,7 @@ public partial class TweetCreationViewModel : BaseViewModel
 
             Stream stream = await result.OpenReadAsync();
             SelectedImagePreview = ImageSource.FromStream(() => stream);
-            OnPropertyChanged(nameof(IsImagePreviewVisible));
+            IsImagePreviewVisible = SelectedImagePreview != null;
         }
     }
     
