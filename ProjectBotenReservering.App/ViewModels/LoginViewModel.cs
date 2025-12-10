@@ -1,11 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Extensions.Configuration;
+using ProjectBotenReservering.App.Views;
 using ProjectBotenReservering.Core.Interfaces.Context;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
-using ProjectBotenReservering.App.Views;
 
 namespace ProjectBotenReservering.App.ViewModels
 {
@@ -24,7 +23,7 @@ namespace ProjectBotenReservering.App.ViewModels
         private readonly IClientContext _clientContext;
         private readonly IClientRepository _clientRepository;
         private readonly MailSettings _mailSettings;
-        
+
         public LoginViewModel(IAuthService authService, IClientContext clientContext, MailSettings mailSettings, IClientRepository clientRepository)
         {
             _authService = authService;
@@ -32,7 +31,7 @@ namespace ProjectBotenReservering.App.ViewModels
             _mailSettings = mailSettings;
             _clientRepository = clientRepository;
         }
-        
+
         [RelayCommand]
         private async Task Login()
         {
@@ -42,7 +41,7 @@ namespace ProjectBotenReservering.App.ViewModels
             {
                 string role = _authService.GetUserRole(authenticatedClient.Id);
 
-                if(string.Equals(role, "Gast", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(role, "Gast", StringComparison.OrdinalIgnoreCase))
                 {
                     await Shell.Current.DisplayAlert("Toegang Geweigerd", "Er is nog geen functioneel scherm beschikbaar voor een account ingelogd als Gast.", "OK");
                     return;
@@ -57,7 +56,7 @@ namespace ProjectBotenReservering.App.ViewModels
                 LoginMessage = "Ongeldige inloggegevens.";
             }
         }
-        
+
         [RelayCommand]
         private void TogglePassword()
         {

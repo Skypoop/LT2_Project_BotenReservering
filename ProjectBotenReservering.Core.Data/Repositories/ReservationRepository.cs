@@ -1,6 +1,6 @@
+using Microsoft.Data.Sqlite;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Models;
-using Microsoft.Data.Sqlite;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
 {
@@ -21,35 +21,35 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                             FOREIGN KEY (Boat_Id) REFERENCES Boat(Id))");
             List<Reservation> reservations = GetAll();
             bool anyReservationsExists = reservations.Count > 0;
-            
+
             if (anyReservationsExists == false)
             {
                 DateTime now = DateTime.Now;
                 // Boat 1
-                Add(new Reservation( now, now.AddHours(2), now.AddHours(4), 1, 1, true));
-                Add(new Reservation( now, now.AddDays(1).AddHours(10), now.AddDays(1).AddHours(11), 1, 1, true));
-                Add(new Reservation( now, now.AddDays(3).AddHours(14), now.AddDays(3).AddHours(16), 3, 1, true));
-                Add(new Reservation( now, now.AddDays(5).AddHours(9), now.AddDays(5).AddHours(10).AddMinutes(30), 1, 1, true));
+                Add(new Reservation(now, now.AddHours(2), now.AddHours(4), 1, 1, true));
+                Add(new Reservation(now, now.AddDays(1).AddHours(10), now.AddDays(1).AddHours(11), 1, 1, true));
+                Add(new Reservation(now, now.AddDays(3).AddHours(14), now.AddDays(3).AddHours(16), 3, 1, true));
+                Add(new Reservation(now, now.AddDays(5).AddHours(9), now.AddDays(5).AddHours(10).AddMinutes(30), 1, 1, true));
                 Add(new Reservation(now, now.AddDays(12).AddHours(16), now.AddDays(12).AddHours(18), 2, 1, true));
                 Add(new Reservation(now, now.AddDays(18).AddHours(8), now.AddDays(18).AddHours(10), 3, 1, true));
                 Add(new Reservation(now, now.AddDays(21).AddHours(11), now.AddDays(21).AddHours(12), 1, 1, true));
-                Add(new Reservation( now, now.AddDays(24).AddHours(13), now.AddDays(24).AddHours(15), 2, 1, true));
+                Add(new Reservation(now, now.AddDays(24).AddHours(13), now.AddDays(24).AddHours(15), 2, 1, true));
                 Add(new Reservation(now, now.AddDays(28).AddHours(15), now.AddDays(28).AddHours(16).AddMinutes(30), 1, 1, true));
-                Add(new Reservation( now, now.AddDays(30).AddHours(10), now.AddDays(30).AddHours(12), 1, 1, true));
-                
+                Add(new Reservation(now, now.AddDays(30).AddHours(10), now.AddDays(30).AddHours(12), 1, 1, true));
+
                 // Boat 2
-                Add(new Reservation( now, now.AddHours(1), now.AddHours(4), 1, 2, true));
-                Add(new Reservation( now, now.AddDays(1).AddHours(9), now.AddDays(1).AddHours(11), 2, 2, true));
-                Add(new Reservation( now, now.AddDays(3).AddHours(15), now.AddDays(3).AddHours(17), 1, 2, true));
-                Add(new Reservation( now, now.AddDays(5).AddHours(8), now.AddDays(5).AddHours(10).AddMinutes(10), 1, 2, true));
+                Add(new Reservation(now, now.AddHours(1), now.AddHours(4), 1, 2, true));
+                Add(new Reservation(now, now.AddDays(1).AddHours(9), now.AddDays(1).AddHours(11), 2, 2, true));
+                Add(new Reservation(now, now.AddDays(3).AddHours(15), now.AddDays(3).AddHours(17), 1, 2, true));
+                Add(new Reservation(now, now.AddDays(5).AddHours(8), now.AddDays(5).AddHours(10).AddMinutes(10), 1, 2, true));
                 Add(new Reservation(now, now.AddDays(12).AddHours(2), now.AddDays(12).AddHours(1), 3, 2, true));
                 Add(new Reservation(now, now.AddDays(18).AddHours(3), now.AddDays(18).AddHours(5), 2, 2, true));
                 Add(new Reservation(now, now.AddDays(21).AddHours(7), now.AddDays(21).AddHours(12), 1, 2, true));
-                Add(new Reservation( now, now.AddDays(24).AddHours(13), now.AddDays(24).AddHours(15), 2, 2, true));
+                Add(new Reservation(now, now.AddDays(24).AddHours(13), now.AddDays(24).AddHours(15), 2, 2, true));
                 Add(new Reservation(now, now.AddDays(28).AddHours(15), now.AddDays(28).AddHours(16).AddMinutes(30), 1, 2, true));
-                Add(new Reservation( now, now.AddDays(30).AddHours(10), now.AddDays(30).AddHours(12), 2, 2, true));
+                Add(new Reservation(now, now.AddDays(30).AddHours(10), now.AddDays(30).AddHours(12), 2, 2, true));
             }
-            
+
         }
 
         public Reservation Add(Reservation item)

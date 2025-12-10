@@ -4,9 +4,9 @@ namespace ProjectBotenReservering.App.Views;
 
 public partial class RegisterView : ContentPage
 {
-	public RegisterView(RegisterViewModel viewModel)
-	{
-		InitializeComponent();
+    public RegisterView(RegisterViewModel viewModel)
+    {
+        InitializeComponent();
         BindingContext = viewModel;
     }
 }

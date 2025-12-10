@@ -1,6 +1,6 @@
+using Microsoft.Data.Sqlite;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Models;
-using Microsoft.Data.Sqlite;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
 {
@@ -33,7 +33,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public List<ClientManagementTask> GetByClientId(int clientId)
         {
-            var list = new List<ClientManagementTask>();
+            List<ClientManagementTask> list = new List<ClientManagementTask>();
             string selectQuery = "SELECT Client_Id, Management_Task_Id FROM Client_ManagementTask WHERE Client_Id = @ClientId";
             OpenConnection();
 
@@ -55,7 +55,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public List<ClientManagementTask> GetByManagementTaskId(int managementTaskId)
         {
-            var list = new List<ClientManagementTask>();
+            List<ClientManagementTask> list = new List<ClientManagementTask>();
             string selectQuery = "SELECT Client_Id, Management_Task_Id FROM Client_ManagementTask WHERE Management_Task_Id = @ManagementTaskId";
             OpenConnection();
 

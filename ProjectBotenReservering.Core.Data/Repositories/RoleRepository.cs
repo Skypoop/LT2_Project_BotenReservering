@@ -1,6 +1,6 @@
+using Microsoft.Data.Sqlite;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Models;
-using Microsoft.Data.Sqlite;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
 {
@@ -55,7 +55,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public List<Role> GetAll()
         {
-            var roleList = new List<Role>();
+            List<Role> roleList = new List<Role>();
             string selectQuery = "SELECT Name FROM Role";
             OpenConnection();
 

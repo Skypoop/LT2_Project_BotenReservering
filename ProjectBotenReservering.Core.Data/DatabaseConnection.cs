@@ -1,6 +1,5 @@
-﻿
+﻿using Microsoft.Data.Sqlite;
 using ProjectBotenReservering.Core.Data.Helpers;
-using Microsoft.Data.Sqlite;
 
 namespace ProjectBotenReservering.Core.Data
 {
@@ -51,7 +50,7 @@ namespace ProjectBotenReservering.Core.Data
         public void CreateTable(string commandText)
         {
             OpenConnection();
-            using (var command = Connection.CreateCommand())
+            using (SqliteCommand command = Connection.CreateCommand())
             {
                 command.CommandText = commandText;
                 command.ExecuteNonQuery();
@@ -61,7 +60,7 @@ namespace ProjectBotenReservering.Core.Data
         public void InsertMultipleWithTransaction(List<string> linesToInsert)
         {
             OpenConnection();
-            var transaction = Connection.BeginTransaction();
+            SqliteTransaction transaction = Connection.BeginTransaction();
 
             try
             {

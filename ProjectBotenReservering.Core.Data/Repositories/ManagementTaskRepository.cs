@@ -1,6 +1,6 @@
+using Microsoft.Data.Sqlite;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Models;
-using Microsoft.Data.Sqlite;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
 {
@@ -51,7 +51,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public List<ManagementTask> GetAll()
         {
-            var taskList = new List<ManagementTask>();
+            List<ManagementTask> taskList = new List<ManagementTask>();
             string selectQuery = "SELECT Id, Name FROM ManagementTask";
             OpenConnection();
 
