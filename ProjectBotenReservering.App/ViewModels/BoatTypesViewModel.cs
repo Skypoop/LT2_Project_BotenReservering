@@ -1,9 +1,9 @@
-using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ProjectBotenReservering.App.Views;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
-using ProjectBotenReservering.App.Views;
+using System.Collections.ObjectModel;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
@@ -28,7 +28,7 @@ public partial class BoatTypesViewModel : BaseViewModel
     public partial int MinWeightFilter { get; set; } = 0;
 
     private readonly IBoatTypeService _boatTypeService;
-    
+
     public BoatTypesViewModel(IBoatTypeService boatTypeService)
     {
         _boatTypeService = boatTypeService;
@@ -36,7 +36,7 @@ public partial class BoatTypesViewModel : BaseViewModel
         SelectedSteeringOption = SteeringOptions.First();
         ApplyFilterOption();
     }
-    
+
     public async Task OnApearing()
     {
         await ValidateBoatTypeList();
@@ -50,21 +50,21 @@ public partial class BoatTypesViewModel : BaseViewModel
                 "Geen boten binnen client rang gevonden. Neem contact op met de beheerder.",
                 "OK");
     }
-    
+
     private void ApplyFilterOption()
     {
         bool? steeringValue = SelectedSteeringOption?.Value;
 
         List<BoatTypeUiItem> boatTypeList = _boatTypeService.FilterBoatTypes(AllBoatTypes, steeringValue, StringInNameFilter, MinWeightFilter);
         BoatTypeItems.Clear();
-        
+
         List<BoatTypeUiItem> orderedBoatTypeList = boatTypeList.OrderBy(x => x.Weight).ToList();
         foreach (var boatType in orderedBoatTypeList)
         {
             BoatTypeItems.Add(boatType);
         }
     }
-    
+
     // Select a boat type
     [RelayCommand]
     public async Task SelectBoatType(BoatTypeUiItem boatType)
@@ -74,7 +74,7 @@ public partial class BoatTypesViewModel : BaseViewModel
     }
 
     // Filter callbacks
-    partial void OnSelectedSteeringOptionChanged(SteeringOption value) => ApplyFilterOption(); 
+    partial void OnSelectedSteeringOptionChanged(SteeringOption value) => ApplyFilterOption();
     partial void OnStringInNameFilterChanged(string value) => ApplyFilterOption();
     partial void OnMinWeightFilterChanged(int value) => ApplyFilterOption();
 

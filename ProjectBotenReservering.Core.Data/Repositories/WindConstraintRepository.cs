@@ -1,6 +1,6 @@
+using Microsoft.Data.Sqlite;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Models;
-using Microsoft.Data.Sqlite;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
 {
@@ -18,9 +18,9 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
             if (anyWindConstraintsExist == false)
             {
-                for(int i = 1; i < 12; i++)
+                for (int i = 1; i < 12; i++)
                 {
-                    int minLevel = Math.Clamp((int)MathF.Ceiling( (i + 2) / 2f), 2, 4);
+                    int minLevel = Math.Clamp((int)MathF.Ceiling((i + 2) / 2f), 2, 4);
                     Add(new WindConstraint(i, minLevel, minLevel));
                 }
             }

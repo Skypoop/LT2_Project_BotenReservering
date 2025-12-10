@@ -1,6 +1,5 @@
-﻿
+﻿using Microsoft.Data.Sqlite;
 using ProjectBotenReservering.Core.Data.Helpers;
-using Microsoft.Data.Sqlite;
 
 namespace ProjectBotenReservering.Core.Data
 {

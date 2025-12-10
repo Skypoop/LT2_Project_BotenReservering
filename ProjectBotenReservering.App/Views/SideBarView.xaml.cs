@@ -1,5 +1,5 @@
 using ProjectBotenReservering.App.ViewModels;
-using ProjectBotenReservering.Core.Models; 
+using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.App.Views;
 

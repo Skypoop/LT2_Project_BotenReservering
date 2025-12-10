@@ -2,7 +2,6 @@ using Microsoft.Data.Sqlite;
 using ProjectBotenReservering.Core.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Models;
-using System.Collections.Generic;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
 {
@@ -25,11 +24,11 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             if (!anyClientExists)
             {
                 // demo clients to populate the 
-                    Add(new Client("Joe Doe", "joe.doe@example.com", 1, 2, "River Club", true, PasswordHelper.HashPassword("hash1"), 0));
-                    Add(new Client("Jane Smith", "jane.smith@example.com", 2, 1, "Lakeside Club", false, PasswordHelper.HashPassword("hash2"), 0));
-                    Add(new Client("Bob Brown", "bob.brown@example.com", 3, 3, null, false, PasswordHelper.HashPassword("hash3"), 0));
-                    Add(new Client("Alice Green", "alice.green@example.com", 0, 1, "Harbor Club", true, PasswordHelper.HashPassword("hash4"), 0));
-                    Add(new Client("Eve White", "eve.white@example.com", 1, 0, "Coast Club", false, PasswordHelper.HashPassword("hash5"), 0));
+                Add(new Client("Joe Doe", "joe.doe@example.com", 1, 2, "River Club", true, PasswordHelper.HashPassword("hash1"), 0));
+                Add(new Client("Jane Smith", "jane.smith@example.com", 2, 1, "Lakeside Club", false, PasswordHelper.HashPassword("hash2"), 0));
+                Add(new Client("Bob Brown", "bob.brown@example.com", 3, 3, null, false, PasswordHelper.HashPassword("hash3"), 0));
+                Add(new Client("Alice Green", "alice.green@example.com", 0, 1, "Harbor Club", true, PasswordHelper.HashPassword("hash4"), 0));
+                Add(new Client("Eve White", "eve.white@example.com", 1, 0, "Coast Club", false, PasswordHelper.HashPassword("hash5"), 0));
 
             }
         }

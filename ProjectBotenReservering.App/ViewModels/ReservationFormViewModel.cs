@@ -1,11 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using ProjectBotenReservering.Core.Models;
+using Plugin.Maui.Calendar.Models;
 using ProjectBotenReservering.App.Helpers;
+using ProjectBotenReservering.Core.Constants;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
-using Plugin.Maui.Calendar.Models;
-using ProjectBotenReservering.Core.Constants;
+using ProjectBotenReservering.Core.Models;
 using System.Collections.ObjectModel;
 
 namespace ProjectBotenReservering.App.ViewModels;
@@ -44,7 +44,7 @@ public partial class ReservationFormViewModel : BaseViewModel
 
         SelectedClients = new ObservableCollection<Client>();
         AvailableClients = new ObservableCollection<Client>();
-        
+
         MinDate = DateTime.Today;
     }
 
@@ -56,7 +56,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         {
             _minimumDate = value;
             OnPropertyChanged();
-            
+
         }
     }
 
@@ -88,7 +88,7 @@ public partial class ReservationFormViewModel : BaseViewModel
     public ObservableCollection<Reservation> Reservations { get; } = new ObservableCollection<Reservation>();
 
     public EventCollection Events { get; set; } = new EventCollection();
-    
+
     public bool IsMacCatalyst { get; } = DeviceInfo.Current.Platform == DevicePlatform.MacCatalyst;
     public bool IsPickerSupported => !IsMacCatalyst;
 
@@ -122,7 +122,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         UpdateSeatStatus();
         UpdateQualificationFlags();
     }
-    
+
     [RelayCommand]
     public async Task LoadReservationsAsync()
     {
@@ -138,8 +138,8 @@ public partial class ReservationFormViewModel : BaseViewModel
             DateTime dayOfReservation = res.StartTime;
             // Due to the events only allowing one entry per day, we only add the first reservation found for that day. It only uses these events to show the dots on the calendar.
             if (Events.ContainsKey(dayOfReservation)) continue;
-            
-            Events.Add(dayOfReservation, new List<object>{res});
+
+            Events.Add(dayOfReservation, new List<object> { res });
         }
     }
 
@@ -194,7 +194,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         HasTimeWarning = false;
         TimeWarningText = string.Empty;
         HasWeatherWarning = false;
-        
+
         DateTime startDateTime = SelectedDate.Date + StartTime;
         DateTime endDateTime = SelectedDate.Date + EndTime;
 
@@ -227,7 +227,7 @@ public partial class ReservationFormViewModel : BaseViewModel
             }
 
         }
-        
+
         SaveReservationCommand.NotifyCanExecuteChanged();
     }
 

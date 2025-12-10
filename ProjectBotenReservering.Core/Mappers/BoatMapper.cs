@@ -35,7 +35,7 @@ public static class BoatMapper
                 boatTypeUiItems.Add(boatTypeUiItem);
             }
         }
-        
+
         return boatTypeUiItems;
     }
 }

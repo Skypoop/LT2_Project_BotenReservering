@@ -1,7 +1,7 @@
-﻿using System.Collections.ObjectModel;
+﻿using ProjectBotenReservering.App.Views;
+using ProjectBotenReservering.Core.Models;
+using System.Collections.ObjectModel;
 using System.Windows.Input;
-using ProjectBotenReservering.App.Views;
-using ProjectBotenReservering.Core.Models; 
 namespace ProjectBotenReservering.App.ViewModels;
 
 public partial class SideBarViewModel : BaseViewModel
