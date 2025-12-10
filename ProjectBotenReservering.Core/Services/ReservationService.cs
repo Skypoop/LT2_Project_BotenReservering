@@ -83,7 +83,7 @@ public class ReservationService: IReservationService
             .ToArray();        
             float[] enteredTimes = IntervalHelper.TimeSlotToInterval(startTime, endTime);
 
-            return IntervalHelper.CountIntersectionsWithIntervalList(enteredTimes, existingTimes) > boatType.Amount;
+            return IntervalHelper.CountIntersectionsWithIntervalList(enteredTimes, existingTimes) >= boatType.Amount;
     }
 
     public void AddClientsToReservation(Reservation reservation, List<Client> clients)

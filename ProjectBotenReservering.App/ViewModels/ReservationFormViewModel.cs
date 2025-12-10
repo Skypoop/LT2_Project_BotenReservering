@@ -92,6 +92,7 @@ public partial class ReservationFormViewModel : BaseViewModel
 
     [ObservableProperty]
     public partial Client? SelectedClientToAdd { get; set; }
+    
     [ObservableProperty]
     public partial string? SeatStatusText { get; set; } = "";
 
@@ -389,11 +390,11 @@ public partial class ReservationFormViewModel : BaseViewModel
         DateTime endDateTime   = SelectedDate.Date.Add(EndTime);
         if (EndTime <= StartTime)
         {
-            await Shell.Current.DisplayAlert("Error", "Eindtijd moet na starttijd zijn.", "OK");
+            await Shell.Current.DisplayAlert("Error", "Eindtijd moe t na starttijd zijn.", "OK");
             return;
         }
-        if (_reservationService.IsReservationTimeBlocked(Reservations, startDateTime, endDateTime, BoatId)) {
-            await Shell.Current.DisplayAlert("Error", "Er zijn geen boten meer beschikbaar van dit type boot op deze tijd", "OK");
+        if (_reservationService.IsReservationTimeBlocked(Reservations, startDateTime, endDateTime, CurrentBoatType)) {
+            await Shell.Current.DisplayAlert("Error", $"Er zijn geen boten  meer beschikbaar van dit type boot op deze tijd", "OK");
             return;
         }
         Reservation currentReservation = new Reservation

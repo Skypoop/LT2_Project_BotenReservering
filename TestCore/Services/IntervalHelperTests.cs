@@ -31,4 +31,37 @@ public class IntervalHelperTests
     // acknowledge
     count.Should().Be(3);
   }
+  [Test]
+  public void isIntervalCollisionCountedCorrectly_WhenIntervalListIsEmpty()
+  {
+    // arrange
+    float[] a = new float[] { 1.0f, 4.0f };
+    float[][] intervalList = [];
+
+    // act
+    int count = IntervalHelper.CountIntersectionsWithIntervalList(a, intervalList);
+
+    // acknowledge
+    count.Should().Be(0);
+  }
+  
+  [Test]
+  public void isIntervalCollisionCountedCorrectly_WhenIntervalIsContainedOrNoCollision()
+  {
+    // arrange
+    float[] a = new float[] { 5.0f, 10.0f };
+    float[][] intervalList =
+    [
+      new float[] { 6.0f, 8.0f }, 
+      new float[] { 1.0f, 4.0f }, 
+      new float[] { 11.0f, 12.0f }
+    ];
+
+    // act
+    int count = IntervalHelper.CountIntersectionsWithIntervalList(a, intervalList);
+
+    // acknowledge
+    count.Should().Be(1);
+  }
+
 }

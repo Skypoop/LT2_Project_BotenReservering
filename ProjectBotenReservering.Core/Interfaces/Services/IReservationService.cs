@@ -11,5 +11,5 @@ public interface IReservationService
     public Reservation CreateReservation(Reservation reservation, List<Client> clients);
     public Reservation? Get(int id);
     public void AddClientsToReservation(Reservation reservation, List<Client> clients);
-    public bool IsReservationTimeBlocked(IEnumerable<Reservation> reservations, DateTime startTime, DateTime endTime);
+    public bool IsReservationTimeBlocked(IEnumerable<Reservation> reservations, DateTime startTime, DateTime endTime, BoatTypeUiItem boatType);
 }
