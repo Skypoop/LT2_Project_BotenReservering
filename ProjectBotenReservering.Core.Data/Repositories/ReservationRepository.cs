@@ -16,6 +16,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                             [Client_Id] INT NOT NULL,
                             [Boat_Id] INT NOT NULL,
                             [Approved] BOOLEAN NOT NULL,
+                            [Active] BOOLEAN NOT NULL DEFAULT 1,
                             FOREIGN KEY (Client_Id) REFERENCES Client(Id),
                             FOREIGN KEY (Boat_Id) REFERENCES Boat(Id))");
             List<Reservation> reservations = GetAll();
@@ -53,8 +54,8 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public Reservation Add(Reservation item)
         {
-            string insertQuery = @"INSERT INTO Reservation(Created_At, Start_Time, End_Time, Client_Id, Boat_Id, Approved) 
-                                   VALUES(@CreatedAt, @StartTime, @EndTime, @ClientId, @BoatId, @Approved);
+            string insertQuery = @"INSERT INTO Reservation(Created_At, Start_Time, End_Time, Client_Id, Boat_Id, Approved, Active) 
+                                   VALUES(@CreatedAt, @StartTime, @EndTime, @ClientId, @BoatId, @Approved, @Active);
                                    SELECT last_insert_rowid();";
             OpenConnection();
             using (SqliteCommand command = new(insertQuery, Connection))
@@ -65,6 +66,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                 command.Parameters.AddWithValue("@ClientId", item.ClientId);
                 command.Parameters.AddWithValue("@BoatId", item.BoatId);
                 command.Parameters.AddWithValue("@Approved", item.Approved);
+                command.Parameters.AddWithValue("@Active", item.Active);
 
                 item.Id = Convert.ToInt32(command.ExecuteScalar());
             }
@@ -75,7 +77,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         public Reservation? Get(int id)
         {
             Reservation? reservation = null;
-            string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id, Approved FROM Reservation WHERE Id = @Id";
+            string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id, Approved, Active FROM Reservation WHERE Id = @Id";
             OpenConnection();
 
             using (SqliteCommand command = new(selectQuery, Connection))
@@ -97,7 +99,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         public List<Reservation> GetAll()
         {
             List<Reservation> reservationList = new List<Reservation>();
-            string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id, Approved FROM Reservation";
+            string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id, Approved, Active FROM Reservation";
             OpenConnection();
 
             using (SqliteCommand command = new(selectQuery, Connection))
@@ -118,7 +120,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         public List<Reservation> GetByClientId(int clientId)
         {
             List<Reservation> reservationList = new List<Reservation>();
-            string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id, Approved FROM Reservation WHERE Client_Id = @ClientId";
+            string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id, Approved, Active FROM Reservation WHERE Client_Id = @ClientId";
             OpenConnection();
 
             using (SqliteCommand command = new(selectQuery, Connection))
@@ -140,7 +142,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         public List<Reservation> GetByBoatId(int boatId)
         {
             List<Reservation> reservationList = new List<Reservation>();
-            string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id, Approved FROM Reservation WHERE Boat_Id = @BoatId";
+            string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id, Approved, Active FROM Reservation WHERE Boat_Id = @BoatId";
             OpenConnection();
 
             using (SqliteCommand command = new(selectQuery, Connection))
@@ -168,7 +170,8 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                 reader.GetInt32(4),
                 reader.GetInt32(5),
                 reader.GetBoolean(6),
-                reader.GetInt32(0)
+                reader.GetInt32(0),
+                reader.GetBoolean(7)
             );
         }
     }
