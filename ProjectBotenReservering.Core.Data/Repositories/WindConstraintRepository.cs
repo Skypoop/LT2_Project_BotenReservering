@@ -1,44 +1,40 @@
-using Microsoft.Data.Sqlite;
+using System.Data;
+using ProjectBotenReservering.Core.Interfaces.Mappers;
+using ProjectBotenReservering.Core.Interfaces.Database;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
+using ProjectBotenReservering.Core.Data.Helpers;
 using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
 {
-    public class WindConstraintRepository : DatabaseConnection, IWindConstraintRepository
+    public class WindConstraintRepository : IWindConstraintRepository
     {
-        public WindConstraintRepository()
+        private readonly IDbConnectionFactory _connectionFactory;
+        private readonly IMapper<WindConstraint> _mapper;
+
+        public WindConstraintRepository(IDbConnectionFactory connectionFactory, IMapper<WindConstraint> mapper)
         {
-            CreateTable(@"CREATE TABLE IF NOT EXISTS WindConstraint (
-                            [Windforce] INT NOT NULL PRIMARY KEY,
-                            [Min_Scull_level] INT NOT NULL,
-                            [Min_Sweep_level] INT NOT NULL)");
-
-            List<WindConstraint> windConstraints = GetAll();
-            bool anyWindConstraintsExist = windConstraints.Count > 0;
-
-            if (anyWindConstraintsExist == false)
-            {
-                for (int i = 1; i < 12; i++)
-                {
-                    int minLevel = Math.Clamp((int)MathF.Ceiling((i + 2) / 2f), 2, 4);
-                    Add(new WindConstraint(i, minLevel, minLevel));
-                }
-            }
+            _connectionFactory = connectionFactory;
+            _mapper = mapper;
         }
 
         public WindConstraint Add(WindConstraint item)
         {
             string insertQuery = @"INSERT INTO WindConstraint(Windforce, Min_Scull_level, Min_Sweep_level) 
                                    VALUES(@Windforce, @MinScullLevel, @MinSweepLevel)";
-            OpenConnection();
-            using (SqliteCommand command = new(insertQuery, Connection))
+
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@Windforce", item.Windforce);
-                command.Parameters.AddWithValue("@MinScullLevel", item.MinScullLevel);
-                command.Parameters.AddWithValue("@MinSweepLevel", item.MinSweepLevel);
-                command.ExecuteNonQuery();
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = insertQuery;
+                    command.AddParameter("@Windforce", item.Windforce);
+                    command.AddParameter("@MinScullLevel", item.MinScullLevel);
+                    command.AddParameter("@MinSweepLevel", item.MinSweepLevel);
+                    command.ExecuteNonQuery();
+                }
             }
-            CloseConnection();
             return item;
         }
 
@@ -46,25 +42,23 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         {
             WindConstraint? constraint = null;
             string selectQuery = "SELECT Windforce, Min_Scull_level, Min_Sweep_level FROM WindConstraint WHERE Windforce = @Windforce";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@Windforce", windforce);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
                 {
-                    if (reader.Read())
+                    command.CommandText = selectQuery;
+                    command.AddParameter("@Windforce", windforce);
+                    using (IDataReader reader = command.ExecuteReader())
                     {
-                        constraint = new WindConstraint(
-                            reader.GetInt32(0),
-                            reader.GetInt32(1),
-                            reader.GetInt32(2)
-                        );
+                        if (reader.Read())
+                        {
+                            constraint = _mapper.Map(reader);
+                        }
                     }
                 }
             }
-
-            CloseConnection();
             return constraint;
         }
 
@@ -72,26 +66,23 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         {
             List<WindConstraint> list = new List<WindConstraint>();
             string selectQuery = "SELECT Windforce, Min_Scull_level, Min_Sweep_level FROM WindConstraint";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                using (SqliteDataReader reader = command.ExecuteReader())
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
                 {
-                    while (reader.Read())
+                    command.CommandText = selectQuery;
+                    using (IDataReader reader = command.ExecuteReader())
                     {
-                        list.Add(new WindConstraint(
-                            reader.GetInt32(0),
-                            reader.GetInt32(1),
-                            reader.GetInt32(2)
-                        ));
+                        while (reader.Read())
+                        {
+                            list.Add(_mapper.Map(reader));
+                        }
                     }
                 }
             }
-
-            CloseConnection();
             return list;
         }
     }
 }
-

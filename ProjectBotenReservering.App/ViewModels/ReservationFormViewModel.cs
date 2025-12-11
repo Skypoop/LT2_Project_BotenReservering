@@ -18,6 +18,7 @@ public partial class ReservationFormViewModel : BaseViewModel
     private readonly IClientRepository _clientRepository;
     private readonly IReservationService _reservationService;
     private readonly IBoatAuthorizationService _boatAuthorizationService;
+    private readonly ISmtpMailService _mailService;
 
     public ReservationFormViewModel(
         IBoatTypeService boatTypeService,
@@ -81,7 +82,6 @@ public partial class ReservationFormViewModel : BaseViewModel
     [ObservableProperty]
     public partial bool HasTimeWarning { get; set; }
 
-    private readonly ISmtpMailService _mailService;
     public ObservableCollection<Client> SelectedClients { get; }
     public ObservableCollection<Client> AvailableClients { get; }
 
@@ -112,7 +112,7 @@ public partial class ReservationFormViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private async Task LoadBoatData(int id)
+    private Task LoadBoatData(int id)
     {
         BoatTypeUiItem boatType = _boatTypeService.GetBoatTypeById(id);
         CurrentBoatType = boatType;
@@ -121,14 +121,18 @@ public partial class ReservationFormViewModel : BaseViewModel
         InitializeClients();
         UpdateSeatStatus();
         UpdateQualificationFlags();
+
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
     public async Task LoadReservationsAsync()
     {
-        List<Reservation> reservations = await _reservationService.GetAll();
+        List<Reservation> reservations = _reservationService.GetAll();
         foreach (Reservation res in reservations) ReservationList.Add(res);
         InitializeEvents();
+
+        await Task.CompletedTask;
     }
 
     public void InitializeEvents()
@@ -136,7 +140,6 @@ public partial class ReservationFormViewModel : BaseViewModel
         foreach (Reservation res in ReservationList)
         {
             DateTime dayOfReservation = res.StartTime;
-            // Due to the events only allowing one entry per day, we only add the first reservation found for that day. It only uses these events to show the dots on the calendar.
             if (Events.ContainsKey(dayOfReservation)) continue;
 
             Events.Add(dayOfReservation, new List<object> { res });
@@ -286,7 +289,6 @@ public partial class ReservationFormViewModel : BaseViewModel
         {
             SelectedClients.Remove(client);
 
-            // Add back to available list if not there
             if (!AvailableClients.Any(c => c.Id == client.Id))
             {
                 AvailableClients.Add(client);
@@ -404,7 +406,6 @@ public partial class ReservationFormViewModel : BaseViewModel
             BoatId,
             true);
 
-        // Use the service to create the reservation, which handles approval logic
         _reservationService.CreateReservation(currentReservation, SelectedClients.ToList());
 
         if (!currentReservation.Approved)

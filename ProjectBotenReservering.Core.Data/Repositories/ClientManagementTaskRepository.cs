@@ -1,33 +1,39 @@
-using Microsoft.Data.Sqlite;
+using System.Data;
+using ProjectBotenReservering.Core.Interfaces.Database;
+using ProjectBotenReservering.Core.Interfaces.Mappers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
+using ProjectBotenReservering.Core.Data.Helpers;
 using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
 {
-    public class ClientManagementTaskRepository : DatabaseConnection, IClientManagementTaskRepository
+    public class ClientManagementTaskRepository : IClientManagementTaskRepository
     {
-        public ClientManagementTaskRepository()
+        private readonly IDbConnectionFactory _connectionFactory;
+        private readonly IMapper<ClientManagementTask> _mapper;
+
+        public ClientManagementTaskRepository(IDbConnectionFactory connectionFactory, IMapper<ClientManagementTask> mapper)
         {
-            CreateTable(@"CREATE TABLE IF NOT EXISTS Client_ManagementTask (
-                            [Client_Id] INT NOT NULL,
-                            [Management_Task_Id] INT NOT NULL,
-                            PRIMARY KEY (Client_Id, Management_Task_Id),
-                            FOREIGN KEY (Client_Id) REFERENCES Client(Id),
-                            FOREIGN KEY (Management_Task_Id) REFERENCES ManagementTask(Id))");
+            _connectionFactory = connectionFactory;
+            _mapper = mapper;
         }
 
         public ClientManagementTask Add(ClientManagementTask item)
         {
             string insertQuery = @"INSERT INTO Client_ManagementTask(Client_Id, Management_Task_Id) 
                                    VALUES(@ClientId, @ManagementTaskId)";
-            OpenConnection();
-            using (SqliteCommand command = new(insertQuery, Connection))
+
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@ClientId", item.ClientId);
-                command.Parameters.AddWithValue("@ManagementTaskId", item.ManagementTaskId);
-                command.ExecuteNonQuery();
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = insertQuery;
+                    command.AddParameter("@ClientId", item.ClientId);
+                    command.AddParameter("@ManagementTaskId", item.ManagementTaskId);
+                    command.ExecuteNonQuery();
+                }
             }
-            CloseConnection();
             return item;
         }
 
@@ -35,21 +41,23 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         {
             List<ClientManagementTask> list = new List<ClientManagementTask>();
             string selectQuery = "SELECT Client_Id, Management_Task_Id FROM Client_ManagementTask WHERE Client_Id = @ClientId";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@ClientId", clientId);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
                 {
-                    while (reader.Read())
+                    command.CommandText = selectQuery;
+                    command.AddParameter("@ClientId", clientId);
+                    using (IDataReader reader = command.ExecuteReader())
                     {
-                        list.Add(new ClientManagementTask(reader.GetInt32(0), reader.GetInt32(1)));
+                        while (reader.Read())
+                        {
+                            list.Add(_mapper.Map(reader));
+                        }
                     }
                 }
             }
-
-            CloseConnection();
             return list;
         }
 
@@ -57,38 +65,41 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         {
             List<ClientManagementTask> list = new List<ClientManagementTask>();
             string selectQuery = "SELECT Client_Id, Management_Task_Id FROM Client_ManagementTask WHERE Management_Task_Id = @ManagementTaskId";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@ManagementTaskId", managementTaskId);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
                 {
-                    while (reader.Read())
+                    command.CommandText = selectQuery;
+                    command.AddParameter("@ManagementTaskId", managementTaskId);
+                    using (IDataReader reader = command.ExecuteReader())
                     {
-                        list.Add(new ClientManagementTask(reader.GetInt32(0), reader.GetInt32(1)));
+                        while (reader.Read())
+                        {
+                            list.Add(_mapper.Map(reader));
+                        }
                     }
                 }
             }
-
-            CloseConnection();
             return list;
         }
 
         public void Delete(int clientId, int managementTaskId)
         {
             string deleteQuery = "DELETE FROM Client_ManagementTask WHERE Client_Id = @ClientId AND Management_Task_Id = @ManagementTaskId";
-            OpenConnection();
 
-            using (SqliteCommand command = new(deleteQuery, Connection))
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@ClientId", clientId);
-                command.Parameters.AddWithValue("@ManagementTaskId", managementTaskId);
-                command.ExecuteNonQuery();
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = deleteQuery;
+                    command.AddParameter("@ClientId", clientId);
+                    command.AddParameter("@ManagementTaskId", managementTaskId);
+                    command.ExecuteNonQuery();
+                }
             }
-
-            CloseConnection();
         }
     }
 }
-
