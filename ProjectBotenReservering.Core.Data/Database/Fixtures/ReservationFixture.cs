@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using ProjectBotenReservering.Core.Data.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Database;
 using ProjectBotenReservering.Core.Models;
@@ -13,7 +11,7 @@ namespace ProjectBotenReservering.Core.Data.Database.Fixtures
 
         public void Seed(IDbConnection connection)
         {
-            if (!IsTableEmpty(connection)) return;
+            if (!connection.IsTableEmpty("Reservation")) return;
 
             DateTime now = DateTime.Now;
             List<Reservation> reservations = new List<Reservation>
@@ -55,16 +53,6 @@ namespace ProjectBotenReservering.Core.Data.Database.Fixtures
                     command.AddParameter("@Active", res.Active);
                     command.ExecuteNonQuery();
                 }
-            }
-        }
-
-        private bool IsTableEmpty(IDbConnection connection)
-        {
-            using (IDbCommand command = connection.CreateCommand())
-            {
-                command.CommandText = "SELECT COUNT(*) FROM Reservation";
-                long count = Convert.ToInt64(command.ExecuteScalar());
-                return count == 0;
             }
         }
     }

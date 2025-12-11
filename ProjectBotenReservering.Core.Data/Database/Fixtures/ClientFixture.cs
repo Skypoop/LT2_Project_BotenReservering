@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using ProjectBotenReservering.Core.Data.Helpers;
 using ProjectBotenReservering.Core.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Database;
@@ -8,13 +6,13 @@ using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.Core.Data.Database.Fixtures
 {
-    public class ClientFixture: IDatabaseFixture
+    public class ClientFixture : IDatabaseFixture
     {
         public int Order => 2;
 
         public void Seed(IDbConnection connection)
         {
-            if (!IsTableEmpty(connection)) return;
+            if (!connection.IsTableEmpty("Client")) return;
 
             List<Client> clients = new List<Client>
             {
@@ -40,16 +38,6 @@ namespace ProjectBotenReservering.Core.Data.Database.Fixtures
                     command.AddParameter("@PasswordHash", client.PasswordHash);
                     command.ExecuteNonQuery();
                 }
-            }
-        }
-
-        private bool IsTableEmpty(IDbConnection connection)
-        {
-            using (IDbCommand command = connection.CreateCommand())
-            {
-                command.CommandText = "SELECT COUNT(*) FROM Client";
-                long count = Convert.ToInt64(command.ExecuteScalar());
-                return count == 0;
             }
         }
     }

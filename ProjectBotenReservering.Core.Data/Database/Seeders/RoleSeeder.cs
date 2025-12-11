@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using ProjectBotenReservering.Core.Data.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Database;
 
@@ -11,7 +10,7 @@ namespace ProjectBotenReservering.Core.Data.Database.Seeders
 
         public void Seed(IDbConnection connection)
         {
-            if (!IsTableEmpty(connection)) return;
+            if (!connection.IsTableEmpty("Role")) return;
 
             List<string> roles = new List<string> { "Lid", "Nieuw Lid", "Gast" };
 
@@ -23,16 +22,6 @@ namespace ProjectBotenReservering.Core.Data.Database.Seeders
                     command.AddParameter("@Name", role);
                     command.ExecuteNonQuery();
                 }
-            }
-        }
-
-        private bool IsTableEmpty(IDbConnection connection)
-        {
-            using (IDbCommand command = connection.CreateCommand())
-            {
-                command.CommandText = "SELECT COUNT(*) FROM Role";
-                long count = Convert.ToInt64(command.ExecuteScalar());
-                return count == 0;
             }
         }
     }
