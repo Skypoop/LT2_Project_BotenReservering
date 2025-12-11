@@ -28,21 +28,6 @@ namespace ProjectBotenReservering.App
         {
             MauiAppBuilder builder = MauiApp.CreateBuilder();
 
-            string writableDirectory;
-            string databaseName = "RoeiverenigingTestV.db3";
-
-#if MACCATALYST
-            writableDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            try { Directory.CreateDirectory(writableDirectory); } catch {}
-#elif ANDROID
-            writableDirectory = FileSystem.AppDataDirectory; // Maps to FilesDir.Path on Android
-#else
-            writableDirectory = AppDomain.CurrentDomain.BaseDirectory;
-#endif
-
-            string fullPath = Path.Combine(writableDirectory, databaseName);
-            string connectionString = $"Data Source={fullPath}";
-
             builder
                 .UseMauiApp<App>()
                 .UseMauiCommunityToolkit()
@@ -57,14 +42,33 @@ namespace ProjectBotenReservering.App
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-            MailSettings mailSettings = configuration.GetSection("MailConnection").Get<MailSettings>()!;
+            string writableDirectory;
+            const string databaseName = "RoeiverenigingTestV.db3";
 
+#if MACCATALYST
+            writableDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+#elif ANDROID
+            writableDirectory = FileSystem.AppDataDirectory;
+#else
+            writableDirectory = AppDomain.CurrentDomain.BaseDirectory;
+#endif
+
+            Directory.CreateDirectory(writableDirectory);
+            string fullPath = Path.Combine(writableDirectory, databaseName);
+            string connectionString = $"Data Source={fullPath}";
+
+            MailSettings mailSettings = configuration.GetSection("MailConnection").Get<MailSettings>()!;
             builder.Services.AddSingleton(mailSettings);
-            builder.Services.AddSingleton<App>();
-            builder.Services.AddSingleton<TabItemToViewHelper>();
 
             builder.Services.AddSingleton<IDbConnectionFactory>(new SqliteConnectionFactory(connectionString));
             builder.Services.AddSingleton<IDatabaseBootstrap, SqliteDatabaseBootstrap>();
+
+            builder.Services.AddSingleton<ISchemaInitializer, SqliteSchemaInitializer>();
+            builder.Services.AddTransient<IDatabaseSeeder, BoatSeeder>();
+            builder.Services.AddTransient<IDatabaseSeeder, RoleSeeder>();
+            builder.Services.AddTransient<IDatabaseSeeder, WindConstraintSeeder>();
+            builder.Services.AddTransient<IDatabaseFixture, ClientFixture>();
+            builder.Services.AddTransient<IDatabaseFixture, ReservationFixture>();
 
             builder.Services.AddSingleton<IMapper<Boat>, BoatMapper>();
             builder.Services.AddSingleton<IMapper<Client>, ClientMapper>();
@@ -80,14 +84,6 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IMapper<ClientManagementTask>, ClientManagementTaskMapper>();
             builder.Services.AddSingleton<IMapper<RoleManagementTask>, RoleManagementTaskMapper>();
             builder.Services.AddSingleton<IMapper<ReservationMatch>, ReservationMatchMapper>();
-
-            builder.Services.AddSingleton<ISchemaInitializer, SqliteSchemaInitializer>();
-            builder.Services.AddTransient<IDatabaseSeeder, BoatSeeder>();
-            builder.Services.AddTransient<IDatabaseSeeder, RoleSeeder>();
-            builder.Services.AddTransient<IDatabaseSeeder, WindConstraintSeeder>();
-            builder.Services.AddTransient<IDatabaseFixture, ClientFixture>();
-            builder.Services.AddTransient<IDatabaseFixture, ReservationFixture>();
-            builder.Services.AddSingleton<IDatabaseBootstrap, SqliteDatabaseBootstrap>();
 
             builder.Services.AddSingleton<IBoatRepository, BoatRepository>();
             builder.Services.AddSingleton<IClientRepository, ClientRepository>();
@@ -113,6 +109,8 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IClientContext, ClientContext>();
             builder.Services.AddSingleton<IAuthService, AuthService>();
 
+            builder.Services.AddSingleton<App>();
+            builder.Services.AddSingleton<TabItemToViewHelper>();
             builder.Services.AddTransient<BoatTypesView>().AddTransient<BoatTypesViewModel>();
             builder.Services.AddTransient<ReservationFormView>().AddTransient<ReservationFormViewModel>();
             builder.Services.AddTransient<SideBarView>().AddTransient<SideBarViewModel>();
