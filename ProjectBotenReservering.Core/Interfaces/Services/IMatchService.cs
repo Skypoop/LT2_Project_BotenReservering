@@ -4,7 +4,7 @@ namespace ProjectBotenReservering.Core.Interfaces.Services
 {
     public interface IMatchService
     {
-        void DeleteOverlappingReservationForMatch(int matchId, List<Reservation> reservations);
-        List<Reservation> FindOverlappingReservationForMatch(DateTime startDate, DateTime endDate, List<int> boatIds);
+        void CancelOverlappingReservationsForMatch(List<Reservation> reservations);
+        List<Reservation> FindOverlappingReservationsForMatch(DateTime startDate, DateTime endDate, List<int> boatIds);
     }
 }

@@ -15,15 +15,15 @@ namespace ProjectBotenReservering.Core.Services
             _matchRepository = matchRepository;
         }
 
-        public void DeleteOverlappingReservationForMatch(int matchId, List<Reservation> reservations)
+        public void CancelOverlappingReservationsForMatch(List<Reservation> reservations)
         {
             foreach (Reservation reservation in reservations)
             {
-                _matchRepository.CancelReservationAndUpdateStatus(reservation.Id, matchId);
+                _matchRepository.CancelReservationAndUpdateStatus(reservation.Id);
             }
         }
 
-        public List<Reservation> FindOverlappingReservationForMatch(DateTime startDate, DateTime endDate, List<int> boatIds)
+        public List<Reservation> FindOverlappingReservationsForMatch(DateTime startDate, DateTime endDate, List<int> boatIds)
         {
             List<Reservation> reservations = _reservationRepository.GetAll();
 

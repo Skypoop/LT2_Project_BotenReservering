@@ -46,7 +46,7 @@ public class MatchServiceTests
         _reservationRepository.Setup(r => r.GetAll()).Returns(allReservations);
 
         // Act
-        List<Reservation> result = _matchService.FindOverlappingReservationForMatch(startDateMatch, endDateMatch, boatIds);
+        List<Reservation> result = _matchService.FindOverlappingReservationsForMatch(startDateMatch, endDateMatch, boatIds);
 
         // Assert
         result.Should().HaveCount(3);
@@ -74,7 +74,7 @@ public class MatchServiceTests
         _reservationRepository.Setup(r => r.GetAll()).Returns(allReservations);
 
         // Act
-        List<Reservation> result = _matchService.FindOverlappingReservationForMatch(startDateMatch, endDateMatch, boatIds);
+        List<Reservation> result = _matchService.FindOverlappingReservationsForMatch(startDateMatch, endDateMatch, boatIds);
 
         // Assert
         result.Should().BeEmpty();
@@ -99,7 +99,7 @@ public class MatchServiceTests
         _reservationRepository.Setup(r => r.GetAll()).Returns(allReservations);
 
         // Act
-        List<Reservation> result = _matchService.FindOverlappingReservationForMatch(startDateMatch, endDateMatch, boatIds);
+        List<Reservation> result = _matchService.FindOverlappingReservationsForMatch(startDateMatch, endDateMatch, boatIds);
 
         // Assert
         result.Should().HaveCount(2);
@@ -119,7 +119,7 @@ public class MatchServiceTests
         _reservationRepository.Setup(r => r.GetAll()).Returns(new List<Reservation>());
 
         // Act
-        List<Reservation> result = _matchService.FindOverlappingReservationForMatch(startDateMatch, endDateMatch, boatIds);
+        List<Reservation> result = _matchService.FindOverlappingReservationsForMatch(startDateMatch, endDateMatch, boatIds);
 
         // Assert
         result.Should().BeEmpty();
@@ -138,13 +138,13 @@ public class MatchServiceTests
         };
 
         // Act
-        _matchService.DeleteOverlappingReservationForMatch(matchId, reservations);
+        _matchService.CancelOverlappingReservationsForMatch(reservations);
 
         // Assert
-        _matchRepository.Verify(m => m.CancelReservationAndUpdateStatus(1, matchId), Times.Once);
-        _matchRepository.Verify(m => m.CancelReservationAndUpdateStatus(2, matchId), Times.Once);
-        _matchRepository.Verify(m => m.CancelReservationAndUpdateStatus(3, matchId), Times.Once);
-        _matchRepository.Verify(m => m.CancelReservationAndUpdateStatus(It.IsAny<int>(), It.IsAny<int>()), Times.Exactly(3));
+        _matchRepository.Verify(m => m.CancelReservationAndUpdateStatus(1), Times.Once);
+        _matchRepository.Verify(m => m.CancelReservationAndUpdateStatus(2), Times.Once);
+        _matchRepository.Verify(m => m.CancelReservationAndUpdateStatus(3), Times.Once);
+        _matchRepository.Verify(m => m.CancelReservationAndUpdateStatus(It.IsAny<int>()), Times.Exactly(3));
     }
 
     [Test]
@@ -155,9 +155,9 @@ public class MatchServiceTests
         List<Reservation> reservations = new List<Reservation>();
 
         // Act
-        _matchService.DeleteOverlappingReservationForMatch(matchId, reservations);
+        _matchService.CancelOverlappingReservationsForMatch(reservations);
 
         // Assert
-        _matchRepository.Verify(m => m.CancelReservationAndUpdateStatus(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        _matchRepository.Verify(m => m.CancelReservationAndUpdateStatus(It.IsAny<int>()), Times.Never);
     }
 }

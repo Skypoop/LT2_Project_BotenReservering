@@ -149,23 +149,13 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return match;
         }
 
-        public void CancelReservationAndUpdateStatus(int reservationId, int matchId)
+        public void CancelReservationAndUpdateStatus(int reservationId)
         {
             OpenConnection();
             using (SqliteTransaction transaction = Connection.BeginTransaction())
             {
                 try
                 {
-                    // Delete from Reservation_Match
-                    string deleteLinkQuery =
-                        "DELETE FROM Reservation_Match WHERE Match_Id = @MatchId AND Reservation_Id = @ReservationId";
-                    using (SqliteCommand command = new(deleteLinkQuery, Connection, transaction))
-                    {
-                        command.Parameters.AddWithValue("@MatchId", matchId);
-                        command.Parameters.AddWithValue("@ReservationId", reservationId);
-                        command.ExecuteNonQuery();
-                    }
-
                     // Update reservation status to cancelled (Active = false)
                     string updateStatusQuery = "UPDATE Reservation SET Active = 0 WHERE Id = @ReservationId";
                     using (SqliteCommand command = new(updateStatusQuery, Connection, transaction))
