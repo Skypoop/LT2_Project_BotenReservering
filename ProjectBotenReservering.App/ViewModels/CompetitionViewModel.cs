@@ -45,19 +45,24 @@ public partial class CompetitionViewModel : BaseViewModel
     [RelayCommand]
     private async Task CreateMatch()
     {
+        if(_selectedBoatType  == null)
+        {
+            return;
+        }
+
         DateTime startDateTime = StartDate.Date + StartTime;
         DateTime endDateTime = EndDate.Date + EndTime;
 
         List<Reservation> reservations = _matchService.FindOverlappingReservationForMatch(startDateTime, endDateTime, _selectedBoatType.Select(b => b.Id).ToList());
 
-        if (reservations.Count == 0)
+        if (reservations.Count > 0)
         {
-            bool answer = await Shell.Current.DisplayAlert("Attentie reserveringen worden beinvloed", $"Om ruimtem te maken voor deze wedstrijd worden er {reservations.Count} reserveringen geannuleerd. Tijdens het aanmaken, Ga je akkoord hiermee?", "OK", "Terug");
+            bool answer = await Shell.Current.DisplayAlert("Attentie reserveringen worden beinvloed", $"Om ruimtem te maken voor deze wedstrijd worden er {reservations.Count} reserveringen geannuleerd. Tijdens het aanmaken, ga je akkoord hiermee?", "OK", "Terug");
 
             if (answer)
             {
                 _matchService.DeleteOverlappingReservationForMatch(_matchRepository.GetAll().Count + 1, reservations);
-                //Implement here make the accually match make function
+                //Implement here make the actually match make function
             }
             else
             {
@@ -65,7 +70,7 @@ public partial class CompetitionViewModel : BaseViewModel
             }
         } else
         {
-            //Implement here make the accually match make function
+            //Implement here make the actually match make function
         }
     }
 }

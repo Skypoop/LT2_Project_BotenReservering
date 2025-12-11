@@ -1,5 +1,4 @@
-﻿using ProjectBotenReservering.Core.Interfaces.Context;
-using ProjectBotenReservering.Core.Interfaces.Repositories;
+﻿using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 
@@ -28,7 +27,7 @@ namespace ProjectBotenReservering.Core.Services
         {
             List<Reservation> reservations = _reservationRepository.GetAll();
 
-            return reservations.Where(r => r.StartTime < endDate && r.EndTime > startDate && boatIds.Contains(r.BoatId)).ToList();
+            return reservations.Where(r => r.Active && r.StartTime < endDate && r.EndTime > startDate && boatIds.Contains(r.BoatId)).ToList();
         }
     }
 }
