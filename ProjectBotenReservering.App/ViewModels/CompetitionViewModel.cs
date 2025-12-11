@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 
@@ -8,6 +9,7 @@ namespace ProjectBotenReservering.App.ViewModels;
 public partial class CompetitionViewModel : BaseViewModel
 {
     private readonly IMatchService _matchService;
+    private readonly IMatchRepository _matchRepository;
     private List<Boat> _selectedBoatType;
 
     [ObservableProperty]
@@ -34,9 +36,10 @@ public partial class CompetitionViewModel : BaseViewModel
     [ObservableProperty]
     public partial int CalculatedPersonCount { get; set; }
 
-    public CompetitionViewModel(IMatchService matchService)
+    public CompetitionViewModel(IMatchService matchService, IMatchRepository matchRepository)
     {
         _matchService = matchService;
+        _matchRepository = matchRepository;
     }
 
     [RelayCommand]
@@ -45,13 +48,15 @@ public partial class CompetitionViewModel : BaseViewModel
         DateTime startDateTime = StartDate.Date + StartTime;
         DateTime endDateTime = EndDate.Date + EndTime;
 
-        if (_matchService.FindOverlappingReservationForMatch(startDateTime, endDateTime, _selectedBoatType.Select(b => b.Id).ToList()).Count > 0)
+        List<Reservation> reservations = _matchService.FindOverlappingReservationForMatch(startDateTime, endDateTime, _selectedBoatType.Select(b => b.Id).ToList());
+
+        if (reservations.Count == 0)
         {
-            int amountLappingReservations = _matchService.FindOverlappingReservationForMatch(startDateTime, endDateTime, _selectedBoatType.Select(b => b.Id).ToList()).Count;
-            bool answer = await Shell.Current.DisplayAlert("Waarschuwing", $"LET OP: Er zijn {amountLappingReservations}", "Inplannen", "Terug");
+            bool answer = await Shell.Current.DisplayAlert("Attentie reserveringen worden beinvloed", $"Om ruimtem te maken voor deze wedstrijd worden er {reservations.Count} reserveringen geannuleerd. Tijdens het aanmaken, Ga je akkoord hiermee?", "OK", "Terug");
 
             if (answer)
             {
+                _matchService.DeleteOverlappingReservationForMatch(_matchRepository.GetAll().Count + 1, reservations);
                 //Implement here make the accually match make function
             }
             else
