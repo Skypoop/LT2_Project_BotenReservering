@@ -390,7 +390,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         DateTime endDateTime   = SelectedDate.Date.Add(EndTime);
         if (EndTime <= StartTime)
         {
-            await Shell.Current.DisplayAlert("Error", "Eindtijd moe t na starttijd zijn.", "OK");
+            await Shell.Current.DisplayAlert("Error", "Eindtijd moet na starttijd zijn.", "OK");
             return;
         }
         if (_reservationService.IsReservationTimeBlocked(Reservations, startDateTime, endDateTime, CurrentBoatType)) {

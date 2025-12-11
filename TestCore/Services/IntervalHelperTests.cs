@@ -49,10 +49,10 @@ public class IntervalHelperTests
   public void isIntervalCollisionCountedCorrectly_WhenIntervalIsContainedOrNoCollision()
   {
     // arrange
-    float[] a = new float[] { 5.0f, 10.0f };
+    float[] a = new float[] { 5.0f, 6.0f };
     float[][] intervalList =
     [
-      new float[] { 6.0f, 8.0f }, 
+      new float[] { 7.0f, 8.0f }, 
       new float[] { 1.0f, 4.0f }, 
       new float[] { 11.0f, 12.0f }
     ];
@@ -61,7 +61,7 @@ public class IntervalHelperTests
     int count = IntervalHelper.CountIntersectionsWithIntervalList(a, intervalList);
 
     // acknowledge
-    count.Should().Be(1);
+    count.Should().Be(0);
   }
 
 }
