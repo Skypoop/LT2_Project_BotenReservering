@@ -9,14 +9,14 @@ namespace ProjectBotenReservering.Core.Data.Mappers
         public Client Map(IDataReader reader)
         {
             return new Client(
-                reader.GetString(1),
-                reader.GetString(2),
-                reader.GetInt32(3),
-                reader.GetInt32(4),
-                reader.IsDBNull(5) ? null : reader.GetString(5),
-                reader.GetBoolean(6),
-                reader.GetString(7),
-                reader.GetInt32(0)
+                reader.GetString(reader.GetOrdinal("Full_Name")),
+                reader.GetString(reader.GetOrdinal("Email")),
+                reader.GetInt32(reader.GetOrdinal("Scull_level")),
+                reader.GetInt32(reader.GetOrdinal("Sweep_level")),
+                reader.IsDBNull(reader.GetOrdinal("Club")) ? null : reader.GetString(reader.GetOrdinal("Club")),
+                reader.GetBoolean(reader.GetOrdinal("Approved")),
+                reader.GetString(reader.GetOrdinal("Password_Hash")),
+                reader.GetInt32(reader.GetOrdinal("Id"))
             );
         }
     }

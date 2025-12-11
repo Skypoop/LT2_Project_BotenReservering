@@ -9,12 +9,12 @@ namespace ProjectBotenReservering.Core.Data.Mappers
         public DamageReport Map(IDataReader reader)
         {
             return new DamageReport(
-                reader.GetInt32(0),
-                reader.GetInt32(1),
-                reader.GetInt32(2),
-                reader.GetString(3),
-                reader.GetDateTime(4),
-                reader.GetBoolean(5)
+                reader.GetInt32(reader.GetOrdinal("Id")),
+                reader.GetInt32(reader.GetOrdinal("Client_Id")),
+                reader.GetInt32(reader.GetOrdinal("Boat_Id")),
+                reader.GetString(reader.GetOrdinal("Damage_Information")),
+                reader.GetDateTime(reader.GetOrdinal("Date")),
+                reader.GetBoolean(reader.GetOrdinal("Approved"))
             );
         }
     }

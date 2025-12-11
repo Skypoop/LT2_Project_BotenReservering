@@ -9,9 +9,9 @@ namespace ProjectBotenReservering.Core.Data.Mappers
         public WindConstraint Map(IDataReader reader)
         {
             return new WindConstraint(
-                reader.GetInt32(0),
-                reader.GetInt32(1),
-                reader.GetInt32(2)
+                reader.GetInt32(reader.GetOrdinal("Windforce")),
+                reader.GetInt32(reader.GetOrdinal("Min_Scull_level")),
+                reader.GetInt32(reader.GetOrdinal("Min_Sweep_level"))
             );
         }
     }

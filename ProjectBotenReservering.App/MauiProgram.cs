@@ -43,7 +43,7 @@ namespace ProjectBotenReservering.App
                 .Build();
 
             string writableDirectory;
-            const string databaseName = "RoeiverenigingTestV.db3";
+            const string databaseName = "Roeivereniging.db";
 
 #if MACCATALYST
             writableDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);

@@ -8,7 +8,10 @@ namespace ProjectBotenReservering.Core.Data.Mappers
     {
         public RoleManagementTask Map(IDataReader reader)
         {
-            return new RoleManagementTask(reader.GetString(0), reader.GetInt32(1));
+            return new RoleManagementTask(
+                reader.GetString(reader.GetOrdinal("Role_Id")),
+                reader.GetInt32(reader.GetOrdinal("ManagementTask_Id"))
+            );
         }
     }
 }

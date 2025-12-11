@@ -8,7 +8,10 @@ namespace ProjectBotenReservering.Core.Data.Mappers
     {
         public ClientManagementTask Map(IDataReader reader)
         {
-            return new ClientManagementTask(reader.GetInt32(0), reader.GetInt32(1));
+            return new ClientManagementTask(
+                reader.GetInt32(reader.GetOrdinal("Client_Id")),
+                reader.GetInt32(reader.GetOrdinal("ManagementTask_Id"))
+            );
         }
     }
 }

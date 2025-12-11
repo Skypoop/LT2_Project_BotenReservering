@@ -8,7 +8,10 @@ namespace ProjectBotenReservering.Core.Data.Mappers
     {
         public ClientRole Map(IDataReader reader)
         {
-            return new ClientRole(reader.GetString(0), reader.GetInt32(1));
+            return new ClientRole(
+                reader.GetString(reader.GetOrdinal("Role_Name")),
+                reader.GetInt32(reader.GetOrdinal("Client_Id"))
+            );
         }
     }
 }

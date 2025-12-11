@@ -8,7 +8,10 @@ namespace ProjectBotenReservering.Core.Data.Mappers
     {
         public ClientReservation Map(IDataReader reader)
         {
-            return new ClientReservation(reader.GetInt32(0), reader.GetInt32(1));
+            return new ClientReservation(
+                reader.GetInt32(reader.GetOrdinal("Client_Id")),
+                reader.GetInt32(reader.GetOrdinal("Reservation_Id"))
+            );
         }
     }
 }
