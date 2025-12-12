@@ -151,7 +151,6 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                 {
                     try
                     {
-                        // Bouw de IN clause met parameters
                         string parameters = string.Join(",",
                             reservationIds.Select((_, i) => $"@Id{i}"));
 
@@ -162,7 +161,6 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                             command.Transaction = transaction;
                             command.CommandText = updateQuery;
 
-                            // Voeg alle parameters toe
                             for (int i = 0; i < reservationIds.Count; i++)
                             {
                                 command.AddParameter($"@Id{i}", reservationIds[i]);
