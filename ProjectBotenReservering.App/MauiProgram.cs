@@ -83,7 +83,7 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IMapper<ClientRole>, ClientRoleMapper>();
             builder.Services.AddSingleton<IMapper<ClientManagementTask>, ClientManagementTaskMapper>();
             builder.Services.AddSingleton<IMapper<RoleManagementTask>, RoleManagementTaskMapper>();
-            builder.Services.AddSingleton<IMapper<ReservationMatch>, ReservationMatchMapper>();
+            builder.Services.AddSingleton<IMapper<ReservationCompetition>, ReservationCompetitionMapper>();
 
             builder.Services.AddSingleton<IBoatRepository, BoatRepository>();
             builder.Services.AddSingleton<IClientRepository, ClientRepository>();
@@ -98,7 +98,7 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IClientManagementTaskRepository, ClientManagementTaskRepository>();
             builder.Services.AddSingleton<IRoleManagementTaskRepository, RoleManagementTaskRepository>();
             builder.Services.AddSingleton<ICompetitionRepository, CompetitionRepository>();
-            builder.Services.AddSingleton<IReservationMatchRepository, ReservationMatchRepository>();
+            builder.Services.AddSingleton<IReservationCompetitionRepository, ReservationCompetitionRepository>();
 
             builder.Services.AddSingleton<ISmtpMailService, SmtpMailService>();
             builder.Services.AddSingleton<IWeatherService, WeatherService>();

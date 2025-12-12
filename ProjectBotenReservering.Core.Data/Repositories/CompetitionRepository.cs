@@ -42,7 +42,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
 
         public Competition? Get(int id)
         {
-            Competition? match = null;
+            Competition? competition = null;
             string selectQuery = "SELECT Id, Start_DateTime, End_DateTime, Competition_Name FROM Competition WHERE Id = @Id";
 
             using (IDbConnection connection = _connectionFactory.CreateConnection())
@@ -56,17 +56,17 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                     {
                         if (reader.Read())
                         {
-                            match = _mapper.Map(reader);
+                            competition = _mapper.Map(reader);
                         }
                     }
                 }
             }
-            return match;
+            return competition;
         }
 
         public List<Competition> GetAll()
         {
-            List<Competition> matchList = new List<Competition>();
+            List<Competition> competitionList = new List<Competition>();
             string selectQuery = "SELECT Id, Start_DateTime, End_DateTime, Competition_Name FROM Competition";
 
             using (IDbConnection connection = _connectionFactory.CreateConnection())
@@ -79,12 +79,12 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                     {
                         while (reader.Read())
                         {
-                            matchList.Add(_mapper.Map(reader));
+                            competitionList.Add(_mapper.Map(reader));
                         }
                     }
                 }
             }
-            return matchList;
+            return competitionList;
         }
 
         public void Delete(int id)

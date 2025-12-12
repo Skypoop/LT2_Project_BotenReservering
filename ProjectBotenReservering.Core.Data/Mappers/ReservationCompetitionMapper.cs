@@ -4,12 +4,12 @@ using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.Core.Data.Mappers
 {
-    public class ReservationMatchMapper : IMapper<ReservationMatch>
+    public class ReservationCompetitionMapper : IMapper<ReservationCompetition>
     {
-        public ReservationMatch Map(IDataReader reader)
+        public ReservationCompetition Map(IDataReader reader)
         {
-            return new ReservationMatch(
-                reader.GetInt32(reader.GetOrdinal("Match_Id")),
+            return new ReservationCompetition(
+                reader.GetInt32(reader.GetOrdinal("Competition_Id")),
                 reader.GetInt32(reader.GetOrdinal("Reservation_Id")),
                 reader.GetString(reader.GetOrdinal("Team_Name"))
             );
