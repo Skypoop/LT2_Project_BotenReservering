@@ -7,8 +7,8 @@ namespace ProjectBotenReservering.App.ViewModels;
 
 public partial class CompetitionViewModel : BaseViewModel
 {
-    private readonly IMatchService _matchService;
-    private List<Boat> _selectedBoatType;
+    private readonly IReservationService _reservationService;
+    private List<Boat> _selectedBoats;
 
     [ObservableProperty]
     public partial string CompetitionName { get; set; } = string.Empty;
@@ -34,15 +34,15 @@ public partial class CompetitionViewModel : BaseViewModel
     [ObservableProperty]
     public partial int CalculatedPersonCount { get; set; }
 
-    public CompetitionViewModel(IMatchService matchService)
+    public CompetitionViewModel(IReservationService reservationService)
     {
-        _matchService = matchService;
+        _reservationService = reservationService;
     }
 
     [RelayCommand]
     private async Task CreateMatch()
     {
-        if (_selectedBoatType  == null)
+        if (_selectedBoats == null)
         {
             return;
         }
@@ -58,7 +58,7 @@ public partial class CompetitionViewModel : BaseViewModel
 
     private async Task<bool> ReservationsNotOverlappingWithTheMatch(DateTime startDateTime, DateTime endDateTime)
     {
-        List<Reservation> overlappingReservations = _matchService.FindOverlappingReservationsForMatch(startDateTime, endDateTime, _selectedBoatType.Select(b => b.Id).ToList());
+        List<Reservation> overlappingReservations = _reservationService.FindOverlappingReservations(startDateTime, endDateTime, _selectedBoats.Select(b => b.Id).ToList());
 
         if (overlappingReservations.Count > 0)
         {
@@ -70,15 +70,20 @@ public partial class CompetitionViewModel : BaseViewModel
 
     private async Task<bool> ShowWarningOverlappingReservationsDialog(List<Reservation> overlappingReservations)
     {
-        bool answer = await Shell.Current.DisplayAlert("Attentie reserveringen worden beïnvloed", $"Om ruimte te maken voor deze wedstrijd worden er {overlappingReservations.Count} reserveringen geannuleerd. Tijdens het aanmaken, ga je akkoord hiermee?", "Terug", "OK");
+        bool answer = await Shell.Current.DisplayAlert("Attentie reserveringen worden beïnvloed", $"Om ruimte te maken voor deze wedstrijd worden er {overlappingReservations.Count} reserveringen geannuleerd. Tijdens het aanmaken, ga je akkoord hiermee?", "OK", "Terug");
 
-        if (!answer)
+        if (answer)
         {
-            _matchService.CancelOverlappingReservationsForMatch(overlappingReservations);
+            CancelOverlappingReservations(overlappingReservations);
 
             return true;
         }
 
         return false;
+    }
+
+    private void CancelOverlappingReservations(List<Reservation> overlappingReservations)
+    {
+        _reservationService.CancelOverlappingReservations(overlappingReservations);
     }
 }

@@ -138,5 +138,48 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             }
             return reservationList;
         }
+
+        public void CancelReservationsByIds(List<int> reservationIds)
+        {
+            if (reservationIds == null || reservationIds.Count == 0)
+                return;
+
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
+            {
+                connection.Open();
+                using (IDbTransaction transaction = connection.BeginTransaction())
+                {
+                    try
+                    {
+                        // Bouw de IN clause met parameters
+                        string parameters = string.Join(",",
+                            reservationIds.Select((_, i) => $"@Id{i}"));
+
+                        string updateQuery = $"UPDATE Reservation SET Active = 0 WHERE Id IN ({parameters})";
+
+                        using (IDbCommand command = connection.CreateCommand())
+                        {
+                            command.Transaction = transaction;
+                            command.CommandText = updateQuery;
+
+                            // Voeg alle parameters toe
+                            for (int i = 0; i < reservationIds.Count; i++)
+                            {
+                                command.AddParameter($"@Id{i}", reservationIds[i]);
+                            }
+
+                            command.ExecuteNonQuery();
+                        }
+
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
     }
 }

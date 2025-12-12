@@ -9,4 +9,5 @@ public interface IReservationRepository
     List<Reservation> GetAll();
     List<Reservation> GetByClientId(int clientId);
     List<Reservation> GetByBoatId(int boatId);
+    void CancelReservationsByIds(List<int> reservationIds);
 }

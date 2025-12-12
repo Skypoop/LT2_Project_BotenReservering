@@ -11,7 +11,7 @@ public class MatchServiceTests
 {
     private Mock<IReservationRepository> _reservationRepository;
     private Mock<IMatchRepository> _matchRepository;
-    private MatchService _matchService;
+    private CompetitionService _matchService;
 
     [SetUp]
     public void SetUp()
