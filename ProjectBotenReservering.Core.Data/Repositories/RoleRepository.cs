@@ -1,33 +1,37 @@
-using Microsoft.Data.Sqlite;
+using System.Data;
+using ProjectBotenReservering.Core.Interfaces.Mappers;
+using ProjectBotenReservering.Core.Interfaces.Database;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
+using ProjectBotenReservering.Core.Data.Helpers;
 using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
 {
-    public class RoleRepository : DatabaseConnection, IRoleRepository
+    public class RoleRepository : IRoleRepository
     {
-        public RoleRepository()
+        private readonly IDbConnectionFactory _connectionFactory;
+        private readonly IMapper<Role> _mapper;
+
+        public RoleRepository(IDbConnectionFactory connectionFactory, IMapper<Role> mapper)
         {
-            CreateTable(@"CREATE TABLE IF NOT EXISTS Role (
-                            [Name] VARCHAR(50) NOT NULL PRIMARY KEY UNIQUE)");
-            if (GetAll().Count == 0)
-            {
-                Add(new Role("Lid"));
-                Add(new Role("Nieuw Lid"));
-                Add(new Role("Gast"));
-            }
+            _connectionFactory = connectionFactory;
+            _mapper = mapper;
         }
 
         public Role Add(Role item)
         {
             string insertQuery = @"INSERT INTO Role(Name) VALUES(@Name)";
-            OpenConnection();
-            using (SqliteCommand command = new(insertQuery, Connection))
+
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@Name", item.Name);
-                command.ExecuteNonQuery();
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = insertQuery;
+                    command.AddParameter("@Name", item.Name);
+                    command.ExecuteNonQuery();
+                }
             }
-            CloseConnection();
             return item;
         }
 
@@ -35,21 +39,23 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         {
             Role? role = null;
             string selectQuery = "SELECT Name FROM Role WHERE Name = @Name";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@Name", name);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
                 {
-                    if (reader.Read())
+                    command.CommandText = selectQuery;
+                    command.AddParameter("@Name", name);
+                    using (IDataReader reader = command.ExecuteReader())
                     {
-                        role = new Role(reader.GetString(0));
+                        if (reader.Read())
+                        {
+                            role = _mapper.Map(reader);
+                        }
                     }
                 }
             }
-
-            CloseConnection();
             return role;
         }
 
@@ -57,22 +63,24 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         {
             List<Role> roleList = new List<Role>();
             string selectQuery = "SELECT Name FROM Role";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                using (SqliteDataReader reader = command.ExecuteReader())
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
                 {
-                    while (reader.Read())
+                    command.CommandText = selectQuery;
+                    using (IDataReader reader = command.ExecuteReader())
                     {
-                        roleList.Add(new Role(reader.GetString(0)));
+                        while (reader.Read())
+                        {
+                            roleList.Add(_mapper.Map(reader));
+                        }
                     }
                 }
             }
-
-            CloseConnection();
             return roleList;
         }
+
     }
 }
-

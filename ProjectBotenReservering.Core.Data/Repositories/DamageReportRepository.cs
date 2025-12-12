@@ -1,22 +1,21 @@
-using Microsoft.Data.Sqlite;
+using System.Data;
+using ProjectBotenReservering.Core.Interfaces.Mappers;
+using ProjectBotenReservering.Core.Interfaces.Database;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
+using ProjectBotenReservering.Core.Data.Helpers;
 using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
 {
-    public class DamageReportRepository : DatabaseConnection, IDamageReportRepository
+    public class DamageReportRepository : IDamageReportRepository
     {
-        public DamageReportRepository()
+        private readonly IDbConnectionFactory _connectionFactory;
+        private readonly IMapper<DamageReport> _mapper;
+
+        public DamageReportRepository(IDbConnectionFactory connectionFactory, IMapper<DamageReport> mapper)
         {
-            CreateTable(@"CREATE TABLE IF NOT EXISTS DamageReport (
-                            [Id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                            [Client_Id] INT NOT NULL,
-                            [Boat_Id] INT NOT NULL,
-                            [Damage_Information] LONGVARCHAR NOT NULL,
-                            [Date] DATETIME NOT NULL,
-                            [Approved] BOOLEAN NOT NULL,
-                            FOREIGN KEY (Client_Id) REFERENCES Client(Id),
-                            FOREIGN KEY (Boat_Id) REFERENCES Boat(Id))");
+            _connectionFactory = connectionFactory;
+            _mapper = mapper;
         }
 
         public DamageReport Add(DamageReport item)
@@ -24,18 +23,22 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             string insertQuery = @"INSERT INTO DamageReport(Client_Id, Boat_Id, Damage_Information, Date, Approved) 
                                    VALUES(@ClientId, @BoatId, @DamageInformation, @Date, @Approved);
                                    SELECT last_insert_rowid();";
-            OpenConnection();
-            using (SqliteCommand command = new(insertQuery, Connection))
-            {
-                command.Parameters.AddWithValue("@ClientId", item.ClientId);
-                command.Parameters.AddWithValue("@BoatId", item.BoatId);
-                command.Parameters.AddWithValue("@DamageInformation", item.DamageInformation);
-                command.Parameters.AddWithValue("@Date", item.Date);
-                command.Parameters.AddWithValue("@Approved", item.Approved);
 
-                item.Id = Convert.ToInt32(command.ExecuteScalar());
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
+            {
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = insertQuery;
+                    command.AddParameter("@ClientId", item.ClientId);
+                    command.AddParameter("@BoatId", item.BoatId);
+                    command.AddParameter("@DamageInformation", item.DamageInformation);
+                    command.AddParameter("@Date", item.Date);
+                    command.AddParameter("@Approved", item.Approved);
+
+                    item.Id = Convert.ToInt32(command.ExecuteScalar());
+                }
             }
-            CloseConnection();
             return item;
         }
 
@@ -43,21 +46,23 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         {
             DamageReport? damageReport = null;
             string selectQuery = "SELECT Id, Client_Id, Boat_Id, Damage_Information, Date, Approved FROM DamageReport WHERE Id = @Id";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@Id", id);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
                 {
-                    if (reader.Read())
+                    command.CommandText = selectQuery;
+                    command.AddParameter("@Id", id);
+                    using (IDataReader reader = command.ExecuteReader())
                     {
-                        damageReport = MapReaderToDamageReport(reader);
+                        if (reader.Read())
+                        {
+                            damageReport = _mapper.Map(reader);
+                        }
                     }
                 }
             }
-
-            CloseConnection();
             return damageReport;
         }
 
@@ -65,20 +70,22 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         {
             List<DamageReport> damageReportList = new List<DamageReport>();
             string selectQuery = "SELECT Id, Client_Id, Boat_Id, Damage_Information, Date, Approved FROM DamageReport";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                using (SqliteDataReader reader = command.ExecuteReader())
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
                 {
-                    while (reader.Read())
+                    command.CommandText = selectQuery;
+                    using (IDataReader reader = command.ExecuteReader())
                     {
-                        damageReportList.Add(MapReaderToDamageReport(reader));
+                        while (reader.Read())
+                        {
+                            damageReportList.Add(_mapper.Map(reader));
+                        }
                     }
                 }
             }
-
-            CloseConnection();
             return damageReportList;
         }
 
@@ -86,21 +93,23 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         {
             List<DamageReport> damageReportList = new List<DamageReport>();
             string selectQuery = "SELECT Id, Client_Id, Boat_Id, Damage_Information, Date, Approved FROM DamageReport WHERE Client_Id = @ClientId";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@ClientId", clientId);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
                 {
-                    while (reader.Read())
+                    command.CommandText = selectQuery;
+                    command.AddParameter("@ClientId", clientId);
+                    using (IDataReader reader = command.ExecuteReader())
                     {
-                        damageReportList.Add(MapReaderToDamageReport(reader));
+                        while (reader.Read())
+                        {
+                            damageReportList.Add(_mapper.Map(reader));
+                        }
                     }
                 }
             }
-
-            CloseConnection();
             return damageReportList;
         }
 
@@ -108,35 +117,24 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         {
             List<DamageReport> damageReportList = new List<DamageReport>();
             string selectQuery = "SELECT Id, Client_Id, Boat_Id, Damage_Information, Date, Approved FROM DamageReport WHERE Boat_Id = @BoatId";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@BoatId", boatId);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
                 {
-                    while (reader.Read())
+                    command.CommandText = selectQuery;
+                    command.AddParameter("@BoatId", boatId);
+                    using (IDataReader reader = command.ExecuteReader())
                     {
-                        damageReportList.Add(MapReaderToDamageReport(reader));
+                        while (reader.Read())
+                        {
+                            damageReportList.Add(_mapper.Map(reader));
+                        }
                     }
                 }
             }
-
-            CloseConnection();
             return damageReportList;
-        }
-
-        private DamageReport MapReaderToDamageReport(SqliteDataReader reader)
-        {
-            return new DamageReport(
-                reader.GetInt32(0),
-                reader.GetInt32(1),
-                reader.GetInt32(2),
-                reader.GetString(3),
-                reader.GetDateTime(4),
-                reader.GetBoolean(5)
-            );
         }
     }
 }
-

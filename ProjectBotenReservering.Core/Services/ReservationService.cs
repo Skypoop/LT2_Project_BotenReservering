@@ -66,7 +66,7 @@ public class ReservationService : IReservationService
         return true;
     }
 
-    public async Task<List<Reservation>> GetAll()
+    public List<Reservation> GetAll()
     {
         return _reservationRepository.GetAll();
     }
