@@ -125,13 +125,15 @@ public partial class ReservationFormViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    public async Task LoadReservationsAsync()
+    public Task LoadReservationsAsync()
     {
         List<Reservation> reservations = _reservationService.GetAll();
-        foreach (Reservation res in reservations) ReservationList.Add(res);
+        foreach (Reservation res in reservations)
+            ReservationList.Add(res);
+
         InitializeEvents();
 
-        await Task.CompletedTask;
+        return Task.CompletedTask;
     }
 
     public void InitializeEvents()

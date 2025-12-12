@@ -30,7 +30,7 @@ namespace ProjectBotenReservering.Core.Data.Database.Fixtures
                 new Reservation(now, now.AddDays(1).AddHours(9), now.AddDays(1).AddHours(11), 2, 2, true),
                 new Reservation(now, now.AddDays(3).AddHours(15), now.AddDays(3).AddHours(17), 1, 2, true),
                 new Reservation(now, now.AddDays(5).AddHours(8), now.AddDays(5).AddHours(10).AddMinutes(10), 1, 2, true),
-                new Reservation(now, now.AddDays(12).AddHours(2), now.AddDays(12).AddHours(1), 3, 2, true),
+                new Reservation(now, now.AddDays(12).AddHours(1), now.AddDays(12).AddHours(3), 3, 2, true),
                 new Reservation(now, now.AddDays(18).AddHours(3), now.AddDays(18).AddHours(5), 2, 2, true),
                 new Reservation(now, now.AddDays(21).AddHours(7), now.AddDays(21).AddHours(12), 1, 2, true),
                 new Reservation(now, now.AddDays(24).AddHours(13), now.AddDays(24).AddHours(15), 2, 2, true),

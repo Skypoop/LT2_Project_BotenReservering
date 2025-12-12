@@ -6,7 +6,7 @@ namespace ProjectBotenReservering.Core.Data.Database.Seeders
 {
     public class WindConstraintSeeder : IDatabaseSeeder
     {
-        public int Order => 1;
+        public int Order => 2;
 
         public void Seed(IDbConnection connection)
         {
