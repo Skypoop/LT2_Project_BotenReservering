@@ -154,7 +154,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return match;
         }
 
-        public void CancelReservationAndUpdateStatus(int reservationId, int matchId)
+        public void CancelReservationAndUpdateStatus(int reservationId)
         {
             using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
