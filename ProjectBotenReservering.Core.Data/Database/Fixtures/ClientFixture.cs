@@ -16,11 +16,11 @@ namespace ProjectBotenReservering.Core.Data.Database.Fixtures
 
             List<Client> clients = new List<Client>
             {
-                new Client("Joe Doe", "joe.doe@example.com", 1, 2, "River Club", true, PasswordHelper.HashPassword("hash1"), 0),
-                new Client("Jane Smith", "jane.smith@example.com", 2, 1, "Lakeside Club", false, PasswordHelper.HashPassword("hash2"), 0),
-                new Client("Bob Brown", "bob.brown@example.com", 3, 3, null, false, PasswordHelper.HashPassword("hash3"), 0),
-                new Client("Alice Green", "alice.green@example.com", 0, 1, "Harbor Club", true, PasswordHelper.HashPassword("hash4"), 0),
-                new Client("Eve White", "eve.white@example.com", 1, 0, "Coast Club", false, PasswordHelper.HashPassword("hash5"), 0)
+                new Client("Joe Doe", "joe.doe@example.com", 1, 2, "Remus Invictus", true, PasswordHelper.HashPassword("hash1"), 0),
+                new Client("Jane Smith", "jane.smith@example.com", 2, 1, "Remus Invictus", false, PasswordHelper.HashPassword("hash2"), 0),
+                new Client("Bob Brown", "bob.brown@example.com", 3, 3, "Remus Invictus", false, PasswordHelper.HashPassword("hash3"), 0),
+                new Client("Alice Green", "alice.green@example.com", 0, 1, "Remus Invictus", true, PasswordHelper.HashPassword("hash4"), 0),
+                new Client("Eve White", "eve.white@example.com", 1, 0, "Remus Invictus", false, PasswordHelper.HashPassword("hash5"), 0)
             };
 
             foreach (Client client in clients)
