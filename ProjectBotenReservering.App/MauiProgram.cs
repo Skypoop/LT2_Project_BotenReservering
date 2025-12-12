@@ -60,7 +60,8 @@ namespace ProjectBotenReservering.App
             MailSettings mailSettings = configuration.GetSection("MailConnection").Get<MailSettings>()!;
             builder.Services.AddSingleton(mailSettings);
 
-            builder.Services.AddSingleton<IDbConnectionFactory>(provider => new SqliteConnectionFactory(connectionString));
+            builder.Services.AddSingleton<IDbConnectionFactory>(provider =>
+                new SqliteConnectionFactory(connectionString));
             builder.Services.AddSingleton<IDatabaseBootstrap, SqliteDatabaseBootstrap>();
 
             builder.Services.AddSingleton<ISchemaInitializer, SqliteSchemaInitializer>();
@@ -99,6 +100,8 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IRoleManagementTaskRepository, RoleManagementTaskRepository>();
             builder.Services.AddSingleton<IMatchRepository, MatchRepository>();
             builder.Services.AddSingleton<IReservationMatchRepository, ReservationMatchRepository>();
+            builder.Services.AddSingleton<ILlmRepository, LlmRepository>();
+
 
             builder.Services.AddSingleton<ISmtpMailService, SmtpMailService>();
             builder.Services.AddSingleton<IWeatherService, WeatherService>();
@@ -108,6 +111,7 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IReservationService, ReservationService>();
             builder.Services.AddSingleton<IClientContext, ClientContext>();
             builder.Services.AddSingleton<IAuthService, AuthService>();
+            builder.Services.AddSingleton<ILlmService, LlmService>();
 
             builder.Services.AddSingleton<App>();
             builder.Services.AddSingleton<TabItemToViewHelper>();
