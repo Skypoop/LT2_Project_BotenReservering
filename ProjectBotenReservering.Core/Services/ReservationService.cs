@@ -85,4 +85,16 @@ public class ReservationService : IReservationService
             _clientReservationRepository.Add(clientReservation);
         }
     }
+
+    public void CancelOverlappingReservations(List<Reservation> overlappingReservations)
+    {
+        _reservationRepository.CancelReservationsByIds(overlappingReservations.Select(r => r.Id).ToList());
+    }
+
+    public List<Reservation> FindOverlappingReservations(DateTime startDate, DateTime endDate, List<int> boatIds)
+    {
+        List<Reservation> reservations = _reservationRepository.GetAll();
+
+        return reservations.Where(r => r.Active && r.StartTime < endDate && r.EndTime > startDate && boatIds.Contains(r.BoatId)).ToList();
+    }
 }

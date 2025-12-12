@@ -281,14 +281,14 @@
                 Text="wedstrijd aanmaken"
                 FontSize="18"
                 HorizontalOptions="End"
-                BackgroundColor="#E0E0E0"
-                TextColor="Gray"
+                IsEnabled="False"
                 CornerRadius="5"
                 Margin="0,0,0,20"
                 TranslationX="-180"
                 TranslationY="-70"
                 WidthRequest="200"
-                HeightRequest="50"/>
+                HeightRequest="50"
+                Command="{Binding CreateMatchCommand}"/>
 
         </VerticalStackLayout>
     </Grid>

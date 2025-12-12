@@ -7,21 +7,21 @@ using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
 {
-    public class MatchRepository : IMatchRepository
+    public class CompetitionRepository : ICompetitionRepository
     {
         private readonly IDbConnectionFactory _connectionFactory;
-        private readonly IMapper<Match> _mapper;
+        private readonly IMapper<Competition> _mapper;
 
-        public MatchRepository(IDbConnectionFactory connectionFactory, IMapper<Match> mapper)
+        public CompetitionRepository(IDbConnectionFactory connectionFactory, IMapper<Competition> mapper)
         {
             _connectionFactory = connectionFactory;
             _mapper = mapper;
         }
 
-        public Match Add(Match item)
+        public Competition Add(Competition item)
         {
-            string insertQuery = @"INSERT INTO Match(Start_DateTime, End_DateTime, Match_Name)
-                                   VALUES(@StartDateTime, @EndDateTime, @MatchName);
+            string insertQuery = @"INSERT INTO Competition(Start_DateTime, End_DateTime, Competition_Name)
+                                   VALUES(@StartDateTime, @EndDateTime, @CompetitionName);
                                    SELECT last_insert_rowid();";
 
             using (IDbConnection connection = _connectionFactory.CreateConnection())
@@ -32,7 +32,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                     command.CommandText = insertQuery;
                     command.AddParameter("@StartDateTime", item.StartDateTime);
                     command.AddParameter("@EndDateTime", item.EndDateTime);
-                    command.AddParameter("@MatchName", (object?)item.MatchName ?? DBNull.Value);
+                    command.AddParameter("@CompetitionName", (object?)item.CompetitionName ?? DBNull.Value);
 
                     item.Id = Convert.ToInt32(command.ExecuteScalar());
                 }
@@ -40,10 +40,10 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return item;
         }
 
-        public Match? Get(int id)
+        public Competition? Get(int id)
         {
-            Match? match = null;
-            string selectQuery = "SELECT Id, Start_DateTime, End_DateTime, Match_Name FROM Match WHERE Id = @Id";
+            Competition? competition = null;
+            string selectQuery = "SELECT Id, Start_DateTime, End_DateTime, Competition_Name FROM Competition WHERE Id = @Id";
 
             using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
@@ -56,18 +56,18 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                     {
                         if (reader.Read())
                         {
-                            match = _mapper.Map(reader);
+                            competition = _mapper.Map(reader);
                         }
                     }
                 }
             }
-            return match;
+            return competition;
         }
 
-        public List<Match> GetAll()
+        public List<Competition> GetAll()
         {
-            List<Match> matchList = new List<Match>();
-            string selectQuery = "SELECT Id, Start_DateTime, End_DateTime, Match_Name FROM Match";
+            List<Competition> competitionList = new List<Competition>();
+            string selectQuery = "SELECT Id, Start_DateTime, End_DateTime, Competition_Name FROM Competition";
 
             using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
@@ -79,17 +79,17 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                     {
                         while (reader.Read())
                         {
-                            matchList.Add(_mapper.Map(reader));
+                            competitionList.Add(_mapper.Map(reader));
                         }
                     }
                 }
             }
-            return matchList;
+            return competitionList;
         }
 
         public void Delete(int id)
         {
-            string deleteQuery = "DELETE FROM Match WHERE Id = @Id";
+            string deleteQuery = "DELETE FROM Competition WHERE Id = @Id";
 
             using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
@@ -103,7 +103,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             }
         }
 
-        public Match SaveMatchWithReservations(Match match, List<int> reservationIds, List<string> teamNames)
+        public Competition SaveCompetitionWithReservations(Competition competition, List<int> reservationIds, List<string> teamNames)
         {
             using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
@@ -112,22 +112,22 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                 {
                     try
                     {
-                        string insertMatchQuery = @"INSERT INTO Match(Start_DateTime, End_DateTime, Match_Name)
-                                                   VALUES(@StartDateTime, @EndDateTime, @MatchName);
+                        string insertCompetitionQuery = @"INSERT INTO Competition(Start_DateTime, End_DateTime, Competition_Name)
+                                                   VALUES(@StartDateTime, @EndDateTime, @CompetitionName);
                                                    SELECT last_insert_rowid();";
 
                         using (IDbCommand command = connection.CreateCommand())
                         {
                             command.Transaction = transaction;
-                            command.CommandText = insertMatchQuery;
-                            command.AddParameter("@StartDateTime", match.StartDateTime);
-                            command.AddParameter("@EndDateTime", match.EndDateTime);
-                            command.AddParameter("@MatchName", (object?)match.MatchName ?? DBNull.Value);
-                            match.Id = Convert.ToInt32(command.ExecuteScalar());
+                            command.CommandText = insertCompetitionQuery;
+                            command.AddParameter("@StartDateTime", competition.StartDateTime);
+                            command.AddParameter("@EndDateTime", competition.EndDateTime);
+                            command.AddParameter("@CompetitionName", (object?)competition.CompetitionName ?? DBNull.Value);
+                            competition.Id = Convert.ToInt32(command.ExecuteScalar());
                         }
 
-                        string insertLinkQuery = @"INSERT INTO Reservation_Match(Match_Id, Reservation_Id, Team_Name)
-                                                  VALUES(@MatchId, @ReservationId, @TeamName)";
+                        string insertLinkQuery = @"INSERT INTO Reservation_Competition(Competition_Id, Reservation_Id, Team_Name)
+                                                  VALUES(@CompetitionId, @ReservationId, @TeamName)";
 
                         for (int i = 0; i < reservationIds.Count; i++)
                         {
@@ -135,7 +135,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                             {
                                 command.Transaction = transaction;
                                 command.CommandText = insertLinkQuery;
-                                command.AddParameter("@MatchId", match.Id);
+                                command.AddParameter("@CompetitionId", competition.Id);
                                 command.AddParameter("@ReservationId", reservationIds[i]);
                                 command.AddParameter("@TeamName", (object?)teamNames[i] ?? DBNull.Value);
                                 command.ExecuteNonQuery();
@@ -151,47 +151,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                     }
                 }
             }
-            return match;
-        }
-
-        public void CancelReservationAndUpdateStatus(int reservationId, int matchId)
-        {
-            using (IDbConnection connection = _connectionFactory.CreateConnection())
-            {
-                connection.Open();
-                using (IDbTransaction transaction = connection.BeginTransaction())
-                {
-                    try
-                    {
-                        string deleteLinkQuery =
-                            "DELETE FROM Reservation_Match WHERE Match_Id = @MatchId AND Reservation_Id = @ReservationId";
-                        using (IDbCommand command = connection.CreateCommand())
-                        {
-                            command.Transaction = transaction;
-                            command.CommandText = deleteLinkQuery;
-                            command.AddParameter("@MatchId", matchId);
-                            command.AddParameter("@ReservationId", reservationId);
-                            command.ExecuteNonQuery();
-                        }
-
-                        string updateStatusQuery = "UPDATE Reservation SET Active = 0 WHERE Id = @ReservationId";
-                        using (IDbCommand command = connection.CreateCommand())
-                        {
-                            command.Transaction = transaction;
-                            command.CommandText = updateStatusQuery;
-                            command.AddParameter("@ReservationId", reservationId);
-                            command.ExecuteNonQuery();
-                        }
-
-                        transaction.Commit();
-                    }
-                    catch
-                    {
-                        transaction.Rollback();
-                        throw;
-                    }
-                }
-            }
+            return competition;
         }
     }
 }
