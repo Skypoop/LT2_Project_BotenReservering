@@ -50,8 +50,6 @@ public partial class CompetitionViewModel : BaseViewModel
         DateTime startDateTime = StartDate.Date + StartTime;
         DateTime endDateTime = EndDate.Date + EndTime;
 
-        
-
         if (await ReservationsNotOverlappingWithTheMatch(startDateTime, endDateTime))
         {
             //Make match function
@@ -77,7 +75,6 @@ public partial class CompetitionViewModel : BaseViewModel
         if (!answer)
         {
             _matchService.CancelOverlappingReservationsForMatch(overlappingReservations);
-            //Make match function
 
             return true;
         }
