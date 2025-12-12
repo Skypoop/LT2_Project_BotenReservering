@@ -154,16 +154,27 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return match;
         }
 
-        public void CancelReservationAndUpdateStatus(int reservationId)
+        public void CancelReservationAndUpdateStatus(int reservationId, int matchId)
         {
             using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
                 connection.Open();
                 using (IDbTransaction transaction = connection.BeginTransaction())
                 {
-                    // Update reservation status to cancelled (Active = false)
-                    string updateStatusQuery = "UPDATE Reservation SET Active = 0 WHERE Id = @ReservationId";
-                    using (SqliteCommand command = new(updateStatusQuery, Connection, transaction))
+                    try
+                    {
+                        string updateStatusQuery = "UPDATE Reservation SET Active = 0 WHERE Id = @ReservationId";
+                        using (IDbCommand command = connection.CreateCommand())
+                        {
+                            command.Transaction = transaction;
+                            command.CommandText = updateStatusQuery;
+                            command.AddParameter("@ReservationId", reservationId);
+                            command.ExecuteNonQuery();
+                        }
+
+                        transaction.Commit();
+                    }
+                    catch
                     {
                         transaction.Rollback();
                         throw;
