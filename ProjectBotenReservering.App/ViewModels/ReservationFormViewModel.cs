@@ -29,13 +29,12 @@ public partial class ReservationFormViewModel : BaseViewModel
         ISmtpMailService mailservice
         )
     {
-        _mailService = mailservice;
         _boatTypeService = boatTypeService;
-        _clientRepository = clientRepository;
-
         _clientService = clientService;
+        _clientRepository = clientRepository;
         _reservationService = reservationService;
         _boatAuthorizationService = boatReservationService;
+        _mailService = mailservice;
 
         Title = "";
 
