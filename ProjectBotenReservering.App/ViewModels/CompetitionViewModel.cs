@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 
@@ -9,7 +8,6 @@ namespace ProjectBotenReservering.App.ViewModels;
 public partial class CompetitionViewModel : BaseViewModel
 {
     private readonly IMatchService _matchService;
-    private readonly IMatchRepository _matchRepository;
     private List<Boat> _selectedBoatType;
 
     [ObservableProperty]
@@ -36,10 +34,9 @@ public partial class CompetitionViewModel : BaseViewModel
     [ObservableProperty]
     public partial int CalculatedPersonCount { get; set; }
 
-    public CompetitionViewModel(IMatchService matchService, IMatchRepository matchRepository)
+    public CompetitionViewModel(IMatchService matchService)
     {
         _matchService = matchService;
-        _matchRepository = matchRepository;
     }
 
     [RelayCommand]
@@ -53,25 +50,38 @@ public partial class CompetitionViewModel : BaseViewModel
         DateTime startDateTime = StartDate.Date + StartTime;
         DateTime endDateTime = EndDate.Date + EndTime;
 
-        List<Reservation> reservations = _matchService.FindOverlappingReservationsForMatch(startDateTime, endDateTime, _selectedBoatType.Select(b => b.Id).ToList());
+        
 
-        if (reservations.Count > 0)
+        if (await ReservationsNotOverlappingWithTheMatch(startDateTime, endDateTime))
         {
-            bool answer = await Shell.Current.DisplayAlert("Attentie reserveringen worden beïnvloed", $"Om ruimte te maken voor deze wedstrijd worden er {reservations.Count} reserveringen geannuleerd. Tijdens het aanmaken, ga je akkoord hiermee?", "OK", "Terug");
-
-            if (answer)
-            {
-                _matchService.CancelOverlappingReservationsForMatch(reservations);
-                //Implement here make the actually match make function
-            }
-            else
-            {
-                return;
-            }
+            //Make match function
         } 
-        else
+    }
+
+    private async Task<bool> ReservationsNotOverlappingWithTheMatch(DateTime startDateTime, DateTime endDateTime)
+    {
+        List<Reservation> overlappingReservations = _matchService.FindOverlappingReservationsForMatch(startDateTime, endDateTime, _selectedBoatType.Select(b => b.Id).ToList());
+
+        if (overlappingReservations.Count > 0)
         {
-            //Implement here make the actually match make function
+            return await ShowWarningOverlappingReservationsDialog(overlappingReservations);
         }
+
+        return false;
+    }
+
+    private async Task<bool> ShowWarningOverlappingReservationsDialog(List<Reservation> overlappingReservations)
+    {
+        bool answer = await Shell.Current.DisplayAlert("Attentie reserveringen worden beïnvloed", $"Om ruimte te maken voor deze wedstrijd worden er {overlappingReservations.Count} reserveringen geannuleerd. Tijdens het aanmaken, ga je akkoord hiermee?", "Terug", "OK");
+
+        if (!answer)
+        {
+            _matchService.CancelOverlappingReservationsForMatch(overlappingReservations);
+            //Make match function
+
+            return true;
+        }
+
+        return false;
     }
 }
