@@ -43,7 +43,7 @@ namespace ProjectBotenReservering.Core.Data.Helpers
             {
                 using (IDbCommand command = connection.CreateCommand())
                 {
-                    command.CommandText = $"SELECT COUNT(*) FROM \"{tableName}\";";
+                    command.CommandText = $"SELECT COUNT(*) FROM [{tableName}];";
                     long count = Convert.ToInt64(command.ExecuteScalar());
                     return count == 0;
                 }

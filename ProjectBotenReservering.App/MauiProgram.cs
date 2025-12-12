@@ -60,7 +60,7 @@ namespace ProjectBotenReservering.App
             MailSettings mailSettings = configuration.GetSection("MailConnection").Get<MailSettings>()!;
             builder.Services.AddSingleton(mailSettings);
 
-            builder.Services.AddSingleton<IDbConnectionFactory>(new SqliteConnectionFactory(connectionString));
+            builder.Services.AddSingleton<IDbConnectionFactory>(provider => new SqliteConnectionFactory(connectionString));
             builder.Services.AddSingleton<IDatabaseBootstrap, SqliteDatabaseBootstrap>();
 
             builder.Services.AddSingleton<ISchemaInitializer, SqliteSchemaInitializer>();
