@@ -11,6 +11,7 @@ using ProjectBotenReservering.Core.Data.Database.Schema;
 using ProjectBotenReservering.Core.Data.Database.Seeders;
 using ProjectBotenReservering.Core.Data.Mappers;
 using ProjectBotenReservering.Core.Data.Repositories;
+using ProjectBotenReservering.Core.Data.RestClients;
 using ProjectBotenReservering.Core.Data.Services;
 using ProjectBotenReservering.Core.Interfaces.Context;
 using ProjectBotenReservering.Core.Interfaces.Database;
@@ -100,6 +101,16 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IRoleManagementTaskRepository, RoleManagementTaskRepository>();
             builder.Services.AddSingleton<IMatchRepository, MatchRepository>();
             builder.Services.AddSingleton<IReservationMatchRepository, ReservationMatchRepository>();
+
+            builder.Services.AddSingleton<LlmRestClient>(sp =>
+            {
+                string? apiKey = configuration["GeminiApiKey"];
+                if (string.IsNullOrEmpty(apiKey))
+                {
+                    throw new InvalidOperationException("GeminiApiKey is missing in appsettings.json");
+                }
+                return new LlmRestClient(apiKey);
+            });
             builder.Services.AddSingleton<ILlmRepository, LlmRepository>();
 
 
