@@ -1,32 +1,39 @@
-using Microsoft.Data.Sqlite;
+using System.Data;
+using ProjectBotenReservering.Core.Interfaces.Database;
+using ProjectBotenReservering.Core.Interfaces.Mappers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
+using ProjectBotenReservering.Core.Data.Helpers;    
 using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
 {
-    public class ClientReservationRepository : DatabaseConnection, IClientReservationRepository
+    public class ClientReservationRepository : IClientReservationRepository
     {
-        public ClientReservationRepository()
+        private readonly IDbConnectionFactory _connectionFactory;
+        private readonly IMapper<ClientReservation> _mapper;
+
+        public ClientReservationRepository(IDbConnectionFactory connectionFactory, IMapper<ClientReservation> mapper)
         {
-            CreateTable(@"CREATE TABLE IF NOT EXISTS Client_Reservation (
-                            [Client_Id] INT NOT NULL,
-                            [Reservation_Id] INT NOT NULL,
-                            FOREIGN KEY (Client_Id) REFERENCES Client(Id),
-                            FOREIGN KEY (Reservation_Id) REFERENCES Reservation(Id))");
+            _connectionFactory = connectionFactory;
+            _mapper = mapper;
         }
 
         public ClientReservation Add(ClientReservation item)
         {
             string insertQuery = @"INSERT INTO Client_Reservation(Client_Id, Reservation_Id) 
                                    VALUES(@ClientId, @ReservationId)";
-            OpenConnection();
-            using (SqliteCommand command = new(insertQuery, Connection))
+
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@ClientId", item.ClientId);
-                command.Parameters.AddWithValue("@ReservationId", item.ReservationId);
-                command.ExecuteNonQuery();
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = insertQuery;
+                    command.AddParameter("@ClientId", item.ClientId);
+                    command.AddParameter("@ReservationId", item.ReservationId);
+                    command.ExecuteNonQuery();
+                }
             }
-            CloseConnection();
             return item;
         }
 
@@ -34,24 +41,23 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         {
             List<ClientReservation> list = new List<ClientReservation>();
             string selectQuery = "SELECT Client_Id, Reservation_Id FROM Client_Reservation WHERE Client_Id = @ClientId";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@ClientId", clientId);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
                 {
-                    while (reader.Read())
+                    command.CommandText = selectQuery;
+                    command.AddParameter("@ClientId", clientId);
+                    using (IDataReader reader = command.ExecuteReader())
                     {
-                        list.Add(new ClientReservation(
-                            reader.GetInt32(0),
-                            reader.GetInt32(1)
-                        ));
+                        while (reader.Read())
+                        {
+                            list.Add(_mapper.Map(reader));
+                        }
                     }
                 }
             }
-
-            CloseConnection();
             return list;
         }
 
@@ -59,24 +65,23 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         {
             List<ClientReservation> list = new List<ClientReservation>();
             string selectQuery = "SELECT Client_Id, Reservation_Id FROM Client_Reservation WHERE Reservation_Id = @ReservationId";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@ReservationId", reservationId);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
                 {
-                    while (reader.Read())
+                    command.CommandText = selectQuery;
+                    command.AddParameter("@ReservationId", reservationId);
+                    using (IDataReader reader = command.ExecuteReader())
                     {
-                        list.Add(new ClientReservation(
-                            reader.GetInt32(0),
-                            reader.GetInt32(1)
-                        ));
+                        while (reader.Read())
+                        {
+                            list.Add(_mapper.Map(reader));
+                        }
                     }
                 }
             }
-
-            CloseConnection();
             return list;
         }
 
@@ -84,27 +89,25 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         {
             ClientReservation? clientReservation = null;
             string selectQuery = "SELECT Client_Id, Reservation_Id FROM Client_Reservation WHERE Client_Id = @ClientId AND Reservation_Id = @ReservationId";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@ClientId", clientId);
-                command.Parameters.AddWithValue("@ReservationId", reservationId);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
                 {
-                    if (reader.Read())
+                    command.CommandText = selectQuery;
+                    command.AddParameter("@ClientId", clientId);
+                    command.AddParameter("@ReservationId", reservationId);
+                    using (IDataReader reader = command.ExecuteReader())
                     {
-                        clientReservation = new ClientReservation(
-                            reader.GetInt32(0),
-                            reader.GetInt32(1)
-                        );
+                        if (reader.Read())
+                        {
+                            clientReservation = _mapper.Map(reader);
+                        }
                     }
                 }
             }
-
-            CloseConnection();
             return clientReservation;
         }
     }
 }
-

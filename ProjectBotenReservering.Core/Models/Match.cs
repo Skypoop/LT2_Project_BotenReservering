@@ -1,5 +1,3 @@
-using System;
-
 namespace ProjectBotenReservering.Core.Models
 {
     public class Match

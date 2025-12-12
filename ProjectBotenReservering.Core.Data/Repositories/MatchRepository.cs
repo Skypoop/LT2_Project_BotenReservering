@@ -1,18 +1,21 @@
-using Microsoft.Data.Sqlite;
+using System.Data;
+using ProjectBotenReservering.Core.Data.Helpers;
+using ProjectBotenReservering.Core.Interfaces.Database;
+using ProjectBotenReservering.Core.Interfaces.Mappers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
 {
-    public class MatchRepository : DatabaseConnection, IMatchRepository
+    public class MatchRepository : IMatchRepository
     {
-        public MatchRepository()
+        private readonly IDbConnectionFactory _connectionFactory;
+        private readonly IMapper<Match> _mapper;
+
+        public MatchRepository(IDbConnectionFactory connectionFactory, IMapper<Match> mapper)
         {
-            CreateTable(@"CREATE TABLE IF NOT EXISTS Match (
-                            [Id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                            [Start_DateTime] DATETIME NOT NULL,
-                            [End_DateTime] DATETIME NOT NULL,
-                            [Match_Name] VARCHAR NOT NULL)");
+            _connectionFactory = connectionFactory;
+            _mapper = mapper;
         }
 
         public Match Add(Match item)
@@ -20,17 +23,20 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             string insertQuery = @"INSERT INTO Match(Start_DateTime, End_DateTime, Match_Name)
                                    VALUES(@StartDateTime, @EndDateTime, @MatchName);
                                    SELECT last_insert_rowid();";
-            OpenConnection();
-            using (SqliteCommand command = new(insertQuery, Connection))
+
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@StartDateTime", item.StartDateTime);
-                command.Parameters.AddWithValue("@EndDateTime", item.EndDateTime);
-                command.Parameters.AddWithValue("@MatchName", item.MatchName);
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = insertQuery;
+                    command.AddParameter("@StartDateTime", item.StartDateTime);
+                    command.AddParameter("@EndDateTime", item.EndDateTime);
+                    command.AddParameter("@MatchName", (object?)item.MatchName ?? DBNull.Value);
 
-                item.Id = Convert.ToInt32(command.ExecuteScalar());
+                    item.Id = Convert.ToInt32(command.ExecuteScalar());
+                }
             }
-
-            CloseConnection();
             return item;
         }
 
@@ -38,21 +44,23 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         {
             Match? match = null;
             string selectQuery = "SELECT Id, Start_DateTime, End_DateTime, Match_Name FROM Match WHERE Id = @Id";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@Id", id);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
                 {
-                    if (reader.Read())
+                    command.CommandText = selectQuery;
+                    command.AddParameter("@Id", id);
+                    using (IDataReader reader = command.ExecuteReader())
                     {
-                        match = MapReaderToMatch(reader);
+                        if (reader.Read())
+                        {
+                            match = _mapper.Map(reader);
+                        }
                     }
                 }
             }
-
-            CloseConnection();
             return match;
         }
 
@@ -60,130 +68,130 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         {
             List<Match> matchList = new List<Match>();
             string selectQuery = "SELECT Id, Start_DateTime, End_DateTime, Match_Name FROM Match";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                using (SqliteDataReader reader = command.ExecuteReader())
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
                 {
-                    while (reader.Read())
+                    command.CommandText = selectQuery;
+                    using (IDataReader reader = command.ExecuteReader())
                     {
-                        matchList.Add(MapReaderToMatch(reader));
+                        while (reader.Read())
+                        {
+                            matchList.Add(_mapper.Map(reader));
+                        }
                     }
                 }
             }
-
-            CloseConnection();
             return matchList;
         }
 
         public void Delete(int id)
         {
             string deleteQuery = "DELETE FROM Match WHERE Id = @Id";
-            OpenConnection();
-            using (SqliteCommand command = new(deleteQuery, Connection))
+
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@Id", id);
-                command.ExecuteNonQuery();
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = deleteQuery;
+                    command.AddParameter("@Id", id);
+                    command.ExecuteNonQuery();
+                }
             }
-
-            CloseConnection();
-        }
-
-        private Match MapReaderToMatch(SqliteDataReader reader)
-        {
-            return new Match
-            {
-                Id = reader.GetInt32(0),
-                StartDateTime = reader.GetDateTime(1),
-                EndDateTime = reader.GetDateTime(2),
-                MatchName = reader.GetString(3)
-            };
         }
 
         public Match SaveMatchWithReservations(Match match, List<int> reservationIds, List<string> teamNames)
         {
-            OpenConnection();
-            using (SqliteTransaction transaction = Connection.BeginTransaction())
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                try
+                connection.Open();
+                using (IDbTransaction transaction = connection.BeginTransaction())
                 {
-                    // Insert match
-                    string insertMatchQuery = @"INSERT INTO Match(Start_DateTime, End_DateTime, Match_Name)
-                                               VALUES(@StartDateTime, @EndDateTime, @MatchName);
-                                               SELECT last_insert_rowid();";
-
-                    using (SqliteCommand command = new(insertMatchQuery, Connection, transaction))
+                    try
                     {
-                        command.Parameters.AddWithValue("@StartDateTime", match.StartDateTime);
-                        command.Parameters.AddWithValue("@EndDateTime", match.EndDateTime);
-                        command.Parameters.AddWithValue("@MatchName", match.MatchName);
-                        match.Id = Convert.ToInt32(command.ExecuteScalar());
-                    }
+                        string insertMatchQuery = @"INSERT INTO Match(Start_DateTime, End_DateTime, Match_Name)
+                                                   VALUES(@StartDateTime, @EndDateTime, @MatchName);
+                                                   SELECT last_insert_rowid();";
 
-                    // Link existing reservations to the match
-                    string insertLinkQuery = @"INSERT INTO Reservation_Match(Match_Id, Reservation_Id, Team_Name)
-                                              VALUES(@MatchId, @ReservationId, @TeamName)";
-
-                    for (int i = 0; i < reservationIds.Count; i++)
-                    {
-                        using (SqliteCommand command = new(insertLinkQuery, Connection, transaction))
+                        using (IDbCommand command = connection.CreateCommand())
                         {
-                            command.Parameters.AddWithValue("@MatchId", match.Id);
-                            command.Parameters.AddWithValue("@ReservationId", reservationIds[i]);
-                            command.Parameters.AddWithValue("@TeamName", teamNames[i]);
-                            command.ExecuteNonQuery();
+                            command.Transaction = transaction;
+                            command.CommandText = insertMatchQuery;
+                            command.AddParameter("@StartDateTime", match.StartDateTime);
+                            command.AddParameter("@EndDateTime", match.EndDateTime);
+                            command.AddParameter("@MatchName", (object?)match.MatchName ?? DBNull.Value);
+                            match.Id = Convert.ToInt32(command.ExecuteScalar());
                         }
-                    }
 
-                    transaction.Commit();
-                }
-                catch
-                {
-                    transaction.Rollback();
-                    throw;
+                        string insertLinkQuery = @"INSERT INTO Reservation_Match(Match_Id, Reservation_Id, Team_Name)
+                                                  VALUES(@MatchId, @ReservationId, @TeamName)";
+
+                        for (int i = 0; i < reservationIds.Count; i++)
+                        {
+                            using (IDbCommand command = connection.CreateCommand())
+                            {
+                                command.Transaction = transaction;
+                                command.CommandText = insertLinkQuery;
+                                command.AddParameter("@MatchId", match.Id);
+                                command.AddParameter("@ReservationId", reservationIds[i]);
+                                command.AddParameter("@TeamName", (object?)teamNames[i] ?? DBNull.Value);
+                                command.ExecuteNonQuery();
+                            }
+                        }
+
+                        transaction.Commit();
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
                 }
             }
-
-            CloseConnection();
             return match;
         }
 
         public void CancelReservationAndUpdateStatus(int reservationId, int matchId)
         {
-            OpenConnection();
-            using (SqliteTransaction transaction = Connection.BeginTransaction())
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                try
+                connection.Open();
+                using (IDbTransaction transaction = connection.BeginTransaction())
                 {
-                    // Delete from Reservation_Match
-                    string deleteLinkQuery =
-                        "DELETE FROM Reservation_Match WHERE Match_Id = @MatchId AND Reservation_Id = @ReservationId";
-                    using (SqliteCommand command = new(deleteLinkQuery, Connection, transaction))
+                    try
                     {
-                        command.Parameters.AddWithValue("@MatchId", matchId);
-                        command.Parameters.AddWithValue("@ReservationId", reservationId);
-                        command.ExecuteNonQuery();
-                    }
+                        string deleteLinkQuery =
+                            "DELETE FROM Reservation_Match WHERE Match_Id = @MatchId AND Reservation_Id = @ReservationId";
+                        using (IDbCommand command = connection.CreateCommand())
+                        {
+                            command.Transaction = transaction;
+                            command.CommandText = deleteLinkQuery;
+                            command.AddParameter("@MatchId", matchId);
+                            command.AddParameter("@ReservationId", reservationId);
+                            command.ExecuteNonQuery();
+                        }
 
-                    // Update reservation status to cancelled (Active = false)
-                    string updateStatusQuery = "UPDATE Reservation SET Active = 0 WHERE Id = @ReservationId";
-                    using (SqliteCommand command = new(updateStatusQuery, Connection, transaction))
+                        string updateStatusQuery = "UPDATE Reservation SET Active = 0 WHERE Id = @ReservationId";
+                        using (IDbCommand command = connection.CreateCommand())
+                        {
+                            command.Transaction = transaction;
+                            command.CommandText = updateStatusQuery;
+                            command.AddParameter("@ReservationId", reservationId);
+                            command.ExecuteNonQuery();
+                        }
+
+                        transaction.Commit();
+                    }
+                    catch
                     {
-                        command.Parameters.AddWithValue("@ReservationId", reservationId);
-                        command.ExecuteNonQuery();
+                        transaction.Rollback();
+                        throw;
                     }
-
-                    transaction.Commit();
-                }
-                catch
-                {
-                    transaction.Rollback();
-                    throw;
                 }
             }
-
-            CloseConnection();
         }
     }
 }
