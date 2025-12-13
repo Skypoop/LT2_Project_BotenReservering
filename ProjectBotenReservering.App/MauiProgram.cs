@@ -80,12 +80,12 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IMapper<DamageReport>, DamageReportMapper>();
             builder.Services.AddSingleton<IMapper<DamageReportPhoto>, DamageReportPhotoMapper>();
             builder.Services.AddSingleton<IMapper<WindConstraint>, WindConstraintMapper>();
-            builder.Services.AddSingleton<IMapper<Match>, MatchMapper>();
+            builder.Services.AddSingleton<IMapper<Competition>, CompetitionMapper>();
             builder.Services.AddSingleton<IMapper<ClientReservation>, ClientReservationMapper>();
             builder.Services.AddSingleton<IMapper<ClientRole>, ClientRoleMapper>();
             builder.Services.AddSingleton<IMapper<ClientManagementTask>, ClientManagementTaskMapper>();
             builder.Services.AddSingleton<IMapper<RoleManagementTask>, RoleManagementTaskMapper>();
-            builder.Services.AddSingleton<IMapper<ReservationMatch>, ReservationMatchMapper>();
+            builder.Services.AddSingleton<IMapper<ReservationCompetition>, ReservationCompetitionMapper>();
 
             builder.Services.AddSingleton<IBoatRepository, BoatRepository>();
             builder.Services.AddSingleton<IClientRepository, ClientRepository>();
@@ -99,8 +99,8 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IClientRoleRepository, ClientRoleRepository>();
             builder.Services.AddSingleton<IClientManagementTaskRepository, ClientManagementTaskRepository>();
             builder.Services.AddSingleton<IRoleManagementTaskRepository, RoleManagementTaskRepository>();
-            builder.Services.AddSingleton<IMatchRepository, MatchRepository>();
-            builder.Services.AddSingleton<IReservationMatchRepository, ReservationMatchRepository>();
+            builder.Services.AddSingleton<ICompetitionRepository, CompetitionRepository>();
+            builder.Services.AddSingleton<IReservationCompetitionRepository, ReservationCompetitionRepository>();
 
             builder.Services.AddSingleton<LlmRestClient>(sp =>
             {

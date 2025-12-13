@@ -7,21 +7,21 @@ using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
 {
-    public class ReservationMatchRepository : IReservationMatchRepository
+    public class ReservationCompetitionRepository : IReservationCompetitionRepository
     {
         private readonly IDbConnectionFactory _connectionFactory;
-        private readonly IMapper<ReservationMatch> _mapper;
+        private readonly IMapper<ReservationCompetition> _mapper;
 
-        public ReservationMatchRepository(IDbConnectionFactory connectionFactory, IMapper<ReservationMatch> mapper)
+        public ReservationCompetitionRepository(IDbConnectionFactory connectionFactory, IMapper<ReservationCompetition> mapper)
         {
             _connectionFactory = connectionFactory;
             _mapper = mapper;
         }
 
-        public ReservationMatch Add(ReservationMatch item)
+        public ReservationCompetition Add(ReservationCompetition item)
         {
-            string insertQuery = @"INSERT INTO Reservation_Match(Match_Id, Reservation_Id, Team_Name)
-                                   VALUES(@MatchId, @ReservationId, @TeamName)";
+            string insertQuery = @"INSERT INTO Reservation_Competition(Competition_Id, Reservation_Id, Team_Name)
+                                   VALUES(@CompetitionId, @ReservationId, @TeamName)";
 
             using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
@@ -29,7 +29,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                 using (IDbCommand command = connection.CreateCommand())
                 {
                     command.CommandText = insertQuery;
-                    command.AddParameter("@MatchId", item.MatchId);
+                    command.AddParameter("@CompetitionId", item.CompetitionId);
                     command.AddParameter("@ReservationId", item.ReservationId);
                     command.AddParameter("@TeamName", item.TeamName);
                     command.ExecuteNonQuery();
@@ -38,10 +38,10 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return item;
         }
 
-        public ReservationMatch? Get(int matchId, int reservationId)
+        public ReservationCompetition? Get(int competitionId, int reservationId)
         {
-            ReservationMatch? reservationMatch = null;
-            string selectQuery = "SELECT Match_Id, Reservation_Id, Team_Name FROM Reservation_Match WHERE Match_Id = @MatchId AND Reservation_Id = @ReservationId";
+            ReservationCompetition? reservationCompetition = null;
+            string selectQuery = "SELECT Competition_Id, Reservation_Id, Team_Name FROM Reservation_Competition WHERE Competition_Id = @CompetitionId AND Reservation_Id = @ReservationId";
 
             using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
@@ -49,24 +49,24 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                 using (IDbCommand command = connection.CreateCommand())
                 {
                     command.CommandText = selectQuery;
-                    command.AddParameter("@MatchId", matchId);
+                    command.AddParameter("@CompetitionId", competitionId);
                     command.AddParameter("@ReservationId", reservationId);
                     using (IDataReader reader = command.ExecuteReader())
                     {
                         if (reader.Read())
                         {
-                            reservationMatch = _mapper.Map(reader);
+                            reservationCompetition = _mapper.Map(reader);
                         }
                     }
                 }
             }
-            return reservationMatch;
+            return reservationCompetition;
         }
 
-        public List<ReservationMatch> GetByMatchId(int matchId)
+        public List<ReservationCompetition> GetByCompetitionId(int competitionId)
         {
-            List<ReservationMatch> list = new List<ReservationMatch>();
-            string selectQuery = "SELECT Match_Id, Reservation_Id, Team_Name FROM Reservation_Match WHERE Match_Id = @MatchId";
+            List<ReservationCompetition> list = new List<ReservationCompetition>();
+            string selectQuery = "SELECT Competition_Id, Reservation_Id, Team_Name FROM Reservation_Competition WHERE Competition_Id = @CompetitionId";
 
             using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
@@ -74,7 +74,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                 using (IDbCommand command = connection.CreateCommand())
                 {
                     command.CommandText = selectQuery;
-                    command.AddParameter("@MatchId", matchId);
+                    command.AddParameter("@CompetitionId", competitionId);
                     using (IDataReader reader = command.ExecuteReader())
                     {
                         while (reader.Read())
@@ -87,10 +87,10 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return list;
         }
 
-        public List<ReservationMatch> GetByReservationId(int reservationId)
+        public List<ReservationCompetition> GetByReservationId(int reservationId)
         {
-            List<ReservationMatch> list = new List<ReservationMatch>();
-            string selectQuery = "SELECT Match_Id, Reservation_Id, Team_Name FROM Reservation_Match WHERE Reservation_Id = @ReservationId";
+            List<ReservationCompetition> list = new List<ReservationCompetition>();
+            string selectQuery = "SELECT Competition_Id, Reservation_Id, Team_Name FROM Reservation_Competition WHERE Reservation_Id = @ReservationId";
 
             using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
@@ -111,9 +111,9 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return list;
         }
 
-        public void Delete(int matchId, int reservationId)
+        public void Delete(int competitionId, int reservationId)
         {
-            string deleteQuery = "DELETE FROM Reservation_Match WHERE Match_Id = @MatchId AND Reservation_Id = @ReservationId";
+            string deleteQuery = "DELETE FROM Reservation_Competition WHERE Competition_Id = @CompetitionId AND Reservation_Id = @ReservationId";
 
             using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
@@ -121,7 +121,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
                 using (IDbCommand command = connection.CreateCommand())
                 {
                     command.CommandText = deleteQuery;
-                    command.AddParameter("@MatchId", matchId);
+                    command.AddParameter("@CompetitionId", competitionId);
                     command.AddParameter("@ReservationId", reservationId);
                     command.ExecuteNonQuery();
                 }

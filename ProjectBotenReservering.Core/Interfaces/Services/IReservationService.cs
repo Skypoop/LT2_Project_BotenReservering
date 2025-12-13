@@ -11,4 +11,6 @@ public interface IReservationService
     public Reservation CreateReservation(Reservation reservation, List<Client> clients);
     public Reservation? Get(int id);
     public void AddClientsToReservation(Reservation reservation, List<Client> clients);
+    public void CancelOverlappingReservations(List<Reservation> reserservations);
+    public List<Reservation> FindOverlappingReservations(DateTime startDate, DateTime endDate, List<int> boatIds);
 }

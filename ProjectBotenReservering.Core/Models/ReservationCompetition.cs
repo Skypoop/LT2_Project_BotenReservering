@@ -1,14 +1,14 @@
 namespace ProjectBotenReservering.Core.Models
 {
-    public class ReservationMatch
+    public class ReservationCompetition
     {
-        public int MatchId { get; set; }
+        public int CompetitionId { get; set; }
         public int ReservationId { get; set; }
         public string TeamName { get; set; }
 
-        public ReservationMatch(int matchId, int reservationId, string teamName)
+        public ReservationCompetition(int competitionId, int reservationId, string teamName)
         {
-            MatchId = matchId;
+            CompetitionId = competitionId;
             ReservationId = reservationId;
             TeamName = teamName;
         }

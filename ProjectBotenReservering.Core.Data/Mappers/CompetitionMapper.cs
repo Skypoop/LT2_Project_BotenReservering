@@ -4,16 +4,16 @@ using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.Core.Data.Mappers
 {
-    public class MatchMapper : IMapper<Match>
+    public class CompetitionMapper : IMapper<Competition>
     {
-        public Match Map(IDataReader reader)
+        public Competition Map(IDataReader reader)
         {
-            return new Match
+            return new Competition
             {
                 Id = reader.GetInt32(reader.GetOrdinal("Id")),
                 StartDateTime = reader.GetDateTime(reader.GetOrdinal("Start_DateTime")),
                 EndDateTime = reader.GetDateTime(reader.GetOrdinal("End_DateTime")),
-                MatchName = reader.GetString(reader.GetOrdinal("Match_Name"))
+                CompetitionName = reader.GetString(reader.GetOrdinal("Competition_Name"))
             };
         }
     }
