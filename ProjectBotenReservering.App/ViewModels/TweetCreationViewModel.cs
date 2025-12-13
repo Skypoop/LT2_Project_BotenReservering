@@ -1,11 +1,13 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ProjectBotenReservering.App.Helpers;
 using ProjectBotenReservering.App.Views;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
+[QueryProperty(nameof(CompetitionContext), "context")]
 public partial class TweetCreationViewModel : BaseViewModel
 {
     [ObservableProperty]
@@ -13,6 +15,10 @@ public partial class TweetCreationViewModel : BaseViewModel
 
     [ObservableProperty]
     public partial string TweetContent { get; set; } = string.Empty;
+
+
+    [ObservableProperty]
+    public partial string CompetitionContext { get; set; } = string.Empty;
 
     [ObservableProperty]
     public partial string SelectedFileName { get; set; } = string.Empty;
@@ -33,7 +39,6 @@ public partial class TweetCreationViewModel : BaseViewModel
     {
         _clientService = clientService;
         _llmService = llmService;
-
         SetupPage();
     }
 
@@ -41,10 +46,22 @@ public partial class TweetCreationViewModel : BaseViewModel
     {
         try
         {
-            string response = await _llmService.GenerateTextWithContextAsync("Use the following context: Context not available. Make up the location, date, time, teams, etc.", "You are a dutch promotional tweet generator for a rowing club called Remus Invictus. You create engaging, promotional tweets about rowing competitions in dutch, in 280 characters. You always only output the tweet text without any additional commentary. You use the context provided (name, teams, optionally location, date, time, etc). Add hashtags like #RemusInvictus and #Roeien where deemed necessary. Use a few emojis.");
+            // Load prompts from text files
+            string systemPrompt = await PromptHelper.LoadPromptAsync("TweetSystemPrompt.txt");
+            string userPromptTemplate = await PromptHelper.LoadPromptAsync("TweetUserPrompt.txt");
+
+            // Inject the competition context into the user prompt
+            // If no context was passed, provide a fallback
+            string contextToUse = string.IsNullOrWhiteSpace(CompetitionContext)
+                ? "Geen specifieke wedstrijdinformatie beschikbaar. Verzin een algemene wedstrijd (naam, tijd, datum, locatie)."
+                : CompetitionContext;
+
+            string finalUserPrompt = string.Format(userPromptTemplate, contextToUse);
+
+            string response = await _llmService.GenerateTextWithContextAsync(finalUserPrompt, systemPrompt);
+
             TweetContent = response;
             IsTweetContentEditableByUser = true;
-            Console.WriteLine(response);
         }
         catch (Exception ex)
         {
@@ -64,7 +81,11 @@ public partial class TweetCreationViewModel : BaseViewModel
         else
         {
             SetupPageWelcomeMessage(currentClient.FullName);
-            await GenerateTweet();
+            // Only generate if we haven't already
+            if (string.IsNullOrWhiteSpace(TweetContent))
+            {
+                await GenerateTweet();
+            }
         }
     }
 
