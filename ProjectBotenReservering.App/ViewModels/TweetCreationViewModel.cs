@@ -39,6 +39,10 @@ public partial class TweetCreationViewModel : BaseViewModel
     {
         _clientService = clientService;
         _llmService = llmService;
+    }
+
+    partial void OnCompetitionContextChanged(string value)
+    {
         SetupPage();
     }
 
@@ -72,20 +76,27 @@ public partial class TweetCreationViewModel : BaseViewModel
 
     private async void SetupPage()
     {
-        Client? currentClient = _clientService.GetCurrentClient();
-        if (currentClient == null)
+        try
         {
-            await Shell.Current.DisplayAlert("Client not found", "De huidige client is onbekend, neem contact op met een beheerder.", "OK");
-            await Shell.Current.GoToAsync(nameof(LoginView));
-        }
-        else
-        {
-            SetupPageWelcomeMessage(currentClient.FullName);
-            // Only generate if we haven't already
-            if (string.IsNullOrWhiteSpace(TweetContent))
+            Client? currentClient = _clientService.GetCurrentClient();
+            if (currentClient == null)
             {
-                await GenerateTweet();
+                await Shell.Current.DisplayAlert("Client not found", "De huidige client is onbekend, neem contact op met een beheerder.", "OK");
+                await Shell.Current.GoToAsync(nameof(LoginView));
             }
+            else
+            {
+                SetupPageWelcomeMessage(currentClient.FullName);
+                // Only generate if we haven't already
+                if (string.IsNullOrWhiteSpace(TweetContent))
+                {
+                    await GenerateTweet();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in SetupPage: {ex.Message}");
         }
     }
 
