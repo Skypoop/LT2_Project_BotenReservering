@@ -118,6 +118,7 @@ namespace ProjectBotenReservering.App
             builder.Services.AddTransient<RegisterView>().AddTransient<RegisterViewModel>();
             builder.Services.AddTransient<CompetitionView>().AddTransient<CompetitionViewModel>();
             builder.Services.AddTransient<TweetCreationView>().AddTransient<TweetCreationViewModel>();
+            builder.Services.AddTransient<BoatTypeSelectionMatchView>().AddTransient<BoatTypeSelectionMatchViewModel>();
 
 
 #if DEBUG

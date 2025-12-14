@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ProjectBotenReservering.App.Views;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 
@@ -55,6 +56,13 @@ public partial class CompetitionViewModel : BaseViewModel
             //Make match function
         } 
     }
+
+    [RelayCommand]
+    private async Task SelectMatchBoatType()
+    {
+        await Shell.Current.GoToAsync(nameof(BoatTypeSelectionMatchView));
+    }
+
 
     private async Task<bool> ReservationsNotOverlappingWithTheMatch(DateTime startDateTime, DateTime endDateTime)
     {

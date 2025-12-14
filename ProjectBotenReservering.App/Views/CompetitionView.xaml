@@ -217,8 +217,8 @@
                 </HorizontalStackLayout>
 
                 <Button Text="selecteer een boottype" 
-                        TextColor="Gray"
-                        BackgroundColor="#E0E0E0"
+                        Command="{Binding SelectMatchBoatTypeCommand}"
+                        IsEnabled="True"
                         CornerRadius="5"
                         HeightRequest="35"
                         Padding="20,0"/>
