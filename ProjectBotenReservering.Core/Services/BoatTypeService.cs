@@ -16,11 +16,6 @@ public class BoatTypeService : IBoatTypeService
 
     }
 
-    public List<BoatTypeUiItem> GetAllBoatTypes()
-    {
-        return BoatMapper.BoatsToBoatTypeUiItems(_boatRepository.GetAll());
-    }
-
     public List<BoatTypeUiItem> GetBoatTypes()
     {
         List<Boat> allBoats = _boatRepository.GetAll();

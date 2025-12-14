@@ -32,7 +32,7 @@ public partial class BoatTypeSelectionMatchViewModel : BaseViewModel
     public BoatTypeSelectionMatchViewModel(IBoatTypeService boatTypeService)
     {
         _boatTypeService = boatTypeService;
-        AllBoatTypes = _boatTypeService.GetAllBoatTypes();
+        AllBoatTypes = _boatTypeService.GetBoatTypes();
         SelectedSteeringOption = SteeringOptions.First();
         ApplyFilterOption();
     }
