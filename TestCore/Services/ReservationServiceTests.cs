@@ -1,14 +1,10 @@
-﻿using System;
-using NUnit.Framework;
+﻿using FluentAssertions;
 using Moq;
-using FluentAssertions;
-using System.Collections.Generic;
-
-using ProjectBotenReservering.Core.Interfaces.Services;
-using ProjectBotenReservering.Core.Interfaces.Repositories;
-using ProjectBotenReservering.Core.Services;
 using ProjectBotenReservering.Core.Constants;
+using ProjectBotenReservering.Core.Interfaces.Repositories;
+using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
+using ProjectBotenReservering.Core.Services;
 
 namespace TestCore.Services
 {
@@ -65,7 +61,7 @@ namespace TestCore.Services
             //Arrange
             DateTime startTime = DateTime.Today.AddDays(1);
             DateTime endTime = DateTime.Today.AddDays(1).AddMinutes(110);
-            
+
             //Act
             bool result = _service.IsValidReservationLength(startTime, endTime);
 

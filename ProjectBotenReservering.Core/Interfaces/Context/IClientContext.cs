@@ -1,5 +1,3 @@
-using ProjectBotenReservering.Core.Models;
-
 namespace ProjectBotenReservering.Core.Interfaces.Context
 {
     public interface IClientContext

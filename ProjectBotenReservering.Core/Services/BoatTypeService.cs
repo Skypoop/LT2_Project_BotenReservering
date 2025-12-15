@@ -13,7 +13,7 @@ public class BoatTypeService : IBoatTypeService
     {
         this._boatRepository = boatRepository;
         this._boatAuthorizationService = boatAuthorizationService;
-        
+
     }
 
     public List<BoatTypeUiItem> GetBoatTypes()
@@ -32,9 +32,9 @@ public class BoatTypeService : IBoatTypeService
         }
         return BoatMapper.BoatToBoatTypeUiItem(boat);
     }
-    
+
     public List<BoatTypeUiItem> FilterBoatTypes(List<BoatTypeUiItem> boatTypeList, bool? hasSteeringWheel, string stringInName, int minWeight)
-    { 
+    {
         List<BoatTypeUiItem> newList = boatTypeList.Where(x => hasSteeringWheel == null || x.SteeringSeatPresent == hasSteeringWheel)
             .Where(x => x.Name.Contains(stringInName, StringComparison.CurrentCultureIgnoreCase))
             .Where(x => x.Weight > minWeight).ToList();

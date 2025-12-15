@@ -17,6 +17,6 @@ namespace ProjectBotenReservering.Core.Services
             return 12;
 
         }
-            
+
     }
 }

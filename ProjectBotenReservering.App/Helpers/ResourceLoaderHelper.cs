@@ -8,7 +8,7 @@ namespace ProjectBotenReservering.App.Helpers
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
             string[] allResources = assembly.GetManifestResourceNames();
-            string? resourcePath= allResources.FirstOrDefault(reader => reader.EndsWith(fileName));
+            string? resourcePath = allResources.FirstOrDefault(reader => reader.EndsWith(fileName));
             if (resourcePath == null)
             {
                 return string.Empty;

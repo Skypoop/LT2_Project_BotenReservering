@@ -19,9 +19,9 @@ public class BoatAuthorizationService : IBoatAuthorizationService
         _windConstraintRepository = windConstraintRepository;
     }
 
-    private bool authorizationCheck(BoatType boatType, int boatLevel, Client? client)
+    private bool AuthorizationCheck(BoatType boatType, int boatLevel, Client? client)
     {
-        if (client == null) 
+        if (client == null)
         {
             return false;
         }
@@ -30,7 +30,7 @@ public class BoatAuthorizationService : IBoatAuthorizationService
         {
             BoatType.S => client.ScullLevel >= boatLevel,
             BoatType.B => client.SweepLevel >= boatLevel,
-            _=> false
+            _ => false
         };
     }
 
@@ -54,10 +54,10 @@ public class BoatAuthorizationService : IBoatAuthorizationService
     }
 
     public bool IsAuthorized(BoatType boatType, int boatLevel) => IsAuthorized(boatType, boatLevel, _clientService.GetCurrentClient());
- 
+
     public bool IsAuthorized(BoatType boatType, int boatLevel, Client? client)
     {
-        return authorizationCheck(boatType, boatLevel, client); 
+        return AuthorizationCheck(boatType, boatLevel, client);
     }
 
     public bool IsAuthorized(int boatId, Client client)

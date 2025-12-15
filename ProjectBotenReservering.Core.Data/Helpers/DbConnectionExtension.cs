@@ -1,24 +1,58 @@
-
-using System.Data.Common;
-
+﻿using System.Data;
 
 namespace ProjectBotenReservering.Core.Data.Helpers
 {
     public static class DbConnectionExtensions
     {
-        public static int ExecuteNonQuery(this DbConnection connection, string commandText, int timeout = 30)
-        {
-            var command = connection.CreateCommand();
-            command.CommandTimeout = timeout;
-            command.CommandText = commandText;
-            return command.ExecuteNonQuery();
-        }
+        private static readonly HashSet<string> _allowedTables =
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "Boat",
+                "Role",
+                "ManagementTask",
+                "WindConstraint",
+                "Client",
+                "Reservation",
+                "DamageReport",
+                "DamageReportPhotos",
+                "Match",
+                "Client_ManagementTask",
+                "Client_Reservation",
+                "Client_Role",
+                "Role_ManagementTask",
+                "Reservation_Match"
+            };
 
-        public static DbDataReader ExecuteReader(this DbConnection connection, string commandText)
+        public static bool IsTableEmpty(this IDbConnection connection, string tableName)
         {
-            var command = connection.CreateCommand();
-            command.CommandText = commandText;
-            return command.ExecuteReader();
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+
+            if (!_allowedTables.Contains(tableName))
+                throw new ArgumentException("Invalid or unknown table name.", nameof(tableName));
+
+            bool shouldClose = false;
+
+            if (connection.State != ConnectionState.Open)
+            {
+                connection.Open();
+                shouldClose = true;
+            }
+
+            try
+            {
+                using (IDbCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = $"SELECT COUNT(*) FROM [{tableName}];";
+                    long count = Convert.ToInt64(command.ExecuteScalar());
+                    return count == 0;
+                }
+            }
+            finally
+            {
+                if (shouldClose)
+                    connection.Close();
+            }
         }
     }
 }

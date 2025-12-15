@@ -1,94 +1,105 @@
+using System.Data;
+using ProjectBotenReservering.Core.Interfaces.Mappers;
+using ProjectBotenReservering.Core.Interfaces.Database;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
+using ProjectBotenReservering.Core.Data.Helpers;
 using ProjectBotenReservering.Core.Models;
-using Microsoft.Data.Sqlite;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
 {
-    public class RoleManagementTaskRepository : DatabaseConnection, IRoleManagementTaskRepository
+    public class RoleManagementTaskRepository : IRoleManagementTaskRepository
     {
-        public RoleManagementTaskRepository()
+        private readonly IDbConnectionFactory _connectionFactory;
+        private readonly IMapper<RoleManagementTask> _mapper;
+
+        public RoleManagementTaskRepository(IDbConnectionFactory connectionFactory, IMapper<RoleManagementTask> mapper)
         {
-            CreateTable(@"CREATE TABLE IF NOT EXISTS Role_ManagementTask (
-                            [Role_Id] VARCHAR(50) NOT NULL,
-                            [ManagementTask_Id] INT NOT NULL,
-                            PRIMARY KEY (Role_Id, ManagementTask_Id),
-                            FOREIGN KEY (Role_Id) REFERENCES Role(Name),
-                            FOREIGN KEY (ManagementTask_Id) REFERENCES ManagementTask(Id))");
+            _connectionFactory = connectionFactory;
+            _mapper = mapper;
         }
 
         public RoleManagementTask Add(RoleManagementTask item)
         {
             string insertQuery = @"INSERT INTO Role_ManagementTask(Role_Id, ManagementTask_Id) 
                                    VALUES(@RoleId, @ManagementTaskId)";
-            OpenConnection();
-            using (SqliteCommand command = new(insertQuery, Connection))
+
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@RoleId", item.RoleId);
-                command.Parameters.AddWithValue("@ManagementTaskId", item.ManagementTaskId);
-                command.ExecuteNonQuery();
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = insertQuery;
+                    command.AddParameter("@RoleId", item.RoleId);
+                    command.AddParameter("@ManagementTaskId", item.ManagementTaskId);
+                    command.ExecuteNonQuery();
+                }
             }
-            CloseConnection();
             return item;
         }
 
         public List<RoleManagementTask> GetByRoleId(string roleId)
         {
-            var list = new List<RoleManagementTask>();
+            List<RoleManagementTask> list = new List<RoleManagementTask>();
             string selectQuery = "SELECT Role_Id, ManagementTask_Id FROM Role_ManagementTask WHERE Role_Id = @RoleId";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@RoleId", roleId);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
                 {
-                    while (reader.Read())
+                    command.CommandText = selectQuery;
+                    command.AddParameter("@RoleId", roleId);
+                    using (IDataReader reader = command.ExecuteReader())
                     {
-                        list.Add(new RoleManagementTask(reader.GetString(0), reader.GetInt32(1)));
+                        while (reader.Read())
+                        {
+                            list.Add(_mapper.Map(reader));
+                        }
                     }
                 }
             }
-
-            CloseConnection();
             return list;
         }
 
         public List<RoleManagementTask> GetByManagementTaskId(int managementTaskId)
         {
-            var list = new List<RoleManagementTask>();
+            List<RoleManagementTask> list = new List<RoleManagementTask>();
             string selectQuery = "SELECT Role_Id, ManagementTask_Id FROM Role_ManagementTask WHERE ManagementTask_Id = @ManagementTaskId";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@ManagementTaskId", managementTaskId);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
                 {
-                    while (reader.Read())
+                    command.CommandText = selectQuery;
+                    command.AddParameter("@ManagementTaskId", managementTaskId);
+                    using (IDataReader reader = command.ExecuteReader())
                     {
-                        list.Add(new RoleManagementTask(reader.GetString(0), reader.GetInt32(1)));
+                        while (reader.Read())
+                        {
+                            list.Add(_mapper.Map(reader));
+                        }
                     }
                 }
             }
-
-            CloseConnection();
             return list;
         }
 
         public void Delete(string roleId, int managementTaskId)
         {
             string deleteQuery = "DELETE FROM Role_ManagementTask WHERE Role_Id = @RoleId AND ManagementTask_Id = @ManagementTaskId";
-            OpenConnection();
 
-            using (SqliteCommand command = new(deleteQuery, Connection))
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@RoleId", roleId);
-                command.Parameters.AddWithValue("@ManagementTaskId", managementTaskId);
-                command.ExecuteNonQuery();
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = deleteQuery;
+                    command.AddParameter("@RoleId", roleId);
+                    command.AddParameter("@ManagementTaskId", managementTaskId);
+                    command.ExecuteNonQuery();
+                }
             }
-
-            CloseConnection();
         }
     }
 }
-
