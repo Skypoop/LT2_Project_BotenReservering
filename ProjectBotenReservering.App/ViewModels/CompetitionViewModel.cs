@@ -7,7 +7,7 @@ using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
-public partial class CompetitionViewModel : BaseViewModel
+public partial class CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService) : BaseViewModel
 {
     private readonly IReservationService _reservationService;
     private readonly ICompetitionService _competitionService;
@@ -61,24 +61,21 @@ public partial class CompetitionViewModel : BaseViewModel
     [ObservableProperty]
     public partial int CalculatedPersonCount { get; set; }
 
-    public CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService)
-    {
-        _reservationService = reservationService;
-        _competitionService = competitionService;
-    }
-
     [RelayCommand]
     private async Task CreateCompetition()
     {
-        if (competitionBoats == null && competitionBoats.Count == 0)
-        {
-            return;
-        }
-
         DateTime startDateTime = StartDate.Date + StartTime;
         DateTime endDateTime = EndDate.Date + EndTime;
 
-        if (await ReservationsNotOverlappingWithTheMatch(startDateTime, endDateTime))
+        (bool isValid, string? errorMessage) = _competitionService.ValidateCompetition(startDateTime, endDateTime);
+
+        if (!isValid)
+        {
+            await Shell.Current.DisplayAlert("Fout", errorMessage, "OK");
+            return;
+        }
+
+        if (await ReservationsNotOverlappingWithTheCompetition(startDateTime, endDateTime))
         {
             //Make match function
         }
@@ -92,6 +89,11 @@ public partial class CompetitionViewModel : BaseViewModel
 
 
     private async Task<bool> ReservationsNotOverlappingWithTheMatch(DateTime startDateTime, DateTime endDateTime)
+            //Make competition function
+        }
+    }
+
+    private async Task<bool> ReservationsNotOverlappingWithTheCompetition(DateTime startDateTime, DateTime endDateTime)
     {
         List<Reservation> overlappingReservations = _reservationService.FindOverlappingReservations(startDateTime, endDateTime, competitionBoats.Select(b => b.Id).ToList());
 
