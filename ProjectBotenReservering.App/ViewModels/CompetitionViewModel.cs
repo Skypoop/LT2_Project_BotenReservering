@@ -1,4 +1,6 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
+using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ProjectBotenReservering.App.Views;
@@ -36,7 +38,7 @@ public partial class CompetitionViewModel : BaseViewModel
     }
 
     [ObservableProperty]
-    private ObservableCollection<Boat> competitionBoats = new ObservableCollection<Boat>();
+    public ObservableCollection<Boat> competitionBoats = new ObservableCollection<Boat>();
 
     [ObservableProperty]
     public partial string CompetitionName { get; set; } = string.Empty;
@@ -68,6 +70,13 @@ public partial class CompetitionViewModel : BaseViewModel
         _competitionService = competitionService;
     }
 
+    public override void OnAppearing()
+    {
+        FillBoatCompetitionsList();
+
+        Debug.WriteLine("ik ben geroepen");
+    }
+
     [RelayCommand]
     private async Task CreateMatch()
     {
@@ -82,7 +91,7 @@ public partial class CompetitionViewModel : BaseViewModel
         if (await ReservationsNotOverlappingWithTheMatch(startDateTime, endDateTime))
         {
             //Make match function
-        } 
+        }
     }
 
     [RelayCommand]
@@ -136,5 +145,36 @@ public partial class CompetitionViewModel : BaseViewModel
         }
 
         return false;
+    }
+
+    public void FillBoatCompetitionsList()
+    {
+        CompetitionBoats.Clear();
+
+        List<Boat> boats = _competitionService.GetCompetitionBoats();
+
+        foreach (Boat boat in boats)
+        {
+            CompetitionBoats.Add(boat);
+        }
+
+        RefreshCompetitionCounters(boats);
+    }
+
+    public void RefreshCompetitionCounters(List<Boat> boats)
+    {
+        if (boats != null && boats.Count > 0)
+        {
+            CalculatedBoatCount = CompetitionBoats.Count;
+
+            if (boats[0].SteeringWheel)
+            {
+                CalculatedPersonCount = CompetitionBoats.Count * (boats[0].Seats + 1);
+            }
+            else
+            {
+                CalculatedPersonCount = CompetitionBoats.Count * boats[0].Seats;
+            }
+        }
     }
 }
