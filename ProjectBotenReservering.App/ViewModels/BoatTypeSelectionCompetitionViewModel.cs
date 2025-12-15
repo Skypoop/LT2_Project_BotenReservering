@@ -81,11 +81,14 @@ public partial class BoatTypeSelectionCompetitionViewModel : BaseViewModel
     [RelayCommand]
     public async Task SelectBoatType(BoatTypeUiItem boatUiItem)
     {
-        Boat boat = new Boat(boatUiItem.Name, boatUiItem.SteeringSeatPresent, boatUiItem.SeatAmount, boatUiItem.Level, boatUiItem.Type, (int)boatUiItem.Weight, true, "local", boatUiItem.Id);
+        BoatTypeUiItem boat = _boatTypeService.GetBoatTypeById(boatUiItem.Id);
 
-        _competitionService.SelectedBoatId = boat.Id;
+        if (boat != null)
+        {
+            _competitionService.SelectedBoatId = boat.Id;
 
-        await Shell.Current.GoToAsync("..");
+            await Shell.Current.GoToAsync("..");
+        }
     }
 
     partial void OnSelectedSteeringOptionChanged(SteeringOption value) => ApplyFilterOption();
