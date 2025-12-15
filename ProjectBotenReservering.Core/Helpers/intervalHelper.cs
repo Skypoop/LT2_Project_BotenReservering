@@ -13,7 +13,7 @@ public static class IntervalHelper {
 
     public static float[][] TimeSlotListToIntervalList(DateTime[] startTimes, DateTime[] endTimes) {
         List<float[]> intervalList = new List<float[]>();
-        // there will always be as much start times as end times so no check is needed
+        // there will always be as many start times as end times so no check is needed
         for (int i = 0; i < startTimes.Length; i++) {
             intervalList.Add(TimeSlotToInterval(startTimes[i], endTimes[i]));
         }
