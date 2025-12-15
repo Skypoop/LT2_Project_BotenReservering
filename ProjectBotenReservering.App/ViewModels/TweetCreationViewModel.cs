@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using ProjectBotenReservering.App.Helpers;
 using ProjectBotenReservering.App.Views;
+using ProjectBotenReservering.Core.Interfaces.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 
@@ -10,12 +10,15 @@ namespace ProjectBotenReservering.App.ViewModels;
 [QueryProperty(nameof(CompetitionContext), "context")]
 public partial class TweetCreationViewModel : BaseViewModel
 {
+    private readonly IClientService _clientService;
+    private readonly ILlmService _llmService;
+    private readonly IPromptHelper _promptHelper;
+
     [ObservableProperty]
     public partial string PageWelcomeMessage { get; set; } = string.Empty;
 
     [ObservableProperty]
     public partial string TweetContent { get; set; } = string.Empty;
-
 
     [ObservableProperty]
     public partial string CompetitionContext { get; set; } = string.Empty;
@@ -32,13 +35,11 @@ public partial class TweetCreationViewModel : BaseViewModel
     [ObservableProperty]
     public partial bool IsTweetContentEditableByUser { get; set; }
 
-    private readonly IClientService _clientService;
-    private readonly ILlmService _llmService;
-
-    public TweetCreationViewModel(IClientService clientService, ILlmService llmService)
+    public TweetCreationViewModel(IClientService clientService, ILlmService llmService, IPromptHelper promptHelper)
     {
         _clientService = clientService;
         _llmService = llmService;
+        _promptHelper = promptHelper;
     }
 
     partial void OnCompetitionContextChanged(string value)
@@ -50,9 +51,8 @@ public partial class TweetCreationViewModel : BaseViewModel
     {
         try
         {
-            // Load prompts from text files
-            string systemPrompt = await PromptHelper.LoadPromptAsync("TweetSystemPrompt.txt");
-            string userPromptTemplate = await PromptHelper.LoadPromptAsync("TweetUserPrompt.txt");
+            string systemPrompt = await _promptHelper.LoadPromptAsync("TweetSystemPrompt.txt");
+            string userPromptTemplate = await _promptHelper.LoadPromptAsync("TweetUserPrompt.txt");
 
             // Inject the competition context into the user prompt
             // If no context was passed, provide a fallback

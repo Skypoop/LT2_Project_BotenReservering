@@ -44,16 +44,15 @@ public partial class CompetitionViewModel : BaseViewModel
     private async Task CreateMatch()
     {
         // Hasn't been implemented yet. Comment out if you want to test navigation to tweet creation.
-        if (_selectedBoats == null)
-        {
-            return;
-        }
+        //if (_selectedBoats == null)
+        //{
+        //    return;
+        //}
 
         DateTime startDateTime = StartDate.Date + StartTime;
         DateTime endDateTime = EndDate.Date + EndTime;
-        // Note: there is an extremely large amount of dummy reservations in the system.
-        // The if statement below will almost always evaluate to false unless you pick a date far in the future.
-        if (await ReservationsNotOverlappingWithTheCompetition(startDateTime, endDateTime))
+
+        if (await HandleConflictingReservationsAsync(startDateTime, endDateTime))
         {
             // Construct context string from user input for the tweet
             string contextString = $"Naam: {CompetitionName}, " +
@@ -71,33 +70,37 @@ public partial class CompetitionViewModel : BaseViewModel
         }
     }
 
-    private async Task<bool> ReservationsNotOverlappingWithTheCompetition(DateTime startDateTime, DateTime endDateTime)
+    private async Task<bool> HandleConflictingReservationsAsync(DateTime startDateTime, DateTime endDateTime)
     {
-        List<Reservation> overlappingReservations = _reservationService.FindOverlappingReservations(startDateTime, endDateTime, _selectedBoats?.Select(b => b.Id).ToList() ?? []);
+        List<int> boatIds = (_selectedBoats ?? Enumerable.Empty<Boat>()).Select(boat => boat.Id).ToList();
+        List<Reservation> overlappingReservations = _reservationService.FindOverlappingReservations(startDateTime, endDateTime, boatIds);
 
-        if (overlappingReservations.Count > 0)
+        if (overlappingReservations.Count == 0)
         {
-            return await ShowWarningOverlappingReservationsDialog(overlappingReservations);
+            return true;
         }
 
-        return false;
+        return await ResolveReservationConflictsAsync(overlappingReservations);
     }
-
-    private async Task<bool> ShowWarningOverlappingReservationsDialog(List<Reservation> overlappingReservations)
+    private async Task<bool> ResolveReservationConflictsAsync(List<Reservation> overlappingReservations)
     {
-        bool answer = await Shell.Current.DisplayAlert("Attentie reserveringen worden beïnvloed", $"Om ruimte te maken voor deze wedstrijd worden er {overlappingReservations.Count} reserveringen geannuleerd. Tijdens het aanmaken, ga je akkoord hiermee?", "OK", "Terug");
+        bool isConfirmed = await ConfirmCancellationWithUserAsync(overlappingReservations.Count);
 
-        if (answer)
+        if (isConfirmed)
         {
-            CancelOverlappingReservations(overlappingReservations);
-
+            CancelReservations(overlappingReservations);
             return true;
         }
 
         return false;
     }
 
-    private void CancelOverlappingReservations(List<Reservation> overlappingReservations)
+    private async Task<bool> ConfirmCancellationWithUserAsync(int count)
+    {
+        return await Shell.Current.DisplayAlert("Attentie reserveringen worden beïnvloed", $"Om ruimte te maken voor deze wedstrijd worden er {count} reserveringen geannuleerd. Tijdens het aanmaken, ga je akkoord hiermee?", "OK", "Terug");
+    }
+
+    private void CancelReservations(List<Reservation> overlappingReservations)
     {
         _reservationService.CancelOverlappingReservations(overlappingReservations);
     }

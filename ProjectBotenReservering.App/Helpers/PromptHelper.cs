@@ -1,8 +1,10 @@
+using ProjectBotenReservering.Core.Interfaces.Helpers;
+
 namespace ProjectBotenReservering.App.Helpers;
 
-public static class PromptHelper
+public class PromptHelper : IPromptHelper
 {
-    public static async Task<string> LoadPromptAsync(string fileName)
+    public async Task<string> LoadPromptAsync(string fileName)
     {
         try
         {

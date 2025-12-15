@@ -2,26 +2,15 @@ namespace ProjectBotenReservering.Core.Data.Repositories;
 
 using System;
 using System.Threading.Tasks;
-using RestClients;
+using ProjectBotenReservering.Core.Data.RestClients;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 
 public class LlmRepository : ILlmRepository
 {
     private readonly LlmRestClient _restClient;
-
-    public LlmRepository()
-    {
-        _restClient = new LlmRestClient();
-    }
-
-    public LlmRepository(string apiKey)
-    {
-        _restClient = new LlmRestClient(apiKey);
-    }
-
     public LlmRepository(LlmRestClient restClient)
     {
-        _restClient = restClient;
+        _restClient = restClient ?? throw new ArgumentNullException(nameof(restClient));
     }
 
     public async Task<string> GenerateContentAsync(string prompt)
@@ -49,4 +38,3 @@ public class LlmRepository : ILlmRepository
         return await _restClient.GenerateContentWithSystemInstructionAsync(prompt, systemInstruction);
     }
 }
-
