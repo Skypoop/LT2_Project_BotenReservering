@@ -2,7 +2,7 @@ namespace ProjectBotenReservering.Core.Helpers;
 
 public static class IntervalHelper {
 
-    // Convert datetimes to a float so we can easilier check for overlaps
+    // Convert datetimes to a float so we can easilier check for overlaps 
     private static float dateTimeToFloat(DateTime date) {
         return (float)date.TimeOfDay.TotalMinutes;
     }
