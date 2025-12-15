@@ -17,7 +17,7 @@ public class ValidationHelperTests
     [TestCase("Jan Jansen!", false, TestName = "IsValidName_SpecialCharExclamation_ReturnsFalse")]
     public void IsValidName_Scenarios_ReturnExpected(string? input, bool expected)
     {
-        bool result = ValidationHelper.IsValidName(input!);
+        bool result = RegistrationValidationHelper.IsValidName(input!);
         result.Should().Be(expected);
     }
 
@@ -30,7 +30,7 @@ public class ValidationHelperTests
     [TestCase("test @test.nl", false, TestName = "IsValidEmail_SpaceInMail_ReturnsFalse")]
     public void IsValidEmail_Scenarios_ReturnExpected(string? input, bool expected)
     {
-        bool result = ValidationHelper.IsValidEmail(input!);
+        bool result = RegistrationValidationHelper.IsValidEmail(input!);
         result.Should().Be(expected);
     }
 
@@ -44,7 +44,7 @@ public class ValidationHelperTests
     [TestCase(" 2 ", true, TestName = "IsValidLevel_UntrimmedNumber_ReturnsTrue")]
     public void IsValidLevel_Scenarios_ReturnExpected(string? input, bool expected)
     {
-        bool result = ValidationHelper.IsValidLevel(input!);
+        bool result = RegistrationValidationHelper.IsValidLevel(input!);
         result.Should().Be(expected);
     }
 }

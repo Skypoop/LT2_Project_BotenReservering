@@ -108,6 +108,7 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IReservationService, ReservationService>();
             builder.Services.AddSingleton<IClientContext, ClientContext>();
             builder.Services.AddSingleton<IAuthService, AuthService>();
+            builder.Services.AddSingleton<ICompetitionService, CompetitionService>();
 
             builder.Services.AddSingleton<App>();
             builder.Services.AddSingleton<TabItemToViewHelper>();
