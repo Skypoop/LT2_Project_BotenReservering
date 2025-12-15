@@ -18,6 +18,7 @@ namespace TestCore.Services
         private Mock<IReservationRepository> _repoMock;
         private Mock<IBoatAuthorizationService> _authMock;
         private Mock<IClientReservationRepository> _clientMock;
+        private Mock<IBoatRepository> _boatRepoMock;
 
         [SetUp]
         public void Setup()
@@ -25,8 +26,9 @@ namespace TestCore.Services
             _repoMock = new Mock<IReservationRepository>();
             _authMock = new Mock<IBoatAuthorizationService>();
             _clientMock = new Mock<IClientReservationRepository>();
+            _boatRepoMock = new Mock<IBoatRepository>();
 
-            _service = new ReservationService(_repoMock.Object, _authMock.Object, _clientMock.Object);
+            _service = new ReservationService(_repoMock.Object, _authMock.Object, _clientMock.Object, _boatRepoMock.Object);
         }
 
         [Test]
@@ -119,6 +121,64 @@ namespace TestCore.Services
             reservation.Approved.Should().BeTrue();
             _repoMock.Verify(r => r.Add(reservation), Times.Once);
             _clientMock.Verify(c => c.Add(It.IsAny<ClientReservation>()), Times.Once);
+        }
+
+        [Test]
+        public void IsReservationTimeBlocked_WhenMatchingBoatReservationsReachCapacity_ReturnsTrue()
+        {
+            DateTime startTime = DateTime.Today.AddHours(9);
+            DateTime endTime = startTime.AddHours(1);
+            List<Reservation> reservations = new()
+            {
+                new Reservation(DateTime.Today, startTime, endTime, 1, 10, true)
+            };
+            BoatTypeUiItem boatType = CreateBoatType("Skiff", 1);
+
+            _boatRepoMock.Setup(repo => repo.GetAll()).Returns(new List<Boat>
+            {
+                new Boat("Skiff", false, 1, 1, BoatType.S, 45, true, null, 10)
+            });
+
+            bool result = _service.IsReservationTimeBlocked(reservations, startTime, endTime, boatType);
+
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public void IsReservationTimeBlocked_IgnoresReservationsForDifferentBoatNames()
+        {
+            DateTime startTime = DateTime.Today.AddHours(9);
+            DateTime endTime = startTime.AddHours(1);
+            List<Reservation> reservations = new()
+            {
+                new Reservation(DateTime.Today, startTime, endTime, 1, 20, true)
+            };
+            BoatTypeUiItem boatType = CreateBoatType("Skiff", 1);
+
+            _boatRepoMock.Setup(repo => repo.GetAll()).Returns(new List<Boat>
+            {
+                new Boat("Skiff", false, 1, 1, BoatType.S, 45, true, null, 10),
+                new Boat("Other", false, 1, 1, BoatType.S, 45, true, null, 20)
+            });
+
+            bool result = _service.IsReservationTimeBlocked(reservations, startTime, endTime, boatType);
+
+            result.Should().BeFalse();
+        }
+
+        private static BoatTypeUiItem CreateBoatType(string name, int amount)
+        {
+            return new BoatTypeUiItem
+            {
+                Id = 1,
+                Name = name,
+                SeatAmount = 1,
+                Weight = 1,
+                SteeringSeatPresent = false,
+                Amount = amount,
+                Level = 1,
+                Type = BoatType.S
+            };
         }
     }
 }
