@@ -7,7 +7,7 @@ using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
-public partial class CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService) : BaseViewModel
+public partial class CompetitionViewModel : BaseViewModel
 {
     private readonly IReservationService _reservationService;
     private readonly ICompetitionService _competitionService;
@@ -61,13 +61,19 @@ public partial class CompetitionViewModel(IReservationService reservationService
     [ObservableProperty]
     public partial int CalculatedPersonCount { get; set; }
 
+    public CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService)
+    {
+        _reservationService = reservationService;
+        _competitionService = competitionService;
+    }
+
     [RelayCommand]
     private async Task CreateCompetition()
     {
         DateTime startDateTime = StartDate.Date + StartTime;
         DateTime endDateTime = EndDate.Date + EndTime;
 
-        (bool isValid, string? errorMessage) = _competitionService.ValidateCompetition(startDateTime, endDateTime);
+        (bool isValid, string? errorMessage) = _competitionService.ValidateCompetition(startDateTime, endDateTime, competitionBoats.ToList());
 
         if (!isValid)
         {
@@ -77,7 +83,7 @@ public partial class CompetitionViewModel(IReservationService reservationService
 
         if (await ReservationsNotOverlappingWithTheCompetition(startDateTime, endDateTime))
         {
-            //Make match function
+            //Make competition function
         }
     }
 
@@ -87,11 +93,6 @@ public partial class CompetitionViewModel(IReservationService reservationService
         await Shell.Current.GoToAsync(nameof(BoatTypeSelectionCompetitionView));
     }
 
-
-    private async Task<bool> ReservationsNotOverlappingWithTheMatch(DateTime startDateTime, DateTime endDateTime)
-            //Make competition function
-        }
-    }
 
     private async Task<bool> ReservationsNotOverlappingWithTheCompetition(DateTime startDateTime, DateTime endDateTime)
     {
