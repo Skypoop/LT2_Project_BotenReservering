@@ -1,15 +1,41 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ProjectBotenReservering.App.Views;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
-public partial class CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService) : BaseViewModel
+public partial class CompetitionViewModel : BaseViewModel
 {
-    private readonly IReservationService _reservationService = reservationService;
-    private readonly ICompetitionService _competitionService = competitionService;
-    private List<Boat> _selectedBoats;
+    private readonly IReservationService _reservationService;
+    private readonly ICompetitionService _competitionService;
+
+    private string _teamCount = "0";
+
+    public string TeamCount
+    {
+        get => _teamCount;
+        set
+        {
+            if (SetProperty(ref _teamCount, value))
+            {
+                if (CheckBoatAmountIsValid(value))
+                {
+                    SelectCompetitionBoatTypeIsEnable = true;
+                    _competitionService.AmountBoats = int.Parse(value);
+                }
+                else
+                {
+                    SelectCompetitionBoatTypeIsEnable = false;
+                }
+            }
+        }
+    }
+
+    [ObservableProperty]
+    public ObservableCollection<Boat> competitionBoats = new ObservableCollection<Boat>();
 
     [ObservableProperty]
     public partial string CompetitionName { get; set; } = string.Empty;
@@ -27,7 +53,7 @@ public partial class CompetitionViewModel(IReservationService reservationService
     public partial TimeSpan EndTime { get; set; } = TimeSpan.Zero;
 
     [ObservableProperty]
-    public partial int TeamCount { get; set; }
+    public partial bool SelectCompetitionBoatTypeIsEnable { get; set; } = false;
 
     [ObservableProperty]
     public partial int CalculatedBoatCount { get; set; }
@@ -35,13 +61,19 @@ public partial class CompetitionViewModel(IReservationService reservationService
     [ObservableProperty]
     public partial int CalculatedPersonCount { get; set; }
 
+    public CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService)
+    {
+        _reservationService = reservationService;
+        _competitionService = competitionService;
+    }
+
     [RelayCommand]
     private async Task CreateCompetition()
     {
         DateTime startDateTime = StartDate.Date + StartTime;
         DateTime endDateTime = EndDate.Date + EndTime;
 
-        (bool isValid, string? errorMessage) = _competitionService.ValidateCompetition(startDateTime, endDateTime, _selectedBoats);
+        (bool isValid, string? errorMessage) = _competitionService.ValidateCompetition(startDateTime, endDateTime, competitionBoats.ToList());
 
         if (!isValid)
         {
@@ -55,9 +87,16 @@ public partial class CompetitionViewModel(IReservationService reservationService
         }
     }
 
+    [RelayCommand]
+    private async Task SelectCompetitionBoatType()
+    {
+        await Shell.Current.GoToAsync(nameof(BoatTypeSelectionCompetitionView));
+    }
+
+
     private async Task<bool> ReservationsNotOverlappingWithTheCompetition(DateTime startDateTime, DateTime endDateTime)
     {
-        List<Reservation> overlappingReservations = _reservationService.FindOverlappingReservations(startDateTime, endDateTime, _selectedBoats.Select(b => b.Id).ToList());
+        List<Reservation> overlappingReservations = _reservationService.FindOverlappingReservations(startDateTime, endDateTime, competitionBoats.Select(b => b.Id).ToList());
 
         if (overlappingReservations.Count > 0)
         {
@@ -84,5 +123,51 @@ public partial class CompetitionViewModel(IReservationService reservationService
     private void CancelOverlappingReservations(List<Reservation> overlappingReservations)
     {
         _reservationService.CancelOverlappingReservations(overlappingReservations);
+    }
+
+    private bool CheckBoatAmountIsValid(string boatAmount)
+    {
+        if (string.IsNullOrWhiteSpace(boatAmount))
+        {
+            return false;
+        }
+
+        if (int.TryParse(boatAmount, out int amount))
+        {
+            return amount > 1;
+        }
+
+        return false;
+    }
+
+    public void FillBoatCompetitionsList()
+    {
+        CompetitionBoats.Clear();
+
+        List<Boat> boats = _competitionService.GetCompetitionBoats();
+
+        foreach (Boat boat in boats)
+        {
+            CompetitionBoats.Add(boat);
+        }
+
+        RefreshCompetitionCounters(boats);
+    }
+
+    public void RefreshCompetitionCounters(List<Boat> boats)
+    {
+        if (boats != null && boats.Count > 0)
+        {
+            CalculatedBoatCount = CompetitionBoats.Count;
+
+            if (boats[0].SteeringWheel)
+            {
+                CalculatedPersonCount = CompetitionBoats.Count * (boats.FirstOrDefault().Seats + 1);
+            }
+            else
+            {
+                CalculatedPersonCount = CompetitionBoats.Count * boats.FirstOrDefault().Seats;
+            }
+        }
     }
 }
