@@ -7,8 +7,7 @@ namespace ProjectBotenReservering.Core.Services;
 public class CompetitionService : ICompetitionService
 {
     private readonly IBoatRepository _boatRepository;
-
-    private List<Boat> _competitionBoatsList = new List<Boat>();
+    private readonly List<Boat> _competitionBoatsList = [];
 
     private int _selectedBoatId;
     private int _amountBoats;
@@ -18,6 +17,8 @@ public class CompetitionService : ICompetitionService
         set
         {
             AddBoatsToCompetition(value, AmountBoats);
+
+            _selectedBoatId = value;
         }
     }
 
@@ -37,6 +38,11 @@ public class CompetitionService : ICompetitionService
 
     private void AddBoatsToCompetition(int boatId, int amount)
     {
+        if (_boatRepository.Get(boatId) == null)
+        {
+            throw new ArgumentException($"Boat with ID {boatId} does not exist.", nameof(boatId));
+        }
+
         _competitionBoatsList.Clear();
 
         for (int i = 0; i < amount; i++)

@@ -3,9 +3,9 @@ using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.App.Views;
 
-public partial class BoatTypeSelectionMatchView : ContentPage
+public partial class BoatTypeSelectionCompetitionView : ContentPage
 {
-    public BoatTypeSelectionMatchView(BoatTypeSelectionMatchViewModel viewModel)
+    public BoatTypeSelectionCompetitionView(BoatTypeSelectionCompetitionViewModel viewModel)
     {
         InitializeComponent();
         BindingContext = viewModel;
@@ -14,7 +14,7 @@ public partial class BoatTypeSelectionMatchView : ContentPage
 
     private async void BoatTypeSelectionMatchView_Loaded(object? sender, EventArgs e)
     {
-        if (BindingContext is BoatTypeSelectionMatchViewModel vm)
+        if (BindingContext is BoatTypeSelectionCompetitionViewModel vm)
         {
             await vm.OnAppearing();
         }
@@ -25,7 +25,7 @@ public partial class BoatTypeSelectionMatchView : ContentPage
         if (sender is not BindableObject bindable) return;
         if (bindable.BindingContext is not BoatTypeUiItem tappedItem) return;
 
-        if (this.BindingContext is BoatTypeSelectionMatchViewModel viewModel)
+        if (this.BindingContext is BoatTypeSelectionCompetitionViewModel viewModel)
         {
             if (viewModel.SelectBoatTypeCommand.CanExecute(tappedItem))
             {

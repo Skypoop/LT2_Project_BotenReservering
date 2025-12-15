@@ -4,7 +4,7 @@ namespace ProjectBotenReservering.App.Views;
 
 public partial class CompetitionView : ContentView
 {
-    CompetitionViewModel _viewModel;
+    private readonly CompetitionViewModel _viewModel;
 
     public CompetitionView(CompetitionViewModel viewModel)
     {

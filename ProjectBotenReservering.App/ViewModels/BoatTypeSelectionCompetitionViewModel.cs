@@ -6,7 +6,7 @@ using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
-public partial class BoatTypeSelectionMatchViewModel : BaseViewModel
+public partial class BoatTypeSelectionCompetitionViewModel : BaseViewModel
 {
     public ObservableCollection<BoatTypeUiItem> BoatTypeItems { get; set; } = [];
     public List<BoatTypeUiItem> AllBoatTypes { get; set; }
@@ -30,7 +30,7 @@ public partial class BoatTypeSelectionMatchViewModel : BaseViewModel
     private readonly IBoatTypeService _boatTypeService;
     private readonly ICompetitionService _competitionService;
 
-    public BoatTypeSelectionMatchViewModel(IBoatTypeService boatTypeService, ICompetitionService competitionService)
+    public BoatTypeSelectionCompetitionViewModel(IBoatTypeService boatTypeService, ICompetitionService competitionService)
     {
         _boatTypeService = boatTypeService;
         AllBoatTypes = _boatTypeService.GetAllBoatTypes();

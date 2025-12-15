@@ -1,6 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
-using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ProjectBotenReservering.App.Views;
@@ -14,7 +12,6 @@ public partial class CompetitionViewModel : BaseViewModel
     private readonly IReservationService _reservationService;
     private readonly ICompetitionService _competitionService;
 
-    private List<Boat> _selectedBoats;
     private string _teamCount = "0";
 
     public string TeamCount
@@ -24,14 +21,14 @@ public partial class CompetitionViewModel : BaseViewModel
         {
             if (SetProperty(ref _teamCount, value))
             {
-                if (CheckBoatAmounIsValid(value))
+                if (CheckBoatAmountIsValid(value))
                 {
-                    SelectMatchBoatTypeIsEnable = true;
+                    SelectCompetitionBoatTypeIsEnable = true;
                     _competitionService.AmountBoats = int.Parse(value);
                 }
                 else
                 {
-                    SelectMatchBoatTypeIsEnable = false;
+                    SelectCompetitionBoatTypeIsEnable = false;
                 }
             }
         }
@@ -56,7 +53,7 @@ public partial class CompetitionViewModel : BaseViewModel
     public partial TimeSpan EndTime { get; set; } = TimeSpan.Zero;
 
     [ObservableProperty]
-    public partial bool SelectMatchBoatTypeIsEnable { get; set; } = false;
+    public partial bool SelectCompetitionBoatTypeIsEnable { get; set; } = false;
 
     [ObservableProperty]
     public partial int CalculatedBoatCount { get; set; }
@@ -70,17 +67,10 @@ public partial class CompetitionViewModel : BaseViewModel
         _competitionService = competitionService;
     }
 
-    public override void OnAppearing()
-    {
-        FillBoatCompetitionsList();
-
-        Debug.WriteLine("ik ben geroepen");
-    }
-
     [RelayCommand]
-    private async Task CreateMatch()
+    private async Task CreateCompetition()
     {
-        if (_selectedBoats == null)
+        if (competitionBoats == null && competitionBoats.Count == 0)
         {
             return;
         }
@@ -95,15 +85,15 @@ public partial class CompetitionViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private async Task SelectMatchBoatType()
+    private async Task SelectCompetitionBoatType()
     {
-        await Shell.Current.GoToAsync(nameof(BoatTypeSelectionMatchView));
+        await Shell.Current.GoToAsync(nameof(BoatTypeSelectionCompetitionView));
     }
 
 
     private async Task<bool> ReservationsNotOverlappingWithTheMatch(DateTime startDateTime, DateTime endDateTime)
     {
-        List<Reservation> overlappingReservations = _reservationService.FindOverlappingReservations(startDateTime, endDateTime, _selectedBoats.Select(b => b.Id).ToList());
+        List<Reservation> overlappingReservations = _reservationService.FindOverlappingReservations(startDateTime, endDateTime, competitionBoats.Select(b => b.Id).ToList());
 
         if (overlappingReservations.Count > 0)
         {
@@ -132,7 +122,7 @@ public partial class CompetitionViewModel : BaseViewModel
         _reservationService.CancelOverlappingReservations(overlappingReservations);
     }
 
-    private bool CheckBoatAmounIsValid(string boatAmount)
+    private bool CheckBoatAmountIsValid(string boatAmount)
     {
         if (string.IsNullOrWhiteSpace(boatAmount))
         {
@@ -169,11 +159,11 @@ public partial class CompetitionViewModel : BaseViewModel
 
             if (boats[0].SteeringWheel)
             {
-                CalculatedPersonCount = CompetitionBoats.Count * (boats[0].Seats + 1);
+                CalculatedPersonCount = CompetitionBoats.Count * (boats.FirstOrDefault().Seats + 1);
             }
             else
             {
-                CalculatedPersonCount = CompetitionBoats.Count * boats[0].Seats;
+                CalculatedPersonCount = CompetitionBoats.Count * boats.FirstOrDefault().Seats;
             }
         }
     }

@@ -219,8 +219,8 @@
 
                 <Button 
                         Text="selecteer een boottype" 
-                        Command="{Binding SelectMatchBoatTypeCommand}"
-                        IsEnabled="{Binding SelectMatchBoatTypeIsEnable}"
+                        Command="{Binding SelectCompetitionBoatTypeCommand}"
+                        IsEnabled="{Binding SelectCompetitionBoatTypeIsEnable}"
                         CornerRadius="5"
                         HeightRequest="35"
                         Padding="20,0"/>
@@ -310,7 +310,7 @@
                 TranslationY="-70"
                 WidthRequest="200"
                 HeightRequest="50"
-                Command="{Binding CreateMatchCommand}"/>
+                Command="{Binding CreateCompetitionCommand}"/>
 
         </VerticalStackLayout>
     </Grid>
