@@ -1,13 +1,5 @@
-using Moq;
-using NUnit.Framework;
 using FluentAssertions;
 using ProjectBotenReservering.Core.Helpers;
-using ProjectBotenReservering.Core.Interfaces.Services;
-using ProjectBotenReservering.Core.Interfaces.Repositories;
-using ProjectBotenReservering.Core.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System;
 
 namespace TestCore.Services;
 
@@ -15,11 +7,11 @@ namespace TestCore.Services;
 public class IntervalHelperTests
 {
   [Test]
-  public void isIntervalCollisionCountedCorrectly_WhenGivenIntervalListWithCollisions()
+  public void IsIntervalCollisionCountedCorrectly_WhenGivenIntervalListWithCollisions()
   {
     // arrange
     float[] a = new float[] { 1.0f, 4.0f };
-      float[][] intervalList =
+    float[][] intervalList =
     [
       new float[] { 1.0f, 4.0f },
       new float[] { 3.0f, 5.0f },
@@ -32,7 +24,7 @@ public class IntervalHelperTests
     count.Should().Be(3);
   }
   [Test]
-  public void isIntervalCollisionCountedCorrectly_WhenIntervalListIsEmpty()
+  public void IsIntervalCollisionCountedCorrectly_WhenIntervalListIsEmpty()
   {
     // arrange
     float[] a = new float[] { 1.0f, 4.0f };
@@ -46,7 +38,7 @@ public class IntervalHelperTests
   }
   
   [Test]
-  public void isIntervalCollisionCountedCorrectly_WhenIntervalIsContainedOrNoCollision()
+  public void IsIntervalCollisionCountedCorrectly_WhenIntervalIsContainedOrNoCollision()
   {
     // arrange
     float[] a = new float[] { 5.0f, 6.0f };
