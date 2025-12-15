@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ProjectBotenReservering.App.Views;
 using ProjectBotenReservering.Core.Interfaces.Services;
@@ -33,6 +34,9 @@ public partial class CompetitionViewModel : BaseViewModel
             }
         }
     }
+
+    [ObservableProperty]
+    private ObservableCollection<Boat> competitionBoats = new ObservableCollection<Boat>();
 
     [ObservableProperty]
     public partial string CompetitionName { get; set; } = string.Empty;
