@@ -1,14 +1,14 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using ProjectBotenReservering.Core.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
-public partial class CompetitionViewModel : BaseViewModel
+public partial class CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService) : BaseViewModel
 {
-    private readonly IReservationService _reservationService;
+    private readonly IReservationService _reservationService = reservationService;
+    private readonly ICompetitionService _competitionService = competitionService;
     private List<Boat> _selectedBoats;
 
     [ObservableProperty]
@@ -35,24 +35,17 @@ public partial class CompetitionViewModel : BaseViewModel
     [ObservableProperty]
     public partial int CalculatedPersonCount { get; set; }
 
-    public CompetitionViewModel(IReservationService reservationService)
-    {
-        _reservationService = reservationService;
-    }
-
     [RelayCommand]
     private async Task CreateCompetition()
     {
         DateTime startDateTime = StartDate.Date + StartTime;
         DateTime endDateTime = EndDate.Date + EndTime;
 
-        if (!await ValidateCompetitionDateAsync(startDateTime, endDateTime))
-        {
-            return;
-        }
+        (bool isValid, string? errorMessage) = _competitionService.ValidateCompetition(startDateTime, endDateTime, _selectedBoats);
 
-        if (!await ValidateBoatSelectionAsync())
+        if (!isValid)
         {
+            await Shell.Current.DisplayAlert("Fout", errorMessage, "OK");
             return;
         }
 
@@ -60,34 +53,6 @@ public partial class CompetitionViewModel : BaseViewModel
         {
             //Make competition function
         }
-    }
-
-    private async Task<bool> ValidateCompetitionDateAsync(DateTime startDateTime, DateTime endDateTime)
-    {
-        if (!CompetitionValidationHelper.IsCompetitionEndDateValid(startDateTime, endDateTime))
-        {
-            await Shell.Current.DisplayAlert("Fout", "De eindtijd moet later zijn dan de begintijd.", "OK");
-            return false;
-        }
-
-        if (!CompetitionValidationHelper.IsCompetitionStartDateValid(startDateTime))
-        {
-            await Shell.Current.DisplayAlert("Fout", "De begintijd mag niet in het verleden liggen.", "OK");
-            return false;
-        }
-
-        return true;
-    }
-
-    private async Task<bool> ValidateBoatSelectionAsync()
-    {
-        if (!CompetitionValidationHelper.AreBoatsSelected(_selectedBoats))
-        {
-            await Shell.Current.DisplayAlert("Fout", "Er zijn geen boten geselecteerd.", "OK");
-            return false;
-        }
-
-        return true;
     }
 
     private async Task<bool> ReservationsNotOverlappingWithTheCompetition(DateTime startDateTime, DateTime endDateTime)
