@@ -9,7 +9,30 @@ namespace ProjectBotenReservering.App.ViewModels;
 public partial class CompetitionViewModel : BaseViewModel
 {
     private readonly IReservationService _reservationService;
+    private readonly ICompetitionService _competitionService;
+
     private List<Boat> _selectedBoats;
+    private string _teamCount = "0";
+
+    public string TeamCount
+    {
+        get => _teamCount;
+        set
+        {
+            if (SetProperty(ref _teamCount, value))
+            {
+                if (CheckBoatAmounIsValid(value))
+                {
+                    SelectMatchBoatTypeIsEnable = true;
+                    _competitionService.AmountBoats = int.Parse(value);
+                }
+                else
+                {
+                    SelectMatchBoatTypeIsEnable = false;
+                }
+            }
+        }
+    }
 
     [ObservableProperty]
     public partial string CompetitionName { get; set; } = string.Empty;
@@ -27,7 +50,7 @@ public partial class CompetitionViewModel : BaseViewModel
     public partial TimeSpan EndTime { get; set; } = TimeSpan.Zero;
 
     [ObservableProperty]
-    public partial int TeamCount { get; set; }
+    public partial bool SelectMatchBoatTypeIsEnable { get; set; } = false;
 
     [ObservableProperty]
     public partial int CalculatedBoatCount { get; set; }
@@ -35,9 +58,10 @@ public partial class CompetitionViewModel : BaseViewModel
     [ObservableProperty]
     public partial int CalculatedPersonCount { get; set; }
 
-    public CompetitionViewModel(IReservationService reservationService)
+    public CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService)
     {
         _reservationService = reservationService;
+        _competitionService = competitionService;
     }
 
     [RelayCommand]
@@ -93,5 +117,20 @@ public partial class CompetitionViewModel : BaseViewModel
     private void CancelOverlappingReservations(List<Reservation> overlappingReservations)
     {
         _reservationService.CancelOverlappingReservations(overlappingReservations);
+    }
+
+    private bool CheckBoatAmounIsValid(string boatAmount)
+    {
+        if (string.IsNullOrWhiteSpace(boatAmount))
+        {
+            return false;
+        }
+
+        if (int.TryParse(boatAmount, out int amount))
+        {
+            return amount > 1;
+        }
+
+        return false;
     }
 }

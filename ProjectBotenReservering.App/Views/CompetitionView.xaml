@@ -216,9 +216,10 @@
                     <Label Text="velden niet ingevuld" TextColor="Gray" FontSize="12"/>
                 </HorizontalStackLayout>
 
-                <Button Text="selecteer een boottype" 
+                <Button 
+                        Text="selecteer een boottype" 
                         Command="{Binding SelectMatchBoatTypeCommand}"
-                        IsEnabled="True"
+                        IsEnabled="{Binding SelectMatchBoatTypeIsEnable}"
                         CornerRadius="5"
                         HeightRequest="35"
                         Padding="20,0"/>

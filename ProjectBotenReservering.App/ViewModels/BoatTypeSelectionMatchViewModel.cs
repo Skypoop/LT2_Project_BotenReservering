@@ -28,12 +28,15 @@ public partial class BoatTypeSelectionMatchViewModel : BaseViewModel
     public partial int MinWeightFilter { get; set; } = 0;
 
     private readonly IBoatTypeService _boatTypeService;
+    private readonly ICompetitionService _competitionService;
 
-    public BoatTypeSelectionMatchViewModel(IBoatTypeService boatTypeService)
+    public BoatTypeSelectionMatchViewModel(IBoatTypeService boatTypeService, ICompetitionService competitionService)
     {
         _boatTypeService = boatTypeService;
-        AllBoatTypes = _boatTypeService.GetBoatTypes();
+        AllBoatTypes = _boatTypeService.GetAllBoatTypes();
         SelectedSteeringOption = SteeringOptions.First();
+        _competitionService = competitionService;
+
         ApplyFilterOption();
     }
 
@@ -76,14 +79,13 @@ public partial class BoatTypeSelectionMatchViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    public async Task SelectBoatType(BoatTypeUiItem boatType)
+    public async Task SelectBoatType(BoatTypeUiItem boatUiItem)
     {
-        Dictionary<string, object> navigationParameter = new Dictionary<string, object>
-        {
-            { "SelectedBoatTypeId", boatType.Id }
-        };
+        Boat boat = new Boat(boatUiItem.Name, boatUiItem.SteeringSeatPresent, boatUiItem.SeatAmount, boatUiItem.Level, boatUiItem.Type, (int)boatUiItem.Weight, true, "local", boatUiItem.Id);
 
-        await Shell.Current.GoToAsync("..", navigationParameter);
+        _competitionService.SelectedBoatId = boat.Id;
+
+        await Shell.Current.GoToAsync("..");
     }
 
     partial void OnSelectedSteeringOptionChanged(SteeringOption value) => ApplyFilterOption();
