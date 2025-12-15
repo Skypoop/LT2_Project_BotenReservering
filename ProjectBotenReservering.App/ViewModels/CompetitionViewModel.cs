@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ProjectBotenReservering.Core.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 
@@ -40,23 +41,56 @@ public partial class CompetitionViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private async Task CreateMatch()
+    private async Task CreateCompetition()
     {
-        if (_selectedBoats == null)
+        DateTime startDateTime = StartDate.Date + StartTime;
+        DateTime endDateTime = EndDate.Date + EndTime;
+
+        if (!await ValidateCompetitionDateAsync(startDateTime, endDateTime))
         {
             return;
         }
 
-        DateTime startDateTime = StartDate.Date + StartTime;
-        DateTime endDateTime = EndDate.Date + EndTime;
-
-        if (await ReservationsNotOverlappingWithTheMatch(startDateTime, endDateTime))
+        if (!await ValidateBoatSelectionAsync())
         {
-            //Make match function
-        } 
+            return;
+        }
+
+        if (await ReservationsNotOverlappingWithTheCompetition(startDateTime, endDateTime))
+        {
+            //Make competition function
+        }
     }
 
-    private async Task<bool> ReservationsNotOverlappingWithTheMatch(DateTime startDateTime, DateTime endDateTime)
+    private async Task<bool> ValidateCompetitionDateAsync(DateTime startDateTime, DateTime endDateTime)
+    {
+        if (!CompetitionValidationHelper.IsCompetitionEndDateValid(startDateTime, endDateTime))
+        {
+            await Shell.Current.DisplayAlert("Fout", "De eindtijd moet later zijn dan de begintijd.", "OK");
+            return false;
+        }
+
+        if (!CompetitionValidationHelper.IsCompetitionStartDateValid(startDateTime))
+        {
+            await Shell.Current.DisplayAlert("Fout", "De begintijd mag niet in het verleden liggen.", "OK");
+            return false;
+        }
+
+        return true;
+    }
+
+    private async Task<bool> ValidateBoatSelectionAsync()
+    {
+        if (!CompetitionValidationHelper.AreBoatsSelected(_selectedBoats))
+        {
+            await Shell.Current.DisplayAlert("Fout", "Er zijn geen boten geselecteerd.", "OK");
+            return false;
+        }
+
+        return true;
+    }
+
+    private async Task<bool> ReservationsNotOverlappingWithTheCompetition(DateTime startDateTime, DateTime endDateTime)
     {
         List<Reservation> overlappingReservations = _reservationService.FindOverlappingReservations(startDateTime, endDateTime, _selectedBoats.Select(b => b.Id).ToList());
 

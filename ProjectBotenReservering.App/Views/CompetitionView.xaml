@@ -288,7 +288,7 @@
                 TranslationY="-70"
                 WidthRequest="200"
                 HeightRequest="50"
-                Command="{Binding CreateMatchCommand}"/>
+                Command="{Binding CreateCompetitionCommand}"/>
 
         </VerticalStackLayout>
     </Grid>

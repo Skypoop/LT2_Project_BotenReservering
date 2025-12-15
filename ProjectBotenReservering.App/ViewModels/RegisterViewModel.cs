@@ -62,25 +62,25 @@ public partial class RegisterViewModel : BaseViewModel
     [RelayCommand]
     private void ValidateName()
     {
-        IsNameInvalid = !ValidationHelper.IsValidName(Name);
+        IsNameInvalid = !RegistrationValidationHelper.IsValidName(Name);
     }
 
     [RelayCommand]
     private void ValidateEmail()
     {
-        IsEmailInvalid = !ValidationHelper.IsValidEmail(Email);
+        IsEmailInvalid = !RegistrationValidationHelper.IsValidEmail(Email);
     }
 
     [RelayCommand]
     private void ValidateSweepLevel()
     {
-        IsSweepLevelInvalid = !ValidationHelper.IsValidLevel(SweepLevel);
+        IsSweepLevelInvalid = !RegistrationValidationHelper.IsValidLevel(SweepLevel);
     }
 
     [RelayCommand]
     private void ValidateScullLevel()
     {
-        IsScullLevelInvalid = !ValidationHelper.IsValidLevel(ScullLevel);
+        IsScullLevelInvalid = !RegistrationValidationHelper.IsValidLevel(ScullLevel);
     }
 
     [RelayCommand]
