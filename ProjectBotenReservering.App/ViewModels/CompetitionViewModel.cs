@@ -65,7 +65,7 @@ public partial class CompetitionViewModel : BaseViewModel
             return await ShowWarningOverlappingReservationsDialog(overlappingReservations);
         }
 
-        return false;
+        return true;
     }
 
     private async Task<bool> ShowWarningOverlappingReservationsDialog(List<Reservation> overlappingReservations)
