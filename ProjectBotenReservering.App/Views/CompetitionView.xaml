@@ -4,6 +4,7 @@
              xmlns:vm="clr-namespace:ProjectBotenReservering.App.ViewModels"
              x:Class="ProjectBotenReservering.App.Views.CompetitionView"
              x:DataType="vm:CompetitionViewModel"
+            xmlns:models="clr-namespace:ProjectBotenReservering.Core.Models;assembly=ProjectBotenReservering.Core"
              BackgroundColor="White">
 
     <Grid>
@@ -216,9 +217,10 @@
                     <Label Text="velden niet ingevuld" TextColor="Gray" FontSize="12"/>
                 </HorizontalStackLayout>
 
-                <Button Text="selecteer een boottype" 
-                        TextColor="Gray"
-                        BackgroundColor="#E0E0E0"
+                <Button 
+                        Text="selecteer een boottype" 
+                        Command="{Binding SelectCompetitionBoatTypeCommand}"
+                        IsEnabled="{Binding SelectCompetitionBoatTypeIsEnable}"
                         CornerRadius="5"
                         HeightRequest="35"
                         Padding="20,0"/>
@@ -227,13 +229,33 @@
             <!-- MAIN EDITOR BOX -->
             <Border Stroke="Gray" StrokeThickness="1" StrokeShape="RoundRectangle 5" MaximumWidthRequest="800" HeightRequest="350">
                 <Grid ColumnDefinitions="1*, 2*">
-                    <Label Grid.Column="0" 
-                           Text="Geen boottype geselecteerd" 
-                           TextColor="Black"
-                           VerticalOptions="Start" 
-                           Padding="10"/>
+                    <CollectionView Grid.Row="0"
+                                    ItemsSource="{Binding CompetitionBoats}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Boat">
+                                <Border Padding="8" 
+                                        Margin="0,4" 
+                                        Stroke="#e0e0e0" 
+                                        StrokeShape="RoundRectangle 6" 
+                                        BackgroundColor="#ffffff">
+                                    
+                                        <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
 
-                    <BoxView Grid.Column="0" HorizontalOptions="End" WidthRequest="1" Color="Gray" VerticalOptions="Fill"/>
+                                        <Label Grid.Column="0" 
+                                               Text="{Binding Name}" 
+                                               VerticalOptions="Center" 
+                                               FontSize="14" />
+                                            
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                        <CollectionView.EmptyView>
+                            <Label Text="Geen boten geselecteerd"
+                           VerticalOptions="Center"
+                           HorizontalOptions="Center"/>
+                        </CollectionView.EmptyView>
+                    </CollectionView>
 
                     <Grid Grid.Column="1" RowDefinitions="Auto, Auto, *, Auto" Padding="15" RowSpacing="10">
 
@@ -288,7 +310,7 @@
                 TranslationY="-70"
                 WidthRequest="200"
                 HeightRequest="50"
-                Command="{Binding CreateMatchCommand}"/>
+                Command="{Binding CreateCompetitionCommand}"/>
 
         </VerticalStackLayout>
     </Grid>

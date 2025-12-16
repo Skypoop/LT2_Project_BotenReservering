@@ -125,6 +125,7 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IClientContext, ClientContext>();
             builder.Services.AddSingleton<IAuthService, AuthService>();
             builder.Services.AddSingleton<ILlmService, LlmService>();
+            builder.Services.AddSingleton<ICompetitionService, CompetitionService>();
 
             builder.Services.AddSingleton<App>();
             builder.Services.AddSingleton<TabItemToViewHelper>();
@@ -135,6 +136,7 @@ namespace ProjectBotenReservering.App
             builder.Services.AddTransient<RegisterView>().AddTransient<RegisterViewModel>();
             builder.Services.AddTransient<CompetitionView>().AddTransient<CompetitionViewModel>();
             builder.Services.AddTransient<TweetCreationView>().AddTransient<TweetCreationViewModel>();
+            builder.Services.AddTransient<BoatTypeSelectionCompetitionView>().AddTransient<BoatTypeSelectionCompetitionViewModel>();
 
 #if DEBUG
             builder.Logging.AddDebug();

@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ProjectBotenReservering.App.Views;
 using ProjectBotenReservering.Core.Interfaces.Services;
@@ -9,7 +10,32 @@ namespace ProjectBotenReservering.App.ViewModels;
 public partial class CompetitionViewModel : BaseViewModel
 {
     private readonly IReservationService _reservationService;
-    private List<Boat>? _selectedBoats;
+    private readonly ICompetitionService _competitionService;
+
+    private string _teamCount = "0";
+
+    public string TeamCount
+    {
+        get => _teamCount;
+        set
+        {
+            if (SetProperty(ref _teamCount, value))
+            {
+                if (CheckBoatAmountIsValid(value))
+                {
+                    SelectCompetitionBoatTypeIsEnable = true;
+                    _competitionService.AmountBoats = int.Parse(value);
+                }
+                else
+                {
+                    SelectCompetitionBoatTypeIsEnable = false;
+                }
+            }
+        }
+    }
+
+    [ObservableProperty]
+    public ObservableCollection<Boat> competitionBoats = new ObservableCollection<Boat>();
 
     [ObservableProperty]
     public partial string CompetitionName { get; set; } = string.Empty;
@@ -27,7 +53,7 @@ public partial class CompetitionViewModel : BaseViewModel
     public partial TimeSpan EndTime { get; set; } = TimeSpan.Zero;
 
     [ObservableProperty]
-    public partial int TeamCount { get; set; }
+    public partial bool SelectCompetitionBoatTypeIsEnable { get; set; } = false;
 
     [ObservableProperty]
     public partial int CalculatedBoatCount { get; set; }
@@ -35,13 +61,14 @@ public partial class CompetitionViewModel : BaseViewModel
     [ObservableProperty]
     public partial int CalculatedPersonCount { get; set; }
 
-    public CompetitionViewModel(IReservationService reservationService)
+    public CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService)
     {
         _reservationService = reservationService;
+        _competitionService = competitionService;
     }
 
     [RelayCommand]
-    private async Task CreateMatch()
+    private async Task CreateCompetition()
     {
         // Hasn't been implemented yet. Comment out if you want to test navigation to tweet creation.
         //if (_selectedBoats == null)
@@ -103,5 +130,51 @@ public partial class CompetitionViewModel : BaseViewModel
     private void CancelReservations(List<Reservation> overlappingReservations)
     {
         _reservationService.CancelOverlappingReservations(overlappingReservations);
+    }
+
+    private bool CheckBoatAmountIsValid(string boatAmount)
+    {
+        if (string.IsNullOrWhiteSpace(boatAmount))
+        {
+            return false;
+        }
+
+        if (int.TryParse(boatAmount, out int amount))
+        {
+            return amount > 1;
+        }
+
+        return false;
+    }
+
+    public void FillBoatCompetitionsList()
+    {
+        CompetitionBoats.Clear();
+
+        List<Boat> boats = _competitionService.GetCompetitionBoats();
+
+        foreach (Boat boat in boats)
+        {
+            CompetitionBoats.Add(boat);
+        }
+
+        RefreshCompetitionCounters(boats);
+    }
+
+    public void RefreshCompetitionCounters(List<Boat> boats)
+    {
+        if (boats != null && boats.Count > 0)
+        {
+            CalculatedBoatCount = CompetitionBoats.Count;
+
+            if (boats[0].SteeringWheel)
+            {
+                CalculatedPersonCount = CompetitionBoats.Count * (boats.FirstOrDefault().Seats + 1);
+            }
+            else
+            {
+                CalculatedPersonCount = CompetitionBoats.Count * boats.FirstOrDefault().Seats;
+            }
+        }
     }
 }

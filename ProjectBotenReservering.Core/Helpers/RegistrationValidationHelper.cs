@@ -2,7 +2,7 @@
 
 namespace ProjectBotenReservering.Core.Helpers;
 
-public static class ValidationHelper
+public static class RegistrationValidationHelper
 {
     public static bool IsValidName(string name)
     {
