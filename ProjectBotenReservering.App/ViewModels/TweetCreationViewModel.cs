@@ -11,8 +11,7 @@ namespace ProjectBotenReservering.App.ViewModels;
 public partial class TweetCreationViewModel : BaseViewModel
 {
     private readonly IClientService _clientService;
-    private readonly ILlmService _llmService;
-    private readonly IPromptHelper _promptHelper;
+    private readonly ITweetService _tweetService;
 
     [ObservableProperty]
     public partial string PageWelcomeMessage { get; set; } = string.Empty;
@@ -35,11 +34,10 @@ public partial class TweetCreationViewModel : BaseViewModel
     [ObservableProperty]
     public partial bool IsTweetContentEditableByUser { get; set; }
 
-    public TweetCreationViewModel(IClientService clientService, ILlmService llmService, IPromptHelper promptHelper)
+    public TweetCreationViewModel(IClientService clientService, ITweetService tweetservice)
     {
         _clientService = clientService;
-        _llmService = llmService;
-        _promptHelper = promptHelper;
+        _tweetService = tweetservice;
     }
 
     partial void OnCompetitionContextChanged(string value)
@@ -51,25 +49,14 @@ public partial class TweetCreationViewModel : BaseViewModel
     {
         try
         {
-            string systemPrompt = await _promptHelper.LoadPromptAsync("TweetSystemPrompt.txt");
-            string userPromptTemplate = await _promptHelper.LoadPromptAsync("TweetUserPrompt.txt");
-
-            // Inject the competition context into the user prompt
-            // If no context was passed, provide a fallback
-            string contextToUse = string.IsNullOrWhiteSpace(CompetitionContext)
-                ? "Geen specifieke wedstrijdinformatie beschikbaar. Verzin een algemene wedstrijd (naam, tijd, datum, locatie)."
-                : CompetitionContext;
-
-            string finalUserPrompt = string.Format(userPromptTemplate, contextToUse);
-
-            string response = await _llmService.GenerateTextWithContextAsync(finalUserPrompt, systemPrompt);
+            string response = await _tweetService.GenerateCompetitionTweetAsync(CompetitionContext);
 
             TweetContent = response;
             IsTweetContentEditableByUser = true;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error generating tweet: {ex.Message}");
+            Console.WriteLine(ex.Message);
             TweetContent = "Kon geen tweet genereren. Probeer het later opnieuw.";
         }
     }
