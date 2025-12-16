@@ -58,6 +58,9 @@ public partial class CompetitionViewModel : BaseViewModel
     public partial TimeSpan EndTime { get; set; } = TimeSpan.Zero;
 
     [ObservableProperty]
+    private string teamName = string.Empty;
+
+    [ObservableProperty]
     public partial bool SelectCompetitionBoatTypeIsEnable { get; set; } = false;
 
     [ObservableProperty]
@@ -67,6 +70,8 @@ public partial class CompetitionViewModel : BaseViewModel
     public partial int CalculatedPersonCount { get; set; }
 
     private Dictionary<int, ObservableCollection<Client>> _clientsByBoatId = new Dictionary<int, ObservableCollection<Client>>();
+
+    private readonly Dictionary<int, string> _teamNameByBoatId = new();
 
     [ObservableProperty]
     private Client? selectedClient;
@@ -245,10 +250,21 @@ public partial class CompetitionViewModel : BaseViewModel
         if (value == null)
         {
             SelectedClients = new ObservableCollection<Client>();
+            TeamName = string.Empty;
             return;
         }
 
         SelectedClients = GetOrCreateClientsForBoatId(value.Id);
+
+        TeamName = _teamNameByBoatId.TryGetValue(value.Id, out string name)
+        ? name
+        : string.Empty;
+    }
+
+    partial void OnTeamNameChanged(string value)
+    {
+        if (SelectedBoat == null) return;
+        _teamNameByBoatId[SelectedBoat.Id] = value ?? string.Empty;
     }
 
     private ObservableCollection<Client> GetOrCreateClientsForBoatId(int boatId)
