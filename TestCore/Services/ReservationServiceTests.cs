@@ -287,7 +287,7 @@ namespace TestCore.Services
             // Act
             _service.CancelOverlappingReservations(reservations);
             // Assert
-            _repoMock.Verify(m => m.CancelReservationsByIds(It.IsAny<List<int>>()), Times.Once)
+            _repoMock.Verify(m => m.CancelReservationsByIds(It.IsAny<List<int>>()), Times.Once);
         }
 
         private static BoatTypeUiItem CreateBoatType(string name, int amount)
