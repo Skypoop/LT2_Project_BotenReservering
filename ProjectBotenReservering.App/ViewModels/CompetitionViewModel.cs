@@ -139,6 +139,8 @@ public partial class CompetitionViewModel : BaseViewModel
         {
             SelectedClients.Remove(client);
         }
+
+        UpdateQualificationFlags();
     }
 
     private async Task<bool> ReservationsNotOverlappingWithTheCompetition(DateTime startDateTime, DateTime endDateTime)
@@ -202,6 +204,8 @@ public partial class CompetitionViewModel : BaseViewModel
 
         SelectedBoat = null;
         SelectedClients = new ObservableCollection<Client>();
+
+        UpdateQualificationFlags();
     }
 
     public void RefreshCompetitionCounters(List<Boat> boats)
@@ -259,6 +263,8 @@ public partial class CompetitionViewModel : BaseViewModel
         TeamName = _teamNameByBoatId.TryGetValue(value.Id, out string name)
         ? name
         : string.Empty;
+
+        UpdateQualificationFlags();
     }
 
     partial void OnTeamNameChanged(string value)
@@ -311,5 +317,47 @@ public partial class CompetitionViewModel : BaseViewModel
         }
 
         SelectedClients.Add(clientToAdd);
+
+        UpdateQualificationFlags();
+    }
+
+    private void UpdateQualificationFlags()
+    {
+        if (SelectedBoat == null) return;
+
+        int requiredLevel = SelectedBoat.Level;
+
+        BoatType requiredType = SelectedBoat.Type;
+        bool isScull = requiredType == BoatType.S;
+
+        string levelType = isScull ? "scull" : "sweep";
+
+        foreach (Client client in SelectedClients)
+        {
+            int clientLevel = isScull ? client.ScullLevel : client.SweepLevel;
+
+            bool authorized = clientLevel >= requiredLevel;
+
+            if (!authorized)
+            {
+                client.QualificationHelpText =
+                    $"Persoon {levelType} level: {clientLevel}. Vereist: {requiredLevel}.";
+                client.IsUnderqualified = true;
+            }
+            else
+            {
+                client.QualificationHelpText = string.Empty;
+                client.IsUnderqualified = false;
+            }
+        }
+    }
+
+    [RelayCommand]
+    private void ShowQualificationWarning(Client client)
+    {
+        string message = string.IsNullOrWhiteSpace(client.QualificationHelpText)
+            ? "Persoon is te lage rang voor deze boot"
+            : client.QualificationHelpText;
+        Shell.Current.DisplayAlert("Waarschuwing", message, "OK");
     }
 }

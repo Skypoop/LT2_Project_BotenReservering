@@ -417,13 +417,14 @@
                                                            TextColor="Black"
                                                            LineBreakMode="TailTruncation" />
 
-                                                    <Button Grid.Column="1"
-                                                            Text="!"
-                                                            TextColor="Red"
-                                                            FontAttributes="Bold"
-                                                            FontSize="16"
-                                                            BackgroundColor="Transparent"
-                                                            SemanticProperties.Hint="{Binding QualificationHelpText}"
+                                                    <Button Grid.Column="1" 
+                                                            Text="!" 
+                                                            TextColor="Red" 
+                                                            FontAttributes="Bold" 
+                                                            FontSize="18" 
+                                                            BackgroundColor="Transparent" 
+                                                            Clicked="OnShowWarningClicked" 
+                                                            SemanticProperties.Hint="{Binding QualificationHelpText}" 
                                                             IsVisible="{Binding IsUnderqualified}" />
 
                                                     <Button Grid.Column="2"

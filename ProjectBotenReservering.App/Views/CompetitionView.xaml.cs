@@ -21,6 +21,18 @@ public partial class CompetitionView : ContentView
         _viewModel.FillBoatCompetitionsList();
     }
 
+    private void OnShowWarningClicked(object sender, EventArgs e)
+    {
+        if (sender is BindableObject { BindingContext: Client client } &&
+            this.BindingContext is CompetitionViewModel vm)
+        {
+            if (vm.ShowQualificationWarningCommand.CanExecute(client))
+            {
+                vm.ShowQualificationWarningCommand.Execute(client);
+            }
+        }
+    }
+
     private void OnRemoveClientClicked(object sender, EventArgs e)
     {
         if (sender is BindableObject { BindingContext: Client client } &&
@@ -31,10 +43,5 @@ public partial class CompetitionView : ContentView
                 vm.RemoveClientCommand.Execute(client);
             }
         }
-    }
-
-    private void CollectionView_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-
     }
 }
