@@ -47,7 +47,7 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         public Reservation? Get(int id)
         {
             Reservation? reservation = null;
-            string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id, Approved, Active FROM Reservation WHERE Id = @Id AND Active = 1";
+            string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id, Approved, Active FROM Reservation WHERE Id = @Id";
 
             using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
@@ -68,11 +68,13 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return reservation;
         }
 
-        public List<Reservation> GetAll()
+        public List<Reservation> GetAll(bool onlyIncludeActive = false)
         {
             List<Reservation> reservationList = new List<Reservation>();
-            string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id, Approved, Active FROM Reservation WHERE Active = 1";
-
+            string selectQuery = "SELECT Id, Created_At, Start_Time, End_Time, Client_Id, Boat_Id, Approved, Active FROM Reservation";
+            if (onlyIncludeActive)
+                selectQuery += " AND Active = 1";
+            
             using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
                 connection.Open();

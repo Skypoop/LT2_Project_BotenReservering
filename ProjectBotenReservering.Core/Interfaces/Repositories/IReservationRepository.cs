@@ -6,7 +6,7 @@ public interface IReservationRepository
 {
     Reservation Add(Reservation item);
     Reservation? Get(int id);
-    List<Reservation> GetAll();
+    List<Reservation> GetAll(bool onlyIncludeActive = false);
     List<Reservation> GetByClientId(int clientId);
     List<Reservation> GetByBoatId(int boatId);
     void CancelReservationsByIds(List<int> reservationIds);
