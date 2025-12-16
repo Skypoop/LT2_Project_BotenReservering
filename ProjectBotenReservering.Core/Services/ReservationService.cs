@@ -93,8 +93,8 @@ public class ReservationService : IReservationService
 
     public List<Reservation> FindOverlappingReservations(DateTime startDate, DateTime endDate, List<int> boatIds)
     {
-        List<Reservation> reservations = _reservationRepository.GetAll();
+        List<Reservation> reservations = _reservationRepository.GetAll(onlyIncludeActive: true);
 
-        return reservations.Where(r => r.Active && r.StartTime < endDate && r.EndTime > startDate && boatIds.Contains(r.BoatId)).ToList();
+        return reservations.Where(r => r.StartTime < endDate && r.EndTime > startDate && boatIds.Contains(r.BoatId)).ToList();
     }
 }
