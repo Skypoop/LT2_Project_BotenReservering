@@ -3,4 +3,5 @@
 public interface ITweetService
 {
     Task<string> GenerateCompetitionTweetAsync(string competitionContext);
+    Task<string> PublishTweetAsync(string tweetContent);
 }

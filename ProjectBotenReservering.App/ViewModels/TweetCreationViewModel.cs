@@ -109,8 +109,8 @@ public partial class TweetCreationViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private void PublishTweet()
+    private async Task PublishTweet()
     {
-        // Add implementation to publish tweet through service
+        string response = await _tweetService.PublishTweetAsync(TweetContent);
     }
 }
