@@ -226,140 +226,271 @@
 						Padding="20,0"/>
 			</VerticalStackLayout>
 
-			<!-- MAIN EDITOR BOX -->
-			<Border Stroke="Gray" StrokeThickness="1" StrokeShape="RoundRectangle 5" MaximumWidthRequest="800" HeightRequest="350">
-				<Grid ColumnDefinitions="1*, 2*">
-					<CollectionView Grid.Row="0"
-									SelectionMode="Single"
-									ItemsSource="{Binding CompetitionBoats}"
-									SelectedItem="{Binding SelectedBoat, Mode=TwoWay}">
-						<CollectionView.ItemTemplate>
-							<DataTemplate x:DataType="models:Boat">
-								<Border Padding="8" 
-										Margin="0,4" 
-										Stroke="#e0e0e0" 
-										StrokeShape="RoundRectangle 6" 
-										BackgroundColor="#ffffff">
+            <!-- MAIN EDITOR BOX (rebuild: no overlap, full use of space) -->
+            <Border Stroke="Gray"
+        StrokeThickness="1"
+        StrokeShape="RoundRectangle 8"
+        MaximumWidthRequest="1200"
+        HeightRequest="500"
+        Padding="12">
 
-									<Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
+                <Grid ColumnDefinitions="320, 16, *"
+          RowDefinitions="*">
 
-                                        <Label Grid.Column="0" 
-											   Text="{Binding Name}" 
-											   VerticalOptions="Center" 
-											   FontSize="14">
-                                        </Label>
+                    <!-- LEFT: Boats list -->
+                    <Grid Grid.Column="0" RowDefinitions="Auto,*" RowSpacing="10">
+                        <Label Text="Boten"
+                   FontAttributes="Bold"
+                   FontSize="14"
+                   TextColor="Black" />
 
-									</Grid>
-								</Border>
-							</DataTemplate>
-						</CollectionView.ItemTemplate>
-						<CollectionView.EmptyView>
-							<Label Text="Geen boten geselecteerd"
-						   VerticalOptions="Center"
-						   HorizontalOptions="Center"/>
-						</CollectionView.EmptyView>
-					</CollectionView>
+                        <Border Grid.Row="1"
+                    Stroke="#e0e0e0"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 8"
+                    Padding="8">
+                            <CollectionView SelectionMode="Single"
+                                ItemsSource="{Binding CompetitionBoats}"
+                                SelectedItem="{Binding SelectedBoat, Mode=TwoWay}">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="models:Boat">
+                                        <Border Padding="10"
+                                    Margin="0,4"
+                                    Stroke="#eeeeee"
+                                    StrokeShape="RoundRectangle 8"
+                                    BackgroundColor="#ffffff">
+                                            <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                                                <Label Grid.Column="0"
+                                           Text="{Binding Name}"
+                                           FontSize="14"
+                                           TextColor="Black"
+                                           VerticalOptions="Center" />
+                                                <Label Grid.Column="1"
+                                           Text="{Binding Id}"
+                                           FontSize="12"
+                                           TextColor="Gray"
+                                           VerticalOptions="Center" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
 
-					<Grid Grid.Column="1" RowDefinitions="Auto, Auto, *, Auto" Padding="15" RowSpacing="10" IsVisible="{Binding IsBoatSelected}">
+                                <CollectionView.EmptyView>
+                                    <Label Text="Geen boten geselecteerd"
+                               VerticalOptions="Center"
+                               HorizontalOptions="Center" />
+                                </CollectionView.EmptyView>
+                            </CollectionView>
+                        </Border>
+                    </Grid>
 
-						<!-- Name Field (Row 0) -->
-                        <Border Grid.Row="0" Stroke="Gray" StrokeShape="RoundRectangle 5">
-                            <Grid ColumnDefinitions="*, Auto" Padding="10,0">
-                                <Entry Grid.Column="0" Placeholder="geest team" TextColor="Black" VerticalOptions="Center"/>
-                                <Label Grid.Column="1" Text="✎" TextColor="Black" VerticalOptions="Center"/>
+                    <!-- divider -->
+                    <BoxView Grid.Column="1"
+                 WidthRequest="1"
+                 Color="#e0e0e0"
+                 VerticalOptions="Fill" />
+
+                    <!-- RIGHT: Editor -->
+                    <Grid Grid.Column="2"
+              IsVisible="{Binding IsBoatSelected}"
+              RowDefinitions="Auto,Auto,*,Auto"
+              RowSpacing="12">
+
+                        <!-- Header -->
+                        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="Geselecteerde boot"
+                           FontSize="12"
+                           TextColor="Gray" />
+                                <Label Text="{Binding SelectedBoat.Name}"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="Black" />
+                            </VerticalStackLayout>
+
+                            <Border Grid.Column="1"
+                        Stroke="#e0e0e0"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 8"
+                        Padding="10,6"
+                        VerticalOptions="Center">
+                                <Label Text="{Binding SelectedBoat.Id}"
+                           FontSize="12"
+                           TextColor="Black" />
+                            </Border>
+                        </Grid>
+
+                        <!-- Inputs row: Teamname + Add rower -->
+                        <Grid Grid.Row="1" ColumnDefinitions="*, 16, *" ColumnSpacing="0">
+                            <!-- Team name -->
+                            <Border Stroke="Gray"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="10,0"> 
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10" HeightRequest="44">
+                                    <Entry Grid.Column="0"
+                                           Placeholder="Teamnaam"
+                                           TextColor="Black"
+                                           VerticalOptions="Center"
+                                           Text="{Binding teamName}"/>
+                                    <Label Grid.Column="1"
+                                           Text="✎"
+                                           TextColor="Gray"
+                                           VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+
+                            <!-- spacer -->
+                            <BoxView Grid.Column="1" WidthRequest="16" Color="Transparent" />
+
+                            <!-- Add rower -->
+                            <Border Grid.Column="2"
+                                    Stroke="#e0e0e0"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 8"
+                                    Padding="10,0">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10" HeightRequest="44">
+                                    <Picker Grid.Column="0"
+                                            Title="Voeg roeier toe"
+                                            ItemsSource="{Binding AvailableClients}"
+                                            ItemDisplayBinding="{Binding FullName}"
+                                            SelectedItem="{Binding SelectedClient}"
+                                            BackgroundColor="Transparent"
+                                            HorizontalOptions="Fill"
+                                            VerticalOptions="Center" />
+                                    <Label Grid.Column="1"
+                                           Text="＋"
+                                           TextColor="Gray"
+                                           VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+                        </Grid>
+
+                        <!-- Crew list (fills remaining space) -->
+                        <Border Grid.Row="2"
+                                Stroke="#e0e0e0"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="8">
+                            <Grid RowDefinitions="Auto,*" RowSpacing="8">
+                                <Grid RowDefinitions="Auto" ColumnDefinitions="*,Auto">
+                                    <Label Text="Inzittenden"
+                                           FontAttributes="Bold"
+                                           FontSize="14"
+                                           TextColor="Black" />
+                                    <Label Grid.Column="1"
+                                           Text="{Binding SelectedClients.Count}"
+                                           FontSize="12"
+                                           TextColor="Gray"
+                                           VerticalOptions="Center" />
+                                </Grid>
+
+                                <CollectionView Grid.Row="1"
+                                                ItemsSource="{Binding SelectedClients}"
+                                                SelectionMode="None">
+                                    <CollectionView.ItemsLayout>
+                                        <GridItemsLayout Orientation="Vertical"
+                                                         Span="2"
+                                                         HorizontalItemSpacing="8"
+                                                         VerticalItemSpacing="8" />
+                                    </CollectionView.ItemsLayout>
+
+                                    <CollectionView.EmptyView>
+                                        <Label Text="Nog geen inzittenden"
+                                                TextColor="Gray"
+                                                HorizontalOptions="Center"
+                                                VerticalOptions="Center" />
+                                    </CollectionView.EmptyView>
+
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate x:DataType="models:Client">
+                                            <Border Padding="10"
+                                                    Stroke="#eeeeee"
+                                                    StrokeShape="RoundRectangle 10"
+                                                    BackgroundColor="#ffffff">
+                                                <Grid ColumnDefinitions="*,Auto,Auto"
+                                                      ColumnSpacing="10"
+                                                      VerticalOptions="Center">
+                                                    <Label Grid.Column="0"
+                                                           Text="{Binding FullName}"
+                                                           FontSize="14"
+                                                           TextColor="Black"
+                                                           LineBreakMode="TailTruncation" />
+
+                                                    <Button Grid.Column="1"
+                                                            Text="!"
+                                                            TextColor="Red"
+                                                            FontAttributes="Bold"
+                                                            FontSize="16"
+                                                            BackgroundColor="Transparent"
+                                                            SemanticProperties.Hint="{Binding QualificationHelpText}"
+                                                            IsVisible="{Binding IsUnderqualified}" />
+
+                                                    <Button Grid.Column="2"
+                                                            Text="X"
+                                                            TextColor="Red"
+                                                            BackgroundColor="Transparent"
+                                                            HeightRequest="28"
+                                                            WidthRequest="32"
+                                                            Padding="0"
+                                                            HorizontalOptions="End"
+                                                            Clicked="OnRemoveClientClicked" />
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
                             </Grid>
                         </Border>
 
-                        <Label Text="{Binding SelectedBoat.Id}"></Label>
+                        <!-- Footer actions (never overlaps) -->
+                        <Grid Grid.Row="3" ColumnDefinitions="*,Auto" ColumnSpacing="12" VerticalOptions="End">
 
-                        <Picker Grid.Row="1" 
-							Title="Voeg roeier toe"
-							ItemsSource="{Binding AvailableClients}"
-							ItemDisplayBinding="{Binding FullName}"
-							SelectedItem="{Binding SelectedClient}"
-							BackgroundColor="#f0f0f0"
-							WidthRequest="640"
-							HorizontalOptions="Start"
-							IsVisible="{Binding IsPickerSupported}" />
+                            <Border Stroke="#e0e0e0"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 8"
+                        Padding="10,0"
+                        HeightRequest="44"
+                        VerticalOptions="Center">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10" VerticalOptions="Center">
+                                    <Label Grid.Column="0"
+                               Text="Afkomst boot"
+                               FontSize="12"
+                               TextColor="Gray"
+                               VerticalOptions="Center" />
+                                    <Picker Grid.Column="1"
+                                Title="Selecteer"
+                                BackgroundColor="Transparent"
+                                VerticalOptions="Center" />
+                                    <Label Grid.Column="2"
+                               Text="⌄"
+                               TextColor="Gray"
+                               VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
 
-						<CollectionView Grid.Row="3" 
-							ItemsSource="{Binding SelectedClients}" 
-							SelectionMode="None" 
-							HorizontalOptions="Start" 
-							WidthRequest="646" 
-							VerticalOptions="Start">
-							<CollectionView.ItemsLayout>
-								<GridItemsLayout Orientation="Vertical" 
-												 Span="2" 
-												 HorizontalItemSpacing="6" 
-												 VerticalItemSpacing="6" />
-							</CollectionView.ItemsLayout>
-							<CollectionView.ItemTemplate>
-								<DataTemplate x:DataType="models:Client">
-									<Border Padding="8" 
-											Margin="6" 
-											Stroke="#e0e0e0" 
-											StrokeShape="RoundRectangle 6" 
-											BackgroundColor="#ffffff">
-									<Grid ColumnDefinitions="*, Auto, Auto" 
-											VerticalOptions="Center">
-										<Label Grid.Column="0" 
-												Text="{Binding FullName}" 
-												VerticalOptions="Center" 
-												FontSize="14" 
-												LineBreakMode="WordWrap" />
-											<Button Grid.Column="1" 
-												Text="!" 
-												TextColor="Red" 
-												FontAttributes="Bold" 
-												FontSize="18" 
-												VerticalOptions="Center" 
-												Margin="8,0,8,0" 
-												BackgroundColor="Transparent" 
-												SemanticProperties.Hint="{Binding QualificationHelpText}" 
-												IsVisible="{Binding IsUnderqualified}" />
-											   <!-- Clicked="OnShowWarningClicked" -->
-											<Button Grid.Column="2" 
-												Text="X" 
-												TextColor="Red" 
-												BackgroundColor="Transparent" 
-												
-												HeightRequest="28" 
-												WidthRequest="32" 
-												Padding="0" 
-												HorizontalOptions="End"/>
-											<!-- Clicked="OnRemoveClientClicked" -->
-										</Grid>
-									</Border>
-								</DataTemplate>
-							</CollectionView.ItemTemplate>
-						</CollectionView>
-   
-				<CollectionView Grid.Row="2">
-						</CollectionView>
+                            <Button Grid.Column="1"
+                        Text="Opslaan"
+                        FontSize="13"
+                        TextColor="Black"
+                        BackgroundColor="#E0E0E0"
+                        CornerRadius="8"
+                        HeightRequest="44"
+                        Padding="18,0" />
+                        </Grid>
+                    </Grid>
 
-						<Grid Grid.Row="3" ColumnDefinitions="Auto, *, Auto">
-							<HorizontalStackLayout Grid.Column="0" Spacing="5" VerticalOptions="Center">
-								<Label Text="Afkomst boot:" TextColor="Black" FontSize="12" VerticalOptions="Center"/>
-								<Border Stroke="Gray" StrokeShape="RoundRectangle 5" HeightRequest="30" WidthRequest="50">
-									<Picker Title="" TextColor="Black"/>
-								</Border>
-							</HorizontalStackLayout>
+                    <!-- RIGHT: empty state when no boat selected -->
+                    <Grid Grid.Column="2"
+              IsVisible="{Binding IsBoatSelected, Converter={StaticResource InverseBoolConverter}}"
+              VerticalOptions="Center"
+              HorizontalOptions="Center">
+                    </Grid>
 
-							<Button Grid.Column="2" 
-									Text="opslaan" 
-									FontSize="12"
-									TextColor="Black"
-									BackgroundColor="#E0E0E0"
-									CornerRadius="5"
-									HeightRequest="30"
-									Padding="15,0"/>
-						</Grid>
-					</Grid>
-				</Grid>
-			</Border>
+                </Grid>
+            </Border>
 
-			<Button 
+            <Button 
 				Text="wedstrijd aanmaken"
 				FontSize="18"
 				HorizontalOptions="End"

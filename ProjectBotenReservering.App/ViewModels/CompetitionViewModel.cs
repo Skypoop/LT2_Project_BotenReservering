@@ -66,18 +66,24 @@ public partial class CompetitionViewModel : BaseViewModel
     [ObservableProperty]
     public partial int CalculatedPersonCount { get; set; }
 
-    public ObservableCollection<Client> SelectedClients { get; }
-    public ObservableCollection<Client> AvailableClients { get; }
+    private Dictionary<int, ObservableCollection<Client>> _clientsByBoatId = new Dictionary<int, ObservableCollection<Client>>();
 
     [ObservableProperty]
-    public partial Client? SelectedClient { get; set; }
+    private Client? selectedClient;
+
+    private ObservableCollection<Client> _selectedClients = new ObservableCollection<Client>();
+    public ObservableCollection<Client> SelectedClients
+    {
+        get => _selectedClients;
+        set => SetProperty(ref _selectedClients, value);
+    }
+    public ObservableCollection<Client> AvailableClients { get; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsBoatSelected))]
     public partial Boat? SelectedBoat { get; set; }
     public bool IsBoatSelected => SelectedBoat != null;
 
-   
     public CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService, IClientService clientService,
         IClientRepository clientRepository)
     {
@@ -117,6 +123,18 @@ public partial class CompetitionViewModel : BaseViewModel
         await Shell.Current.GoToAsync(nameof(BoatTypeSelectionCompetitionView));
     }
 
+    [RelayCommand]
+    private void RemoveClient(Client client)
+    {
+        Client? currentUser = _clientService.GetCurrentClient();
+        
+        if (client == null) return;
+
+        if (SelectedClients.Contains(client))
+        {
+            SelectedClients.Remove(client);
+        }
+    }
 
     private async Task<bool> ReservationsNotOverlappingWithTheCompetition(DateTime startDateTime, DateTime endDateTime)
     {
@@ -167,15 +185,18 @@ public partial class CompetitionViewModel : BaseViewModel
     public void FillBoatCompetitionsList()
     {
         CompetitionBoats.Clear();
+        _clientsByBoatId.Clear();
 
         List<Boat> boats = _competitionService.GetCompetitionBoats();
-
         foreach (Boat boat in boats)
         {
             CompetitionBoats.Add(boat);
         }
 
         RefreshCompetitionCounters(boats);
+
+        SelectedBoat = null;
+        SelectedClients = new ObservableCollection<Client>();
     }
 
     public void RefreshCompetitionCounters(List<Boat> boats)
@@ -197,60 +218,82 @@ public partial class CompetitionViewModel : BaseViewModel
 
     private void InitializeClients()
     {
-        SelectedClients.Clear();
         AvailableClients.Clear();
 
         Client? currentUser = _clientService.GetCurrentClient();
-
-        if (currentUser != null)
-        {
-            SelectedClients.Add(currentUser);
-        }
 
         List<Client> allClients = _clientRepository.GetAll();
         foreach (Client client in allClients)
         {
             if (currentUser != null && client.Id == currentUser.Id) continue;
-
             AvailableClients.Add(client);
         }
     }
+
     partial void OnSelectedClientChanged(Client? value)
     {
         if (value == null) return;
+
         Client clientToAdd = value;
         SelectedClient = null;
 
-        // client toeveogen aan lijst van boatId
         AddClientIfValid(clientToAdd);
     }
 
     partial void OnSelectedBoatChanged(Boat? value)
     {
-        
+        if (value == null)
+        {
+            SelectedClients = new ObservableCollection<Client>();
+            return;
+        }
+
+        SelectedClients = GetOrCreateClientsForBoatId(value.Id);
+    }
+
+    private ObservableCollection<Client> GetOrCreateClientsForBoatId(int boatId)
+    {
+        ObservableCollection<Client> Clients;
+
+        if (_clientsByBoatId.TryGetValue(boatId, out Clients))
+        {
+            return Clients;
+        }
+
+        Clients = new ObservableCollection<Client>();
+        _clientsByBoatId.Add(boatId, Clients);
+
+        Client? currentUser = _clientService.GetCurrentClient();
+        if (currentUser != null)
+        {
+            Clients.Add(currentUser);
+        }
+
+        return Clients;
     }
 
     private void AddClientIfValid(Client clientToAdd)
     {
-        List<Boat> listboats = _competitionService.GetCompetitionBoats();
-        Boat singleBoat = listboats.FirstOrDefault();
-        
-        if (clientToAdd == null) return;
-        if (singleBoat.Type == null) return;
+        if (SelectedBoat == null) return;
 
-        if (SelectedClients.Count >= singleBoat.Seats)
+        int capacity = SelectedBoat.Seats;
+        if (SelectedBoat.SteeringWheel)
         {
-            _ = Shell.Current.DisplayAlert("Vol", $"De boot zit vol ({singleBoat.Seats} plaatsen).", "OK");
+            capacity = capacity + 1;
+        }
+
+        if (SelectedClients.Count >= capacity)
+        {
+            _ = Shell.Current.DisplayAlert("Vol", $"De boot zit vol ({capacity} plaatsen).", "OK");
             return;
         }
 
-        if (SelectedClients.Any(x => x.Id == clientToAdd.Id))
+        bool alreadyInBoat = SelectedClients.Any(x => x.Id == clientToAdd.Id);
+        if (alreadyInBoat)
         {
             return;
         }
 
         SelectedClients.Add(clientToAdd);
-        //UpdateSeatStatus();
-        //UpdateQualificationFlags();
     }
 }
