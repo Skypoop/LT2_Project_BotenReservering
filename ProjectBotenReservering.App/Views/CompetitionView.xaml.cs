@@ -19,4 +19,9 @@ public partial class CompetitionView : ContentView
     {
         _viewModel.FillBoatCompetitionsList();
     }
+
+    private void CollectionView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+
+    }
 }

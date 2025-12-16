@@ -2,8 +2,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ProjectBotenReservering.App.Views;
+using ProjectBotenReservering.Core.Data.Repositories;
+using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
+using ProjectBotenReservering.Core.Services;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
@@ -11,6 +14,8 @@ public partial class CompetitionViewModel : BaseViewModel
 {
     private readonly IReservationService _reservationService;
     private readonly ICompetitionService _competitionService;
+    private readonly IClientService _clientService;
+    private readonly IClientRepository _clientRepository;
 
     private string _teamCount = "0";
 
@@ -61,10 +66,29 @@ public partial class CompetitionViewModel : BaseViewModel
     [ObservableProperty]
     public partial int CalculatedPersonCount { get; set; }
 
-    public CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService)
+    public ObservableCollection<Client> SelectedClients { get; }
+    public ObservableCollection<Client> AvailableClients { get; }
+
+    [ObservableProperty]
+    public partial Client? SelectedClient { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsBoatSelected))]
+    public partial Boat? SelectedBoat { get; set; }
+    public bool IsBoatSelected => SelectedBoat != null;
+
+   
+    public CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService, IClientService clientService,
+        IClientRepository clientRepository)
     {
         _reservationService = reservationService;
         _competitionService = competitionService;
+        _clientService = clientService;
+        _clientRepository = clientRepository;
+
+        SelectedClients = new ObservableCollection<Client>();
+        AvailableClients = new ObservableCollection<Client>();
+        InitializeClients();
     }
 
     [RelayCommand]
@@ -169,5 +193,64 @@ public partial class CompetitionViewModel : BaseViewModel
                 CalculatedPersonCount = CompetitionBoats.Count * boats.FirstOrDefault().Seats;
             }
         }
+    }
+
+    private void InitializeClients()
+    {
+        SelectedClients.Clear();
+        AvailableClients.Clear();
+
+        Client? currentUser = _clientService.GetCurrentClient();
+
+        if (currentUser != null)
+        {
+            SelectedClients.Add(currentUser);
+        }
+
+        List<Client> allClients = _clientRepository.GetAll();
+        foreach (Client client in allClients)
+        {
+            if (currentUser != null && client.Id == currentUser.Id) continue;
+
+            AvailableClients.Add(client);
+        }
+    }
+    partial void OnSelectedClientChanged(Client? value)
+    {
+        if (value == null) return;
+        Client clientToAdd = value;
+        SelectedClient = null;
+
+        // client toeveogen aan lijst van boatId
+        AddClientIfValid(clientToAdd);
+    }
+
+    partial void OnSelectedBoatChanged(Boat? value)
+    {
+        
+    }
+
+    private void AddClientIfValid(Client clientToAdd)
+    {
+        List<Boat> listboats = _competitionService.GetCompetitionBoats();
+        Boat singleBoat = listboats.FirstOrDefault();
+        
+        if (clientToAdd == null) return;
+        if (singleBoat.Type == null) return;
+
+        if (SelectedClients.Count >= singleBoat.Seats)
+        {
+            _ = Shell.Current.DisplayAlert("Vol", $"De boot zit vol ({singleBoat.Seats} plaatsen).", "OK");
+            return;
+        }
+
+        if (SelectedClients.Any(x => x.Id == clientToAdd.Id))
+        {
+            return;
+        }
+
+        SelectedClients.Add(clientToAdd);
+        //UpdateSeatStatus();
+        //UpdateQualificationFlags();
     }
 }

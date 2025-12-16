@@ -2,6 +2,7 @@
 ﻿using ProjectBotenReservering.Core.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
+using System.Diagnostics;
 
 namespace ProjectBotenReservering.Core.Services;
 
@@ -39,17 +40,35 @@ public class CompetitionService : ICompetitionService
 
     private void AddBoatsToCompetition(int boatId, int amount)
     {
+        _competitionBoatsList.Clear();
+
         if (_boatRepository.Get(boatId) == null)
         {
             throw new ArgumentException($"Boat with ID {boatId} does not exist.", nameof(boatId));
         }
 
-        _competitionBoatsList.Clear();
+        List<Boat> allBoatsFromName = GetAllCompititionBoatsFromName(boatId);
+
+        if (allBoatsFromName.Count() < amount)
+        {
+            throw new InvalidOperationException($"Niet genoeg boten beschikbaar, Nodig: {amount}, Beschikbaar: {allBoatsFromName.Count()}");
+        }
 
         for (int i = 0; i < amount; i++)
         {
-            _competitionBoatsList.Add(_boatRepository.Get(boatId));
+            if (allBoatsFromName != null)
+            {
+                _competitionBoatsList.Add(allBoatsFromName[i]);
+            }
         }
+    }
+
+    private List<Boat> GetAllCompititionBoatsFromName(int id)
+    {
+        Boat boat = _boatRepository.Get(id);
+        List<Boat> allBoatsFromName = _boatRepository.GetAllFromName(boat.Name);
+
+        return allBoatsFromName;
     }
 
     public List<Boat> GetCompetitionBoats()
