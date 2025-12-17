@@ -9,7 +9,7 @@ namespace ProjectBotenReservering.Core.Interfaces.Repositories
     public interface ITweetRepository
     {
         // todo find type for postmedia
-        Task<string> PostMedia(string file);
-        Task<string> PostTweet(string prompt);
+        Task<int> PostMediaAsync(string file);
+        Task<string> PostTweetAsync(string prompt);
     }
 }
