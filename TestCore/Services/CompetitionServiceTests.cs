@@ -48,6 +48,7 @@ namespace TestCore.Services
             Competition? expectedCompetition = new Competition(startDate, endDate, competitionName, 1);
             Reservation? expectedReservation = new Reservation(DateTime.Now, startDate, endDate, currentClient.Id, boat.Id, true, 1);
 
+            // Set up
             _clientServiceMock.Setup(x => x.GetCurrentClient()).Returns(currentClient);
             _boatRepositoryMock.Setup(x => x.Get(It.IsAny<int>())).Returns(boat);
             _reservationServiceMock.Setup(x => x.CreateReservation(It.IsAny<Reservation>(), It.IsAny<List<Client>>())).Returns(expectedReservation);
