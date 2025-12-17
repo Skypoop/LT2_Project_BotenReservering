@@ -1,5 +1,4 @@
-﻿using ProjectBotenReservering.Core.Exceptions;
-using ProjectBotenReservering.Core.Helpers;
+﻿using ProjectBotenReservering.Core.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
@@ -13,28 +12,22 @@ public class CompetitionService : ICompetitionService
     private readonly IReservationService _reservationService;
     private readonly IReservationCompetitionRepository _reservationCompetitionRepository;
     private readonly IClientService _clientService;
-    
+
     private readonly List<Boat> _competitionBoatsList = [];
 
     private int _selectedBoatId;
     private int _amountBoats;
+
     public int SelectedBoatId
     {
         get { return _selectedBoatId; }
-        set
-        {
-            AddBoatsToCompetition(value, AmountBoats);
-            _selectedBoatId = value;
-        }
+        private set { _selectedBoatId = value; }
     }
 
     public int AmountBoats
     {
         get { return _amountBoats; }
-        set
-        {
-            _amountBoats = value;
-        }
+        set { _amountBoats = value; }
     }
 
     public CompetitionService(IReservationService reservationService, IClientService clientService, IBoatRepository boatRepository, ICompetitionRepository competitionRepository, IReservationCompetitionRepository reservationCompetitionRepository)
@@ -50,28 +43,33 @@ public class CompetitionService : ICompetitionService
     {
         _competitionBoatsList.Clear();
     }
-    
-    private void AddBoatsToCompetition(int boatId, int amount)
+
+    public bool HasEnoughBoats(int boatId)
+    {
+        if (_boatRepository.Get(boatId) == null)
+        {
+            return false;
+        }
+
+        List<Boat> allBoatsFromName = GetAllCompetitionBoatsFromName(boatId);
+
+        return allBoatsFromName.Count >= AmountBoats;
+    }
+    public void SetSelectedBoat(int boatId)
     {
         _competitionBoatsList.Clear();
 
-        if (_boatRepository.Get(boatId) == null)
-        {
-            throw new ArgumentException($"Boat with ID {boatId} does not exist.", nameof(boatId));
-        }
+        List<Boat> allBoatsFromName = GetAllCompetitionBoatsFromName(boatId);
+        int countToAdd = Math.Min(allBoatsFromName.Count, AmountBoats);
 
-        List<Boat> allBoatsFromName = GetAllCompititionBoatsFromName(boatId);
-
-        if (allBoatsFromName.Count < amount)
-            throw new NotEnoughBoatsException(amount, allBoatsFromName.Count);
-
-        for (int i = 0; i < amount; i++)
+        for (int i = 0; i < countToAdd; i++)
         {
             _competitionBoatsList.Add(allBoatsFromName[i]);
         }
-    }
 
-    private List<Boat> GetAllCompititionBoatsFromName(int id)
+        SelectedBoatId = boatId;
+    }
+    private List<Boat> GetAllCompetitionBoatsFromName(int id)
     {
         Boat? boat = _boatRepository.Get(id);
         if (boat == null)
@@ -87,28 +85,28 @@ public class CompetitionService : ICompetitionService
     {
         List<Reservation> reservations = new();
         Client? currentClient = _clientService.GetCurrentClient();
-        
+
         if (currentClient == null)
         {
             Console.WriteLine($"Logged in as invalid client at {nameof(CreateCompetition)}");
             return null;
         }
-        
+
         foreach (Boat boat in _competitionBoatsList)
         {
             List<Client> clients = new(); // IMPLEMENT CLIENTS PER BOAT HERE
-            
+
             Reservation res = _reservationService.CreateReservation(new Reservation(
-                DateTime.Now, 
-                startDate, 
-                endDate, 
-                currentClient.Id, 
-                boat.Id, 
+                DateTime.Now,
+                startDate,
+                endDate,
+                currentClient.Id,
+                boat.Id,
                 true), clients);
-            
+
             reservations.Add(res);
         }
-        
+
         Competition competition = _competitionRepository.Add(new Competition(startDate, endDate, competitionName));
         foreach (Reservation reservation in reservations)
         {
@@ -119,7 +117,7 @@ public class CompetitionService : ICompetitionService
 
         return competition;
     }
-    
+
     public List<Boat> GetCompetitionBoats()
     {
         return _competitionBoatsList;

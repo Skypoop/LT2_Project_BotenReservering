@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using ProjectBotenReservering.Core.Exceptions;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 
@@ -82,44 +81,24 @@ public partial class BoatTypeSelectionCompetitionViewModel : BaseViewModel
     [RelayCommand]
     public async Task SelectBoatType(BoatTypeUiItem boatUiItem)
     {
-        BoatTypeUiItem? boat = GetBoatTypeOrNull(boatUiItem);
-        if (boat is null) return;
+        BoatTypeUiItem boat = _boatTypeService.GetBoatTypeById(boatUiItem.Id);
 
-        if (!TrySetSelectedBoat(boat.Id, out NotEnoughBoatsException? ex))
+        if (boat != null)
         {
-            await ShowNotEnoughBoatsPopupAsync(ex!);
-            return;
-        }
-
-        await NavigateBackAsync();
-    }
-
-    private BoatTypeUiItem? GetBoatTypeOrNull(BoatTypeUiItem boatUiItem)
-    => _boatTypeService.GetBoatTypeById(boatUiItem.Id);
-
-    private bool TrySetSelectedBoat(int boatId, out NotEnoughBoatsException? ex)
-    {
-        try
-        {
-            _competitionService.SelectedBoatId = boatId;
-            ex = null;
-            return true;
-        }
-        catch (NotEnoughBoatsException e)
-        {
-            ex = e;
-            return false;
+            if (_competitionService.HasEnoughBoats(boat.Id))
+            {
+                _competitionService.SetSelectedBoat(boat.Id);
+                await Shell.Current.GoToAsync("..");
+            }
+            else
+            {
+                await Shell.Current.DisplayAlert(
+                    "Niet genoeg boten",
+                    $"Er zijn niet genoeg boten van het type {boat.Name} beschikbaar.",
+                    "OK");
+            }
         }
     }
-
-    private static Task ShowNotEnoughBoatsPopupAsync(NotEnoughBoatsException ex)
-    => Shell.Current.DisplayAlert(
-        "Te weinig boten",
-        $"Nodig: {ex.Needed}\nBeschikbaar: {ex.Available}",
-        "OK");
-
-    private static Task NavigateBackAsync()
-        => Shell.Current.GoToAsync("..");
 
     partial void OnSelectedSteeringOptionChanged(SteeringOption value) => ApplyFilterOption();
     partial void OnStringInNameFilterChanged(string value) => ApplyFilterOption();
