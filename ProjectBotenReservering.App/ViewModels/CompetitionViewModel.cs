@@ -363,12 +363,9 @@ public partial class CompetitionViewModel : BaseViewModel
     {
         AvailableClients.Clear();
 
-        Client? currentUser = _clientService.GetCurrentClient();
-
         List<Client> allClients = _clientRepository.GetAll();
         foreach (Client client in allClients)
         {
-            if (currentUser != null && client.Id == currentUser.Id) continue;
             AvailableClients.Add(client);
         }
     }
@@ -422,12 +419,6 @@ public partial class CompetitionViewModel : BaseViewModel
 
         clients = new ObservableCollection<Client>();
         _clientsByBoatId[boatId] = clients;
-
-        Client? currentUser = _clientService.GetCurrentClient();
-        if (currentUser != null)
-        {
-            clients.Add(currentUser);
-        }
 
         return clients;
     }
