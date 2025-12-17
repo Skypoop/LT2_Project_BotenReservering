@@ -2,15 +2,19 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ProjectBotenReservering.App.Views;
+using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
-public partial class CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService) : BaseViewModel
+public partial class CompetitionViewModel : BaseViewModel
 {
-    private readonly IReservationService _reservationService = reservationService;
-    private readonly ICompetitionService _competitionService = competitionService;
+    private readonly IReservationService _reservationService;
+    private readonly ICompetitionService _competitionService;
+    private readonly IClientService _clientService;
+    private readonly IClientRepository _clientRepository;
+    private readonly IBoatAuthorizationService _boatAuthorizationService;
 
     [ObservableProperty]
     public partial string TeamCount { get; set; } = "0";
@@ -48,6 +52,9 @@ public partial class CompetitionViewModel(IReservationService reservationService
     public partial TimeSpan EndTime { get; set; } = TimeSpan.Zero;
 
     [ObservableProperty]
+    private string teamName = string.Empty;
+
+    [ObservableProperty]
     public partial bool SelectCompetitionBoatTypeIsEnable { get; set; } = false;
 
     [ObservableProperty]
@@ -57,6 +64,41 @@ public partial class CompetitionViewModel(IReservationService reservationService
     public partial int CalculatedPersonCount { get; set; }
     [ObservableProperty]
     public partial bool SubmitButtonIsEnabled { get; set; }
+
+    private Dictionary<int, ObservableCollection<Client>> _clientsByBoatId = new Dictionary<int, ObservableCollection<Client>>();
+
+    private readonly Dictionary<int, string> _teamNameByBoatId = new();
+
+    [ObservableProperty]
+    private Client? selectedClient;
+
+    private ObservableCollection<Client> _selectedClients = new ObservableCollection<Client>();
+    public ObservableCollection<Client> SelectedClients
+    {
+        get => _selectedClients;
+        set => SetProperty(ref _selectedClients, value);
+    }
+    public ObservableCollection<Client> AvailableClients { get; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsBoatSelected))]
+    public partial Boat? SelectedBoat { get; set; }
+    public bool IsBoatSelected => SelectedBoat != null;
+
+    public CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService, IClientService clientService,
+        IClientRepository clientRepository,IBoatAuthorizationService boatAuthorizationService)
+    {
+        _reservationService = reservationService;
+        _competitionService = competitionService;
+        _clientService = clientService;
+        _clientRepository = clientRepository;
+        _boatAuthorizationService = boatAuthorizationService;
+
+
+        SelectedClients = new ObservableCollection<Client>();
+        AvailableClients = new ObservableCollection<Client>();
+        InitializeClients();
+    }
 
     [RelayCommand]
     private async Task CreateCompetition()
@@ -158,6 +200,19 @@ public partial class CompetitionViewModel(IReservationService reservationService
         await Shell.Current.GoToAsync(nameof(BoatTypeSelectionCompetitionView));
     }
 
+    [RelayCommand]
+    private void RemoveClient(Client client)
+    {   
+        if (client == null) return;
+
+        if (SelectedClients.Contains(client))
+        {
+            SelectedClients.Remove(client);
+        }
+
+        UpdateQualificationFlags();
+    }
+
     private async Task<bool> HandleConflictingReservationsAsync(DateTime startDateTime, DateTime endDateTime)
     {
         List<int> boatIds = [.. (CompetitionBoats ?? Enumerable.Empty<Boat>()).Select(boat => boat.Id)];
@@ -196,14 +251,18 @@ public partial class CompetitionViewModel(IReservationService reservationService
     public void FillBoatCompetitionsList()
     {
         CompetitionBoats.Clear();
+        _clientsByBoatId.Clear();
 
         List<Boat> boats = _competitionService.GetCompetitionBoats();
-
         foreach (Boat boat in boats)
         {
             CompetitionBoats.Add(boat);
         }
 
+        SelectedBoat = null;
+        SelectedClients = new ObservableCollection<Client>();
+
+        UpdateQualificationFlags();
         RefreshCompetitionCounters();
     }
 
@@ -232,4 +291,181 @@ public partial class CompetitionViewModel(IReservationService reservationService
                                 CompetitionBoats.Count > 0;
         // Additional validations for the submit button to be enabled should be added here
     }
+
+    private void InitializeClients()
+    {
+        AvailableClients.Clear();
+
+        Client? currentUser = _clientService.GetCurrentClient();
+
+        List<Client> allClients = _clientRepository.GetAll();
+        foreach (Client client in allClients)
+        {
+            if (currentUser != null && client.Id == currentUser.Id) continue;
+            AvailableClients.Add(client);
+        }
+    }
+
+    partial void OnSelectedClientChanged(Client? value)
+    {
+        if (value == null) return;
+
+        Client clientToAdd = value;
+        SelectedClient = null;
+
+        AddClientIfValid(clientToAdd);
+    }
+
+    partial void OnSelectedBoatChanged(Boat? value)
+    {
+        if (value is null)
+        {
+            SelectedClients = new ObservableCollection<Client>();
+            TeamName = string.Empty;
+            return;
+        }
+
+        ObservableCollection<Client> clients = GetOrCreateClientsForBoatId(value.Id);
+        SelectedClients = clients ?? new ObservableCollection<Client>();
+
+        string? name;
+        bool hasName = _teamNameByBoatId.TryGetValue(value.Id, out name);
+
+        TeamName = (hasName && !string.IsNullOrWhiteSpace(name))
+            ? name
+            : string.Empty;
+
+        UpdateQualificationFlags();
+    }
+
+    partial void OnTeamNameChanged(string value)
+    {
+        if (SelectedBoat == null) return;
+        _teamNameByBoatId[SelectedBoat.Id] = value ?? string.Empty;
+    }
+
+    private ObservableCollection<Client> GetOrCreateClientsForBoatId(int boatId)
+    {
+        ObservableCollection<Client>? clients;
+
+        if (_clientsByBoatId.TryGetValue(boatId, out clients) && clients != null)
+        {
+            return clients;
+        }
+
+        clients = new ObservableCollection<Client>();
+        _clientsByBoatId[boatId] = clients;
+
+        Client? currentUser = _clientService.GetCurrentClient();
+        if (currentUser != null)
+        {
+            clients.Add(currentUser);
+        }
+
+        return clients;
+    }
+
+    private void AddClientIfValid(Client clientToAdd)
+    {
+        if (SelectedBoat == null) return;
+
+        int capacity = SelectedBoat.Seats;
+        if (SelectedBoat.SteeringWheel)
+        {
+            capacity = capacity + 1;
+        }
+
+        if (SelectedClients.Count >= capacity)
+        {
+            _ = Shell.Current.DisplayAlert("Vol", $"De boot zit vol ({capacity} plaatsen).", "OK");
+            return;
+        }
+
+        bool alreadyInBoat = SelectedClients.Any(x => x.Id == clientToAdd.Id);
+        if (alreadyInBoat)
+        {
+            return;
+        }
+
+        SelectedClients.Add(clientToAdd);
+
+        UpdateQualificationFlags();
+    }
+
+    private void UpdateQualificationFlags()
+    {
+        if (SelectedBoat == null) return;
+
+        BoatType requiredType = SelectedBoat.Type;
+        int requiredLevel = SelectedBoat.Level;
+
+        foreach (Client client in SelectedClients)
+        {
+            ApplyQualificationState(client, requiredType, requiredLevel);
+        }
+    }
+
+    private void ApplyQualificationState(Client client, BoatType requiredType, int requiredLevel)
+    {
+        bool authorized = _boatAuthorizationService.IsAuthorized(requiredType, requiredLevel, client);
+
+        if (authorized)
+        {
+            ClearQualification(client);
+            return;
+        }
+
+        SetUnderqualified(client, requiredType, requiredLevel);
+    }
+
+    private static void ClearQualification(Client client)
+    {
+        client.QualificationHelpText = string.Empty;
+        client.IsUnderqualified = false;
+    }
+
+    private static void SetUnderqualified(Client client, BoatType requiredType, int requiredLevel)
+    {
+        int clientLevel = requiredType == BoatType.S ? client.ScullLevel : client.SweepLevel;
+        string levelType = requiredType == BoatType.S ? "scull" : "sweep";
+
+        client.QualificationHelpText =
+            $"Persoon {levelType} level: {clientLevel}. Vereist: {requiredLevel}.";
+        client.IsUnderqualified = true;
+    }
+
+    [RelayCommand]
+    private void ShowQualificationWarning(Client client)
+    {
+        string message = string.IsNullOrWhiteSpace(client.QualificationHelpText)
+            ? "Persoon is te lage rang voor deze boot"
+            : client.QualificationHelpText;
+        Shell.Current.DisplayAlert("Waarschuwing", message, "OK");
+    }
+
+    //Call this for validation (This function checks whether one or more boats are not completely filled) Returns: Bool
+    private bool AreBoatsAtFullCapacity()
+    {
+        foreach (Boat boat in CompetitionBoats)
+        {
+            int capacity = GetCapacity(boat);
+
+            ObservableCollection<Client>? clients;
+            bool hasClients = _clientsByBoatId.TryGetValue(boat.Id, out clients);
+
+            if (!hasClients || clients == null)
+            {
+                return false;
+            }
+
+            if (clients.Count != capacity)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static int GetCapacity(Boat boat) => boat.Seats + (boat.SteeringWheel ? 1 : 0);
 }
