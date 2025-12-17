@@ -1,317 +1,450 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:vm="clr-namespace:ProjectBotenReservering.App.ViewModels"
-             x:Class="ProjectBotenReservering.App.Views.CompetitionView"
-             x:DataType="vm:CompetitionViewModel"
-            xmlns:models="clr-namespace:ProjectBotenReservering.Core.Models;assembly=ProjectBotenReservering.Core"
-             BackgroundColor="White">
+<ContentView
+    x:Class="ProjectBotenReservering.App.Views.CompetitionView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:ProjectBotenReservering.Core.Models;assembly=ProjectBotenReservering.Core"
+    xmlns:vm="clr-namespace:ProjectBotenReservering.App.ViewModels"
+    x:DataType="vm:CompetitionViewModel"
+    BackgroundColor="White">
 
     <Grid>
-        <VerticalStackLayout Spacing="20" Padding="30" TranslationY="50">
+        <VerticalStackLayout
+            Padding="30"
+            Spacing="20"
+            TranslationY="50">
 
-            <!-- HEADER SECTION -->
+            <!--  HEADER SECTION  -->
             <Grid ColumnDefinitions="*, Auto">
                 <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
-                    <Label Text="Wedstrijden" 
-                           TranslationY="-50"
-                           FontSize="30" 
-                           FontAttributes="Bold"
-                           TextColor="Black"/>
-                    <Label Text="Overzicht"
-                           TranslationY="-50"
-                           FontSize="30" 
-                           TextColor="Gray"/>
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="30"
+                        Text="Wedstrijden"
+                        TextColor="Black"
+                        TranslationY="-50" />
+                    <Label
+                        FontSize="30"
+                        Text="Overzicht"
+                        TextColor="Gray"
+                        TranslationY="-50" />
                 </VerticalStackLayout>
 
-                <HorizontalStackLayout 
-                Grid.Row="0"
-                Grid.Column="0"
-                HorizontalOptions="Center"
-                VerticalOptions="Center"
-                Spacing="20">
+                <HorizontalStackLayout
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    HorizontalOptions="Center"
+                    Spacing="20"
+                    VerticalOptions="Center">
 
-                    <Label Text="Naam"
-                       FontAttributes="Bold"
-                       FontSize="25"
-                       TextColor="Black"
-                       VerticalOptions="Center" />
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="25"
+                        Text="Naam"
+                        TextColor="Black"
+                        VerticalOptions="Center" />
 
-                    <Border Stroke="Gray"
-                        StrokeThickness="1"
-                        StrokeShape="RoundRectangle 5"
+                    <Border
                         Padding="10,0"
                         HeightRequest="50"
+                        Stroke="Gray"
+                        StrokeShape="RoundRectangle 5"
+                        StrokeThickness="1"
                         WidthRequest="200">
 
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="15">
-                            <Entry Grid.Column="0"
-                               Text="{Binding CompetitionName}"
-                               Placeholder="Wedstrijd 1"
-                               TextColor="Black"
-                               VerticalOptions="Center"
-                               FontSize="14" />
+                            <Entry
+                                Grid.Column="0"
+                                FontSize="14"
+                                Placeholder="Wedstrijd 1"
+                                Text="{Binding CompetitionName}"
+                                TextColor="Black"
+                                VerticalOptions="Center" />
 
-                            <Label Grid.Column="1"
-                               Text="✎"
-                               VerticalOptions="Center"
-                               TextColor="Gray" />
+                            <Label
+                                Grid.Column="1"
+                                Text="✎"
+                                TextColor="Gray"
+                                VerticalOptions="Center" />
                         </Grid>
                     </Border>
 
                 </HorizontalStackLayout>
             </Grid>
 
-            <!-- DATE SECTION -->
-            <Grid ColumnDefinitions="Auto, Auto, Auto, Auto"
-                  ColumnSpacing="20"
-                  Margin="320,10,20,0">
+            <!--  DATE SECTION  -->
+            <Grid
+                Margin="320,10,20,0"
+                ColumnDefinitions="Auto, Auto, Auto, Auto"
+                ColumnSpacing="20">
 
-                <!-- Start Section -->
-                <VerticalStackLayout Grid.Column="0" Spacing="8" HorizontalOptions="Center">
-                    <Label Text="starttijd" FontAttributes="Bold" TextColor="Black" Margin="5,0,0,0"/>
+                <!--  Start Section  -->
+                <VerticalStackLayout
+                    Grid.Column="0"
+                    HorizontalOptions="Center"
+                    Spacing="8">
+                    <Label
+                        Margin="5,0,0,0"
+                        FontAttributes="Bold"
+                        Text="starttijd"
+                        TextColor="Black" />
 
-                    <!-- Combined Date & Time Border -->
-                    <Border Stroke="Gray" StrokeThickness="1" StrokeShape="RoundRectangle 5" 
-                            HeightRequest="100" WidthRequest="500" HorizontalOptions="Center">
-
-                        <!-- Grid Layout: -->
-                        <Grid ColumnDefinitions="*, Auto, Auto, *, Auto" Padding="10,0">
-
-                            <!-- Date -->
-                            <DatePicker Grid.Column="0"
-                                        Date="{Binding StartDate}"
-                                        TextColor="Black"
-                                        VerticalOptions="Center"
-                                        HorizontalOptions="Fill"
-                                        TranslationX="50"/>
-                            <Label Grid.Column="1"
-                                   Text="📅"
-                                   FontSize="18"
-                                   VerticalOptions="Center"
-                                   Margin="0,0,10,0"/>
-
-                            <!-- Vertical Separator Line -->
-                            <BoxView Grid.Column="2" 
-                                     WidthRequest="1" 
-                                     Color="Gray" 
-                                     VerticalOptions="Fill" 
-                                     Margin="0,5,10,5"/>
-
-                            <!-- Time -->
-                            <TimePicker Grid.Column="3"
-                                        Time="{Binding StartTime}"
-                                        Format="HH:mm"
-                                        TextColor="Black"
-                                        VerticalOptions="Center"
-                                        HorizontalOptions="Fill"
-                                        Margin="0,15,0,0"/>
-                            <Label Grid.Column="4"
-                                   Text="⌚"
-                                   FontSize="18"
-                                   VerticalOptions="Center"/>
-                        </Grid>
-                    </Border>
-                </VerticalStackLayout>
-
-                <!-- Dash Separator -->
-                <Label Grid.Column="1"
-                       Text="—"
-                       FontSize="70"
-                       TextColor="Black"
-                       VerticalOptions="Center"
-                       HorizontalOptions="Center"
-                       Margin="0,25,0,0"/>
-
-                <!-- End Section -->
-                <VerticalStackLayout Grid.Column="2" Spacing="8" HorizontalOptions="Center">
-                    <Label Text="eindtijd" FontAttributes="Bold" TextColor="Black" Margin="5,0,0,0"/>
-
-                    <!-- Combined Date & Time Border -->
-                    <Border Stroke="Gray" StrokeThickness="1" StrokeShape="RoundRectangle 5" 
-                            HeightRequest="100" WidthRequest="500">
-
-                        <!-- Grid Layout:  -->
-                        <Grid ColumnDefinitions="*, Auto, Auto, *, Auto" Padding="10,0">
-
-                            <!-- Date -->
-                            <DatePicker Grid.Column="0"
-                                        Date="{Binding EndDate}"
-                                        TextColor="Black"
-                                        VerticalOptions="Center"
-                                        HorizontalOptions="Fill"
-                                        TranslationX="50"/>
-                            <Label Grid.Column="1"
-                                   Text="📅"
-                                   FontSize="18"
-                                   VerticalOptions="Center"
-                                   Margin="0,0,10,0"/>
-
-                            <!-- Vertical Separator Line -->
-                            <BoxView Grid.Column="2" 
-                                     WidthRequest="1" 
-                                     Color="Gray" 
-                                     VerticalOptions="Fill" 
-                                     Margin="0,5,10,5"/>
-
-                            <!-- Time -->
-                            <TimePicker Grid.Column="3"
-                                        Time="{Binding EndTime}"
-                                        Format="HH:mm"
-                                        TextColor="Black"
-                                        VerticalOptions="Fill"
-                                        HorizontalOptions="Fill"
-                                        Margin="0,15,0,0"/>
-                            <Label Grid.Column="4"
-                                   Text="⌚"
-                                   FontSize="18"
-                                   VerticalOptions="Center"/>
-                        </Grid>
-                    </Border>
-                </VerticalStackLayout>
-
-            </Grid>
-
-            <!-- TEAMS COUNT SECTION -->
-            <VerticalStackLayout HorizontalOptions="Center" Spacing="10">
-                <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
-                    <Label Text="Aantal teams" 
-                           FontAttributes="Bold" 
-                           TextColor="Black"
-                           VerticalOptions="Center"/>
-                    <Border Stroke="Gray" StrokeThickness="1" StrokeShape="RoundRectangle 5" HeightRequest="35" WidthRequest="80">
-                        <Entry Keyboard="Numeric" 
-                               Text="{Binding TeamCount, TargetNullValue=0, FallbackValue=0}"
-                               Placeholder="0" 
-                               MaxLength="4"
-                               TextColor="Black"
-                               HorizontalTextAlignment="Center"
-                               VerticalOptions="Center"/>
-                    </Border>
-                </HorizontalStackLayout>
-
-                <!-- Summary Box -->
-                <Border Stroke="Gray" 
-                        StrokeThickness="1" 
+                    <!--  Combined Date & Time Border  -->
+                    <Border
+                        HeightRequest="100"
+                        HorizontalOptions="Center"
+                        Stroke="Gray"
                         StrokeShape="RoundRectangle 5"
-                        WidthRequest="250" HeightRequest="80"
-                        Padding="10">
+                        StrokeThickness="1"
+                        WidthRequest="500">
+
+                        <!--  Grid Layout:  -->
+                        <Grid Padding="10,0" ColumnDefinitions="*, Auto, Auto, *, Auto">
+
+                            <!--  Date  -->
+                            <DatePicker
+                                Grid.Column="0"
+                                Date="{Binding StartDate}"
+                                HorizontalOptions="Fill"
+                                TextColor="Black"
+                                TranslationX="50"
+                                VerticalOptions="Center" />
+                            <Label
+                                Grid.Column="1"
+                                Margin="0,0,10,0"
+                                FontSize="18"
+                                Text="📅"
+                                VerticalOptions="Center" />
+
+                            <!--  Vertical Separator Line  -->
+                            <BoxView
+                                Grid.Column="2"
+                                Margin="0,5,10,5"
+                                VerticalOptions="Fill"
+                                WidthRequest="1"
+                                Color="Gray" />
+
+                            <!--  Time  -->
+                            <TimePicker
+                                Grid.Column="3"
+                                Margin="0,15,0,0"
+                                Format="HH:mm"
+                                HorizontalOptions="Fill"
+                                TextColor="Black"
+                                Time="{Binding StartTime}"
+                                VerticalOptions="Center" />
+                            <Label
+                                Grid.Column="4"
+                                FontSize="18"
+                                Text="⌚"
+                                VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!--  Dash Separator  -->
+                <Label
+                    Grid.Column="1"
+                    Margin="0,25,0,0"
+                    FontSize="70"
+                    HorizontalOptions="Center"
+                    Text="—"
+                    TextColor="Black"
+                    VerticalOptions="Center" />
+
+                <!--  End Section  -->
+                <VerticalStackLayout
+                    Grid.Column="2"
+                    HorizontalOptions="Center"
+                    Spacing="8">
+                    <Label
+                        Margin="5,0,0,0"
+                        FontAttributes="Bold"
+                        Text="eindtijd"
+                        TextColor="Black" />
+
+                    <!--  Combined Date & Time Border  -->
+                    <Border
+                        HeightRequest="100"
+                        Stroke="Gray"
+                        StrokeShape="RoundRectangle 5"
+                        StrokeThickness="1"
+                        WidthRequest="500">
+
+                        <!--  Grid Layout:  -->
+                        <Grid Padding="10,0" ColumnDefinitions="*, Auto, Auto, *, Auto">
+
+                            <!--  Date  -->
+                            <DatePicker
+                                Grid.Column="0"
+                                Date="{Binding EndDate}"
+                                HorizontalOptions="Fill"
+                                TextColor="Black"
+                                TranslationX="50"
+                                VerticalOptions="Center" />
+                            <Label
+                                Grid.Column="1"
+                                Margin="0,0,10,0"
+                                FontSize="18"
+                                Text="📅"
+                                VerticalOptions="Center" />
+
+                            <!--  Vertical Separator Line  -->
+                            <BoxView
+                                Grid.Column="2"
+                                Margin="0,5,10,5"
+                                VerticalOptions="Fill"
+                                WidthRequest="1"
+                                Color="Gray" />
+
+                            <!--  Time  -->
+                            <TimePicker
+                                Grid.Column="3"
+                                Margin="0,15,0,0"
+                                Format="HH:mm"
+                                HorizontalOptions="Fill"
+                                TextColor="Black"
+                                Time="{Binding EndTime}"
+                                VerticalOptions="Fill" />
+                            <Label
+                                Grid.Column="4"
+                                FontSize="18"
+                                Text="⌚"
+                                VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+            </Grid>
+
+            <!--  TEAMS COUNT SECTION  -->
+            <VerticalStackLayout HorizontalOptions="Center" Spacing="10">
+                <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
+                    <Label
+                        FontAttributes="Bold"
+                        Text="Aantal teams"
+                        TextColor="Black"
+                        VerticalOptions="Center" />
+                    <Border
+                        HeightRequest="35"
+                        Stroke="Gray"
+                        StrokeShape="RoundRectangle 5"
+                        StrokeThickness="1"
+                        WidthRequest="80">
+                        <Entry
+                            HorizontalTextAlignment="Center"
+                            Keyboard="Numeric"
+                            MaxLength="4"
+                            Placeholder="0"
+                            Text="{Binding TeamCount, TargetNullValue=0, FallbackValue=0}"
+                            TextColor="Black"
+                            VerticalOptions="Center" />
+                    </Border>
+                </HorizontalStackLayout>
+
+                <!--  Summary Box  -->
+                <Border
+                    Padding="10"
+                    HeightRequest="80"
+                    Stroke="Gray"
+                    StrokeShape="RoundRectangle 5"
+                    StrokeThickness="1"
+                    WidthRequest="250">
                     <VerticalStackLayout Spacing="5">
                         <Grid ColumnDefinitions="30, Auto, *">
-                            <Label Grid.Column="0" Text="⛵" TextColor="Black" FontSize="18"/>
-                            <Label Grid.Column="1" Text="—" TextColor="Black" FontAttributes="Bold" Margin="10,0"/>
-                            <Label Grid.Column="2" Text="{Binding CalculatedBoatCount}" TextColor="Black"/>
+                            <Label
+                                Grid.Column="0"
+                                FontSize="18"
+                                Text="⛵"
+                                TextColor="Black" />
+                            <Label
+                                Grid.Column="1"
+                                Margin="10,0"
+                                FontAttributes="Bold"
+                                Text="—"
+                                TextColor="Black" />
+                            <Label
+                                Grid.Column="2"
+                                Text="{Binding CalculatedBoatCount}"
+                                TextColor="Black" />
                         </Grid>
                         <Grid ColumnDefinitions="30, Auto, *">
-                            <Label Grid.Column="0" Text="👥" TextColor="Black" FontSize="18"/>
-                            <Label Grid.Column="1" Text="—" TextColor="Black" FontAttributes="Bold" Margin="10,0"/>
-                            <Label Grid.Column="2" Text="{Binding CalculatedPersonCount}" TextColor="Black"/>
+                            <Label
+                                Grid.Column="0"
+                                FontSize="18"
+                                Text="👥"
+                                TextColor="Black" />
+                            <Label
+                                Grid.Column="1"
+                                Margin="10,0"
+                                FontAttributes="Bold"
+                                Text="—"
+                                TextColor="Black" />
+                            <Label
+                                Grid.Column="2"
+                                Text="{Binding CalculatedPersonCount}"
+                                TextColor="Black" />
                         </Grid>
                     </VerticalStackLayout>
                 </Border>
             </VerticalStackLayout>
 
-            <!-- WARNING & SELECTION BUTTON -->
-            <VerticalStackLayout Spacing="10" HorizontalOptions="Center" Margin="0,10,0,0">
-                <HorizontalStackLayout Spacing="5" HorizontalOptions="Center">
-                    <Label Text="!" FontAttributes="Bold" TextColor="Gray"/>
-                    <Label Text="velden niet ingevuld" TextColor="Gray" FontSize="12"/>
+            <!--  WARNING & SELECTION BUTTON  -->
+            <VerticalStackLayout
+                Margin="0,10,0,0"
+                HorizontalOptions="Center"
+                Spacing="10">
+                <HorizontalStackLayout HorizontalOptions="Center" Spacing="5">
+                    <Label
+                        FontAttributes="Bold"
+                        Text="!"
+                        TextColor="Gray" />
+                    <Label
+                        FontSize="12"
+                        Text="velden niet ingevuld"
+                        TextColor="Gray" />
                 </HorizontalStackLayout>
 
-                <Button 
-                        Text="selecteer een boottype" 
-                        Command="{Binding SelectCompetitionBoatTypeCommand}"
-                        IsEnabled="{Binding SelectCompetitionBoatTypeIsEnable}"
-                        CornerRadius="5"
-                        HeightRequest="35"
-                        Padding="20,0"/>
+                <Button
+                    Padding="20,0"
+                    Command="{Binding SelectCompetitionBoatTypeCommand}"
+                    CornerRadius="5"
+                    HeightRequest="35"
+                    IsEnabled="{Binding SelectCompetitionBoatTypeIsEnable}"
+                    Text="selecteer een boottype" />
             </VerticalStackLayout>
 
-            <!-- MAIN EDITOR BOX -->
-            <Border Stroke="Gray" StrokeThickness="1" StrokeShape="RoundRectangle 5" MaximumWidthRequest="800" HeightRequest="350">
+            <!--  MAIN EDITOR BOX  -->
+            <Border
+                HeightRequest="350"
+                MaximumWidthRequest="800"
+                Stroke="Gray"
+                StrokeShape="RoundRectangle 5"
+                StrokeThickness="1">
                 <Grid ColumnDefinitions="1*, 2*">
-                    <CollectionView Grid.Row="0"
-                                    ItemsSource="{Binding CompetitionBoats}">
+                    <CollectionView Grid.Row="0" ItemsSource="{Binding CompetitionBoats}">
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="models:Boat">
-                                <Border Padding="8" 
-                                        Margin="0,4" 
-                                        Stroke="#e0e0e0" 
-                                        StrokeShape="RoundRectangle 6" 
-                                        BackgroundColor="#ffffff">
-                                    
-                                        <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
+                                <Border
+                                    Margin="0,4"
+                                    Padding="8"
+                                    BackgroundColor="#ffffff"
+                                    Stroke="#e0e0e0"
+                                    StrokeShape="RoundRectangle 6">
 
-                                        <Label Grid.Column="0" 
-                                               Text="{Binding Name}" 
-                                               VerticalOptions="Center" 
-                                               FontSize="14" />
-                                            
+                                    <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
+
+                                        <Label
+                                            Grid.Column="0"
+                                            FontSize="14"
+                                            Text="{Binding Name}"
+                                            VerticalOptions="Center" />
+
                                     </Grid>
                                 </Border>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                         <CollectionView.EmptyView>
-                            <Label Text="Geen boten geselecteerd"
-                           VerticalOptions="Center"
-                           HorizontalOptions="Center"/>
+                            <Label
+                                HorizontalOptions="Center"
+                                Text="Geen boten geselecteerd"
+                                VerticalOptions="Center" />
                         </CollectionView.EmptyView>
                     </CollectionView>
 
-                    <Grid Grid.Column="1" RowDefinitions="Auto, Auto, *, Auto" Padding="15" RowSpacing="10">
+                    <Grid
+                        Grid.Column="1"
+                        Padding="15"
+                        RowDefinitions="Auto, Auto, *, Auto"
+                        RowSpacing="10">
 
-                        <!-- Name Field (Row 0) -->
-                        <Border Grid.Row="0" Stroke="Gray" StrokeShape="RoundRectangle 5">
-                            <Grid ColumnDefinitions="*, Auto" Padding="10,0">
-                                <Entry Grid.Column="0" Placeholder="geest team" TextColor="Black" VerticalOptions="Center"/>
-                                <Label Grid.Column="1" Text="✎" TextColor="Black" VerticalOptions="Center"/>
+                        <!--  Name Field (Row 0)  -->
+                        <Border
+                            Grid.Row="0"
+                            Stroke="Gray"
+                            StrokeShape="RoundRectangle 5">
+                            <Grid Padding="10,0" ColumnDefinitions="*, Auto">
+                                <Entry
+                                    Grid.Column="0"
+                                    Placeholder="geest team"
+                                    TextColor="Black"
+                                    VerticalOptions="Center" />
+                                <Label
+                                    Grid.Column="1"
+                                    Text="✎"
+                                    TextColor="Black"
+                                    VerticalOptions="Center" />
                             </Grid>
                         </Border>
 
-                        <!-- Search Field (Row 1) -->
-                        <Border Grid.Row="1" Stroke="Gray" StrokeShape="RoundRectangle 20" Margin="0,0">
-                            <Grid ColumnDefinitions="Auto, *" Padding="10,0">
-                                <Label Grid.Column="0" Text="🔍" TextColor="Gray" VerticalOptions="Center" Margin="0,0,5,0"/>
-                                <Entry Grid.Column="1" Placeholder="personen toevoegen" TextColor="Black" VerticalOptions="Center"/>
+                        <!--  Search Field (Row 1)  -->
+                        <Border
+                            Grid.Row="1"
+                            Margin="0,0"
+                            Stroke="Gray"
+                            StrokeShape="RoundRectangle 20">
+                            <Grid Padding="10,0" ColumnDefinitions="Auto, *">
+                                <Label
+                                    Grid.Column="0"
+                                    Margin="0,0,5,0"
+                                    Text="🔍"
+                                    TextColor="Gray"
+                                    VerticalOptions="Center" />
+                                <Entry
+                                    Grid.Column="1"
+                                    Placeholder="personen toevoegen"
+                                    TextColor="Black"
+                                    VerticalOptions="Center" />
                             </Grid>
                         </Border>
 
-                        <CollectionView Grid.Row="2">
-                        </CollectionView>
+                        <CollectionView Grid.Row="2" />
 
                         <Grid Grid.Row="3" ColumnDefinitions="Auto, *, Auto">
-                            <HorizontalStackLayout Grid.Column="0" Spacing="5" VerticalOptions="Center">
-                                <Label Text="Afkomst boot:" TextColor="Black" FontSize="12" VerticalOptions="Center"/>
-                                <Border Stroke="Gray" StrokeShape="RoundRectangle 5" HeightRequest="30" WidthRequest="50">
-                                    <Picker Title="" TextColor="Black"/>
+                            <HorizontalStackLayout
+                                Grid.Column="0"
+                                Spacing="5"
+                                VerticalOptions="Center">
+                                <Label
+                                    FontSize="12"
+                                    Text="Afkomst boot:"
+                                    TextColor="Black"
+                                    VerticalOptions="Center" />
+                                <Border
+                                    HeightRequest="30"
+                                    Stroke="Gray"
+                                    StrokeShape="RoundRectangle 5"
+                                    WidthRequest="50">
+                                    <Picker Title="" TextColor="Black" />
                                 </Border>
                             </HorizontalStackLayout>
 
-                            <Button Grid.Column="2" 
-                                    Text="opslaan" 
-                                    FontSize="12"
-                                    TextColor="Black"
-                                    BackgroundColor="#E0E0E0"
-                                    CornerRadius="5"
-                                    HeightRequest="30"
-                                    Padding="15,0"/>
+                            <Button
+                                Grid.Column="2"
+                                Padding="15,0"
+                                BackgroundColor="#E0E0E0"
+                                CornerRadius="5"
+                                FontSize="12"
+                                HeightRequest="30"
+                                Text="opslaan"
+                                TextColor="Black" />
                         </Grid>
                     </Grid>
                 </Grid>
             </Border>
 
-            <Button 
-                Text="wedstrijd aanmaken"
-                FontSize="18"
-                HorizontalOptions="End"
-                IsEnabled="False"
-                CornerRadius="5"
+            <Button
                 Margin="0,0,0,20"
+                Command="{Binding CreateCompetitionCommand}"
+                CornerRadius="5"
+                FontSize="18"
+                HeightRequest="50"
+                HorizontalOptions="End"
+                IsEnabled="True"
+                Text="wedstrijd aanmaken"
                 TranslationX="-180"
                 TranslationY="-70"
-                WidthRequest="200"
-                HeightRequest="50"
-                Command="{Binding CreateCompetitionCommand}"/>
+                WidthRequest="200" />
 
         </VerticalStackLayout>
     </Grid>

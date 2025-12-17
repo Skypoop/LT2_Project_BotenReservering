@@ -1,4 +1,5 @@
 ﻿using ProjectBotenReservering.Core.Interfaces.Helpers;
+using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 
 namespace ProjectBotenReservering.Core.Services;
@@ -6,11 +7,13 @@ public class TweetService : ITweetService
 {
     private readonly ILlmService _llmService;
     private readonly IPromptHelper _promptHelper;
+    private readonly ITweetRepository _tweetRepository;
 
-    public TweetService(ILlmService llmService, IPromptHelper promptHelper)
+    public TweetService(ILlmService llmService, IPromptHelper promptHelper, ITweetRepository tweetRepository)
     {
         _llmService = llmService;
         _promptHelper = promptHelper;
+        _tweetRepository = tweetRepository;
     }
 
     public async Task<string> GenerateCompetitionTweetAsync(string competitionContext)
@@ -33,7 +36,7 @@ public class TweetService : ITweetService
         // in this method we probably call 2 methods in a repository one for uploading the image and getting the reference id\  
         // one for actaully publishing the tweet
         //optional but it would be fun to return the x link here and then embed it in the success message
-        return "x.com/bla.ba";
+        return await _tweetRepository.PostTweetAsync(tweetContent); ;
     }
 
 }

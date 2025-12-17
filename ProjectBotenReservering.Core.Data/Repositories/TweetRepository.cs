@@ -13,14 +13,14 @@ public class TweetRepository: ITweetRepository
         _restClient = restClient ?? throw new ArgumentNullException(nameof(restClient));
     }
 
-    public async Task<string> PostTweetAsync(string prompt)
+    public async Task<string> PostTweetAsync(string tweetContent)
     {
-        if (string.IsNullOrWhiteSpace(prompt))
+        if (string.IsNullOrWhiteSpace(tweetContent))
         {
-            throw new ArgumentException("Prompt cannot be empty.", nameof(prompt));
+            throw new ArgumentException("Prompt cannot be empty.", nameof(tweetContent));
         }
 
-        return await _restClient.PostTweetAsync(prompt);
+        return await _restClient.PostTweetAsync(tweetContent);
     }
 
     public async Task<int> PostMediaAsync(string file)

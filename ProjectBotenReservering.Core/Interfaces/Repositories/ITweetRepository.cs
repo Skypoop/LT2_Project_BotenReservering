@@ -10,6 +10,6 @@ namespace ProjectBotenReservering.Core.Interfaces.Repositories
     {
         // todo find type for postmedia
         Task<int> PostMediaAsync(string file);
-        Task<string> PostTweetAsync(string prompt);
+        Task<string> PostTweetAsync(string tweetContent);
     }
 }

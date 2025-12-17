@@ -104,6 +104,7 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IRoleManagementTaskRepository, RoleManagementTaskRepository>();
             builder.Services.AddSingleton<ICompetitionRepository, CompetitionRepository>();
             builder.Services.AddSingleton<IReservationCompetitionRepository, ReservationCompetitionRepository>();
+            builder.Services.AddSingleton<ITweetRepository, TweetRepository>();
 
             builder.Services.AddSingleton((IServiceProvider sp) =>
             {
@@ -113,6 +114,15 @@ namespace ProjectBotenReservering.App
                     throw new InvalidOperationException("GeminiApiKey is missing in appsettings.json");
                 }
                 return new LlmRestClient(apiKey);
+            });
+            builder.Services.AddSingleton((IServiceProvider sp) =>
+            {
+                string? apiKey = configuration["X_API_BEARER_TOKEN"];
+                if (string.IsNullOrEmpty(apiKey))
+                {
+                    throw new InvalidOperationException("X api key is missing in appsettings.json");
+                }
+                return new TweetRestClient(apiKey);
             });
             builder.Services.AddSingleton<ILlmRepository, LlmRepository>();
 

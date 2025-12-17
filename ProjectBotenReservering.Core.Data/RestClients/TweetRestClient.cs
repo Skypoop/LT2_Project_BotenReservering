@@ -13,7 +13,6 @@ public class TweetRestClient
 {
     private const string BASE_URL = "https://api.x.com/2/";
     private const string TWEETS_ENDPOINT = "tweets";
-    private const string X_BEARER_TOKEN = "X_API_BEARER_TOKEN";
 
     private static readonly JsonSerializerOptions _serializerOptions = new JsonSerializerOptions
     {
@@ -24,12 +23,11 @@ public class TweetRestClient
     private readonly HttpClient _httpClient;
     private readonly string _bearerToken;
 
-    public TweetRestClient(HttpClient? httpClient = null, string? bearerToken = null)
+    public TweetRestClient(string bearerToken, HttpClient? httpClient = null)
     {
+        //todo we need a lifecycle httpclient since thats clean 
         _httpClient = httpClient ?? CreateDefaultHttpClient();
-        _bearerToken = string.IsNullOrWhiteSpace(bearerToken)
-            ? GetBearerTokenFromEnvironment()
-            : bearerToken;
+        _bearerToken = bearerToken;
     }
 
     public async Task<string> PostTweetAsync(string tweetContent, CancellationToken cancellationToken = default)
@@ -55,8 +53,11 @@ public class TweetRestClient
 
         if (!response.IsSuccessStatusCode)
         {
-            throw new InvalidOperationException("Api call failed");
+            Console.WriteLine(response.StatusCode);
+            Console.WriteLine(response.ToString());
+            throw new InvalidOperationException($"Api call failed {response.ToString()}");
             // imlementeer exponenoiteel backoff
+
 
         }
 
@@ -73,18 +74,6 @@ public class TweetRestClient
         httpClient.DefaultRequestHeaders.Accept.Clear();
         httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         return httpClient;
-    }
-
-    private static string GetBearerTokenFromEnvironment()
-    {
-        string? token = Environment.GetEnvironmentVariable(X_BEARER_TOKEN);
-
-        if (string.IsNullOrWhiteSpace(token))
-        {
-            throw new InvalidOperationException("Please provide a bearer token");
-        }
-
-        return token;
     }
 
     private sealed class TweetRequest
