@@ -55,37 +55,103 @@ public partial class CompetitionViewModel(IReservationService reservationService
 
     [ObservableProperty]
     public partial int CalculatedPersonCount { get; set; }
+    [ObservableProperty]
+    public partial bool SubmitButtonIsEnabled { get; set; }
 
     [RelayCommand]
     private async Task CreateCompetition()
     {
-        // Hasn't been implemented yet. Comment out if you want to test navigation to tweet creation.
-        //if (_selectedBoats == null)
-        //{
-        //    return;
-        //}
-
         DateTime startDateTime = StartDate.Date + StartTime;
         DateTime endDateTime = EndDate.Date + EndTime;
-
-        if (await HandleConflictingReservationsAsync(startDateTime, endDateTime))
+        
+        if (await CompetitionIsValid() == false)
+            return;
+        
+        if (await ShowWarningPopupAsync() && await HandleConflictingReservationsAsync(startDateTime, endDateTime))
         {
-            // Construct context string from user input for the tweet
-            string contextString = $"Naam: {CompetitionName}, " +
-                                   $"Datum: {StartDate:dd-MM-yyyy}, " +
-                                   $"Tijd: {StartTime:hh\\:mm} - {EndTime:hh\\:mm}, " +
-                                   $"Aantal Teams: {TeamCount}";
-            // TODO: Add team names to context when implemented in UI
-            // Navigate to TweetCreationView and pass the context
-            Dictionary<string, object> navigationParameter = new()
-            {
-                { "context", contextString }
-            };
-            // May have to be moved to popup as discussed in wireframe design
-            await Shell.Current.GoToAsync(nameof(TweetCreationView), navigationParameter);
+            await PlaceCompetition();
         }
     }
 
+    private void RefreshScreen()
+    {
+        CompetitionName = String.Empty;
+        StartDate = DateTime.Today;
+        StartTime = TimeSpan.Zero;
+        EndDate = DateTime.Today;
+        EndTime = TimeSpan.Zero;
+        TeamCount = "0";
+        _competitionService.AmountBoats = 0;
+        _competitionService.ClearCompetitionBoats();
+        CompetitionBoats.Clear();
+        RefreshCompetitionCounters();
+    }
+    
+    private async Task<bool> ShowWarningPopupAsync()
+    {
+        string message = CreateConfirmationPopupMessage();
+        return await Shell.Current.DisplayAlert("Bevestigen", message, "Bevestigen", "Terug");
+    }
+
+    private async Task MoveToTweetScreen()
+    {
+        // Construct context string from user input for the tweet
+        string contextString = $"Naam: {CompetitionName}, " +
+                               $"Datum: {StartDate:dd-MM-yyyy}, " +
+                               $"Tijd: {StartTime:hh\\:mm} - {EndTime:hh\\:mm}, " +
+                               $"Aantal Teams: {TeamCount}";
+        // TO-DO: Add team names to context when implemented in UI
+        // Navigate to TweetCreationView and pass the context
+        Dictionary<string, object> navigationParameter = new()
+        {
+            { "context", contextString }
+        };
+            
+        await Shell.Current.GoToAsync(nameof(TweetCreationView), navigationParameter);
+    }
+
+    private string CreateConfirmationPopupMessage()
+    {
+        string message = "Waarschuwingen:\n";
+        // Add warnings to message here
+        
+        // ---
+        
+        message += "\n- De wedstrijd zal worden aangemaakt met de opgegeven gegevens.";
+        
+        return message;
+    }
+    
+    private async Task<bool> CompetitionIsValid()
+    {
+        DateTime startDateTime = StartDate.Date + StartTime;
+        DateTime endDateTime = EndDate.Date + EndTime;
+
+
+        (bool isValid, string? errorMessage) = _competitionService.ValidateCompetition(startDateTime, endDateTime, CompetitionBoats.ToList());
+
+        if (!isValid)
+            await Shell.Current.DisplayAlert("Fout", errorMessage, "OK");
+        
+        return isValid;
+    }
+    
+    private async Task PlaceCompetition()
+    {
+        _competitionService.CreateCompetition(StartDate + StartTime, EndDate + EndTime, CompetitionName);
+        
+        if (await ShowCompletionMessage())
+            await MoveToTweetScreen();
+        else
+            RefreshScreen();
+        
+    }
+
+    private async Task<bool> ShowCompletionMessage()
+    {
+        return await Shell.Current.DisplayAlert("Wedstrijd Aangemaakt", "De wedstrijd is succesvol aangemaakt.\nWil je een tweet aanmaken voor social media?", "Ja", "Nee");
+    }
+    
     [RelayCommand]
     private async Task SelectCompetitionBoatType()
     {
@@ -143,19 +209,27 @@ public partial class CompetitionViewModel(IReservationService reservationService
 
     public void RefreshCompetitionCounters()
     {
-        Boat boatConfig = CompetitionBoats.FirstOrDefault()!;
-
-        if (boatConfig == null)
-        {
-            CalculatedBoatCount = 0;
-            CalculatedPersonCount = 0;
-            return;
-        }
-
         CalculatedBoatCount = CompetitionBoats.Count;
-
-        int capacityPerBoat = boatConfig.Seats + (boatConfig.SteeringWheel ? 1 : 0);
-
-        CalculatedPersonCount = CalculatedBoatCount * capacityPerBoat;
+        
+        Boat? boat = CompetitionBoats.FirstOrDefault();
+        CalculatedPersonCount = boat?.Seats * CompetitionBoats.Count ?? 0;
+        
+    }
+    
+    partial void OnCompetitionNameChanged(string value)
+    {
+        ValidateSubmitButton();
+    }
+    
+    partial void OnCalculatedBoatCountChanged(int value)
+    {
+        ValidateSubmitButton();
+    }
+    
+    public void ValidateSubmitButton()
+    {
+        SubmitButtonIsEnabled = !string.IsNullOrWhiteSpace(CompetitionName) &&
+                                CompetitionBoats.Count > 0;
+        // Additional validations for the submit button to be enabled should be added here
     }
 }
