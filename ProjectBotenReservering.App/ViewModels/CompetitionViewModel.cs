@@ -51,7 +51,7 @@ public partial class CompetitionViewModel : BaseViewModel
     [ObservableProperty]
     public partial bool SubmitButtonIsEnabled { get; set; }
 
-    [ObservableProperty] 
+    [ObservableProperty]
     public partial bool HasWeatherWarning { get; set; }
 
     private Dictionary<int, ObservableCollection<Client>> _clientsByBoatId = new Dictionary<int, ObservableCollection<Client>>();
@@ -98,8 +98,7 @@ public partial class CompetitionViewModel : BaseViewModel
 
     private async Task ValidateWeatherRulesAsync()
     {
-        HasWeatherWarning = false;
-        WeatherWarningText = string.Empty;
+        ClearWeatherWarning();
 
         if (CompetitionBoats.Count == 0) return;
 
@@ -108,19 +107,39 @@ public partial class CompetitionViewModel : BaseViewModel
 
         if (endDateTime <= startDateTime) return;
 
+        bool hasWeatherIssues = await CheckWeatherConditionsAsync(startDateTime, endDateTime);
+
+        if (hasWeatherIssues)
+        {
+            SetWeatherWarning();
+        }
+    }
+
+    private async Task<bool> CheckWeatherConditionsAsync(DateTime startDateTime, DateTime endDateTime)
+    {
         foreach (Boat boat in CompetitionBoats)
         {
-            bool weatherAllowed =
-                await _boatAuthorizationService.WeatherAuthorized(boat.Id, startDateTime, endDateTime);
+            bool weatherAllowed = await _boatAuthorizationService.WeatherAuthorized(boat.Id, startDateTime, endDateTime);
 
             if (!weatherAllowed)
             {
-                WeatherWarningText =
-                    "LET OP: Voor deze datum en tijd is het weer heftig voor een of meerdere geselecteerde boten!";
-                HasWeatherWarning = true;
-                break;
+                return true;
             }
         }
+
+        return false;
+    }
+
+    private void ClearWeatherWarning()
+    {
+        HasWeatherWarning = false;
+        WeatherWarningText = string.Empty;
+    }
+
+    private void SetWeatherWarning()
+    {
+        WeatherWarningText = "LET OP: Voor deze datum en tijd is het weer heftig voor een of meerdere geselecteerde boten!";
+        HasWeatherWarning = true;
     }
 
     [RelayCommand]
