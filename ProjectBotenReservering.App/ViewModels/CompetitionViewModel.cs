@@ -360,4 +360,31 @@ public partial class CompetitionViewModel : BaseViewModel
             : client.QualificationHelpText;
         Shell.Current.DisplayAlert("Waarschuwing", message, "OK");
     }
+
+    //Call this for validation (This function checks whether one or more boats are not completely filled) Returns: Bool
+    private bool AreBoatsAtFullCapacity()
+    {
+        foreach (Boat boat in CompetitionBoats)
+        {
+            int capacity = GetCapacity(boat);
+
+            ObservableCollection<Client>? client;
+            bool hasClients = _clientsByBoatId.TryGetValue(boat.Id, out client);
+
+            if (!hasClients || client == null)
+            {
+                return false;
+            }
+
+            if (client.Count != capacity)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static int GetCapacity(Boat boat)
+    => boat.Seats + (boat.SteeringWheel ? 1 : 0);
 }
