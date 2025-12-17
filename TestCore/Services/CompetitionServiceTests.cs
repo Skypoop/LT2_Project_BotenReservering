@@ -20,14 +20,12 @@ namespace TestCore.Services
         [SetUp]
         public void Setup()
         {
-            // EERST de mocks initialiseren - dit was het probleem!
             _reservationServiceMock = new Mock<IReservationService>();
             _clientServiceMock = new Mock<IClientService>();
             _boatRepositoryMock = new Mock<IBoatRepository>();
             _competitionRepositoryMock = new Mock<ICompetitionRepository>();
             _reservationCompetitionRepositoryMock = new Mock<IReservationCompetitionRepository>();
 
-            // DAN pas de service aanmaken
             _competitionService = new CompetitionService(
                 _reservationServiceMock.Object,
                 _clientServiceMock.Object,
