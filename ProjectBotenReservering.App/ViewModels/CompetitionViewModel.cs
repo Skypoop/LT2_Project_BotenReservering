@@ -56,7 +56,7 @@ public partial class CompetitionViewModel(IReservationService reservationService
     [ObservableProperty]
     public partial int CalculatedPersonCount { get; set; }
     [ObservableProperty]
-    public partial bool SubmitButtonIsEnabeld { get; set; }
+    public partial bool SubmitButtonIsEnabled { get; set; }
 
     [RelayCommand]
     private async Task CreateCompetition()
@@ -67,7 +67,7 @@ public partial class CompetitionViewModel(IReservationService reservationService
         if (await CompetitionIsValid() == false)
             return;
         
-        if (await HandleWarningPopup() && await HandleConflictingReservationsAsync(startDateTime, endDateTime))
+        if (await ShowWarningPopupAsync() && await HandleConflictingReservationsAsync(startDateTime, endDateTime))
         {
             await PlaceCompetition();
         }
@@ -87,7 +87,7 @@ public partial class CompetitionViewModel(IReservationService reservationService
         RefreshCompetitionCounters();
     }
     
-    private async Task<bool> HandleWarningPopup()
+    private async Task<bool> ShowWarningPopupAsync()
     {
         string message = CreateConfirmationPopupMessage();
         return await Shell.Current.DisplayAlert("Bevestigen", message, "Bevestigen", "Terug");
@@ -228,7 +228,7 @@ public partial class CompetitionViewModel(IReservationService reservationService
     
     public void ValidateSubmitButton()
     {
-        SubmitButtonIsEnabeld = !string.IsNullOrWhiteSpace(CompetitionName) &&
+        SubmitButtonIsEnabled = !string.IsNullOrWhiteSpace(CompetitionName) &&
                                 CompetitionBoats.Count > 0;
         // Additional validations for the submit button to be enabled should be added here
     }
