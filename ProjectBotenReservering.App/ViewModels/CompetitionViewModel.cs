@@ -69,22 +69,7 @@ public partial class CompetitionViewModel(IReservationService reservationService
         
         if (await HandleWarningPopup() && await HandleConflictingReservationsAsync(startDateTime, endDateTime))
         {
-            await SaveCompetition();
-            RefreshScreen();
-            
-            // Construct context string from user input for the tweet
-            string contextString = $"Naam: {CompetitionName}, " +
-                                   $"Datum: {StartDate:dd-MM-yyyy}, " +
-                                   $"Tijd: {StartTime:hh\\:mm} - {EndTime:hh\\:mm}, " +
-                                   $"Aantal Teams: {TeamCount}";
-            // TODO: Add team names to context when implemented in UI
-            // Navigate to TweetCreationView and pass the context
-            Dictionary<string, object> navigationParameter = new()
-            {
-                { "context", contextString }
-            };
-            // May have to be moved to popup as discussed in wireframe design
-            await Shell.Current.GoToAsync(nameof(TweetCreationView), navigationParameter);
+            await PlaceCompetition();
         }
     }
 
@@ -106,6 +91,23 @@ public partial class CompetitionViewModel(IReservationService reservationService
     {
         string message = CreateConfirmationPopupMessage();
         return await Shell.Current.DisplayAlert("Bevestigen", message, "Bevestigen", "Terug");
+    }
+
+    private async Task MoveToTweetScreen()
+    {
+        // Construct context string from user input for the tweet
+        string contextString = $"Naam: {CompetitionName}, " +
+                               $"Datum: {StartDate:dd-MM-yyyy}, " +
+                               $"Tijd: {StartTime:hh\\:mm} - {EndTime:hh\\:mm}, " +
+                               $"Aantal Teams: {TeamCount}";
+        // TO-DO: Add team names to context when implemented in UI
+        // Navigate to TweetCreationView and pass the context
+        Dictionary<string, object> navigationParameter = new()
+        {
+            { "context", contextString }
+        };
+            
+        await Shell.Current.GoToAsync(nameof(TweetCreationView), navigationParameter);
     }
 
     private string CreateConfirmationPopupMessage()
@@ -134,17 +136,20 @@ public partial class CompetitionViewModel(IReservationService reservationService
         return isValid;
     }
     
-    private async Task SaveCompetition()
+    private async Task PlaceCompetition()
     {
         _competitionService.CreateCompetition(StartDate + StartTime, EndDate + EndTime, CompetitionName);
-        await ShowCompleteionMessage();
-        return;
+        
+        if (await ShowCompletionMessage())
+            await MoveToTweetScreen();
+        else
+            RefreshScreen();
+        
     }
 
-    private async Task ShowCompleteionMessage()
+    private async Task<bool> ShowCompletionMessage()
     {
-        await Shell.Current.DisplayAlert("Wedstrijd Aangemaakt", "De wedstrijd is succesvol aangemaakt.", "OK");
-        return;
+        return await Shell.Current.DisplayAlert("Wedstrijd Aangemaakt", "De wedstrijd is succesvol aangemaakt.\nWil je een tweet aanmaken voor social media?", "Ja", "Nee");
     }
     
     [RelayCommand]
