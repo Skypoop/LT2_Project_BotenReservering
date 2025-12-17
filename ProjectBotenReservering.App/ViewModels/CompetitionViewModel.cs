@@ -19,20 +19,6 @@ public partial class CompetitionViewModel : BaseViewModel
     [ObservableProperty]
     public partial string TeamCount { get; set; } = "0";
 
-    partial void OnTeamCountChanged(string value)
-    {
-        if (int.TryParse(value, out int teamCount))
-        {
-            SelectCompetitionBoatTypeIsEnable = teamCount > 1;
-
-            _competitionService.AmountBoats = int.Parse(value);
-        }
-        else
-        {
-            SelectCompetitionBoatTypeIsEnable = false;
-        }
-    }
-
     [ObservableProperty]
     public partial ObservableCollection<Boat> CompetitionBoats { get; set; } = new ObservableCollection<Boat>();
 
@@ -52,8 +38,7 @@ public partial class CompetitionViewModel : BaseViewModel
     public partial TimeSpan EndTime { get; set; } = TimeSpan.Zero;
 
     [ObservableProperty]
-    private string teamName = string.Empty;
-
+    public partial string TeamName { get; set; } = string.Empty;
     [ObservableProperty]
     public partial bool SelectCompetitionBoatTypeIsEnable { get; set; } = false;
 
@@ -62,15 +47,19 @@ public partial class CompetitionViewModel : BaseViewModel
 
     [ObservableProperty]
     public partial int CalculatedPersonCount { get; set; }
+
     [ObservableProperty]
     public partial bool SubmitButtonIsEnabled { get; set; }
+
+    [ObservableProperty]
+    public partial bool HasWeatherWarning { get; set; }
 
     private Dictionary<int, ObservableCollection<Client>> _clientsByBoatId = new Dictionary<int, ObservableCollection<Client>>();
 
     private readonly Dictionary<int, string> _teamNameByBoatId = new();
 
     [ObservableProperty]
-    private Client? selectedClient;
+    public partial Client? SelectedClient { get; set; }
 
     private ObservableCollection<Client> _selectedClients = new ObservableCollection<Client>();
     public ObservableCollection<Client> SelectedClients
@@ -100,6 +89,59 @@ public partial class CompetitionViewModel : BaseViewModel
         InitializeClients();
     }
 
+    [ObservableProperty] public partial string? WeatherWarningText { get; set; }
+
+    partial void OnStartDateChanged(DateTime value) => _ = ValidateWeatherRulesAsync();
+    partial void OnStartTimeChanged(TimeSpan value) => _ = ValidateWeatherRulesAsync();
+    partial void OnEndDateChanged(DateTime value) => _ = ValidateWeatherRulesAsync();
+    partial void OnEndTimeChanged(TimeSpan value) => _ = ValidateWeatherRulesAsync();
+
+    private async Task ValidateWeatherRulesAsync()
+    {
+        ClearWeatherWarning();
+
+        if (CompetitionBoats.Count == 0) return;
+
+        DateTime startDateTime = StartDate.Date + StartTime;
+        DateTime endDateTime = EndDate.Date + EndTime;
+
+        if (endDateTime <= startDateTime) return;
+
+        bool hasWeatherIssues = await CheckWeatherConditionsAsync(startDateTime, endDateTime);
+
+        if (hasWeatherIssues)
+        {
+            SetWeatherWarning();
+        }
+    }
+
+    private async Task<bool> CheckWeatherConditionsAsync(DateTime startDateTime, DateTime endDateTime)
+    {
+        foreach (Boat boat in CompetitionBoats)
+        {
+            bool weatherAllowed = await _boatAuthorizationService.WeatherAuthorized(boat.Id, startDateTime, endDateTime);
+
+            if (!weatherAllowed)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void ClearWeatherWarning()
+    {
+        HasWeatherWarning = false;
+        WeatherWarningText = string.Empty;
+    }
+
+    private void SetWeatherWarning()
+    {
+        WeatherWarningText = "LET OP: Voor deze datum en tijd is het weer heftig voor een of meerdere geselecteerde boten!";
+        HasWeatherWarning = true;
+    }
+
     [RelayCommand]
     private async Task CreateCompetition()
     {
@@ -108,6 +150,8 @@ public partial class CompetitionViewModel : BaseViewModel
 
         if (await CompetitionIsValid() == false)
             return;
+
+        await ValidateWeatherRulesAsync();
 
         if (await ShowWarningPopupAsync() && await HandleConflictingReservationsAsync(startDateTime, endDateTime))
         {
@@ -155,9 +199,11 @@ public partial class CompetitionViewModel : BaseViewModel
     private string CreateConfirmationPopupMessage()
     {
         string message = "Waarschuwingen:\n";
-        // Add warnings to message here
 
-        // ---
+        if (HasWeatherWarning)
+        {
+            message += $"- {WeatherWarningText}\n";
+        }
 
         message += "\n- De wedstrijd zal worden aangemaakt met de opgegeven gegevens.";
 
@@ -216,7 +262,8 @@ public partial class CompetitionViewModel : BaseViewModel
     private async Task<bool> HandleConflictingReservationsAsync(DateTime startDateTime, DateTime endDateTime)
     {
         List<int> boatIds = [.. (CompetitionBoats ?? Enumerable.Empty<Boat>()).Select(boat => boat.Id)];
-        List<Reservation> overlappingReservations = _reservationService.FindOverlappingReservations(startDateTime, endDateTime, boatIds);
+        List<Reservation> overlappingReservations =
+            _reservationService.FindOverlappingReservations(startDateTime, endDateTime, boatIds);
 
         if (overlappingReservations.Count == 0)
         {
@@ -225,6 +272,7 @@ public partial class CompetitionViewModel : BaseViewModel
 
         return await ResolveReservationConflictsAsync(overlappingReservations);
     }
+
     private async Task<bool> ResolveReservationConflictsAsync(List<Reservation> overlappingReservations)
     {
         bool isConfirmed = await ConfirmCancellationWithUserAsync(overlappingReservations.Count);
@@ -240,7 +288,9 @@ public partial class CompetitionViewModel : BaseViewModel
 
     private static async Task<bool> ConfirmCancellationWithUserAsync(int count)
     {
-        return await Shell.Current.DisplayAlert("Attentie reserveringen worden beïnvloed", $"Om ruimte te maken voor deze wedstrijd worden er {count} reserveringen geannuleerd. Tijdens het aanmaken, ga je akkoord hiermee?", "OK", "Terug");
+        return await Shell.Current.DisplayAlert("Attentie: reserveringen worden beïnvloed",
+            $"Om ruimte te maken voor deze wedstrijd worden er {count} reserveringen geannuleerd. Ga je hiermee akkoord?",
+            "OK", "Terug");
     }
 
     private void CancelReservations(List<Reservation> overlappingReservations)
@@ -273,6 +323,21 @@ public partial class CompetitionViewModel : BaseViewModel
         Boat? boat = CompetitionBoats.FirstOrDefault();
         CalculatedPersonCount = boat?.Seats * CompetitionBoats.Count ?? 0;
 
+        _ = ValidateWeatherRulesAsync();
+    }
+
+    partial void OnTeamCountChanged(string value)
+    {
+        if (int.TryParse(value, out int teamCount))
+        {
+            SelectCompetitionBoatTypeIsEnable = teamCount > 1;
+
+            _competitionService.AmountBoats = int.Parse(value);
+        }
+        else
+        {
+            SelectCompetitionBoatTypeIsEnable = false;
+        }
     }
 
     partial void OnCompetitionNameChanged(string value)
@@ -290,6 +355,8 @@ public partial class CompetitionViewModel : BaseViewModel
         SubmitButtonIsEnabled = !string.IsNullOrWhiteSpace(CompetitionName) &&
                                 CompetitionBoats.Count > 0;
         // Additional validations for the submit button to be enabled should be added here
+
+        _ = ValidateWeatherRulesAsync();
     }
 
     private void InitializeClients()
