@@ -11,7 +11,6 @@ public partial class CompetitionViewModel : BaseViewModel
 {
     private readonly IReservationService _reservationService;
     private readonly ICompetitionService _competitionService;
-
     private string _teamCount = "0";
 
     public string TeamCount
@@ -60,8 +59,10 @@ public partial class CompetitionViewModel : BaseViewModel
 
     [ObservableProperty]
     public partial int CalculatedPersonCount { get; set; }
+    [ObservableProperty]
+    public partial bool SubmitButtonIsEnabeld { get; set; }
 
-    public CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService)
+    public CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService, IClientService clientService)
     {
         _reservationService = reservationService;
         _competitionService = competitionService;
@@ -73,7 +74,7 @@ public partial class CompetitionViewModel : BaseViewModel
         DateTime startDateTime = StartDate.Date + StartTime;
         DateTime endDateTime = EndDate.Date + EndTime;
 
-        (bool isValid, string? errorMessage) = _competitionService.ValidateCompetition(startDateTime, endDateTime, competitionBoats.ToList());
+        (bool isValid, string? errorMessage) = _competitionService.ValidateCompetition(startDateTime, endDateTime, CompetitionBoats.ToList());
 
         if (!isValid)
         {
@@ -103,7 +104,7 @@ public partial class CompetitionViewModel : BaseViewModel
             return await ShowWarningOverlappingReservationsDialog(overlappingReservations);
         }
 
-        return false;
+        return true;
     }
 
     private async Task<bool> ShowWarningOverlappingReservationsDialog(List<Reservation> overlappingReservations)
@@ -169,5 +170,22 @@ public partial class CompetitionViewModel : BaseViewModel
                 CalculatedPersonCount = CompetitionBoats.Count * boats.FirstOrDefault().Seats;
             }
         }
+    }
+    
+    partial void OnCompetitionNameChanged(string value)
+    {
+        ValidateSubmitButton();
+    }
+    
+    partial void OnCalculatedBoatCountChanged(int value)
+    {
+        ValidateSubmitButton();
+    }
+    
+    public void ValidateSubmitButton()
+    {
+        SubmitButtonIsEnabeld = !string.IsNullOrWhiteSpace(CompetitionName) &&
+                                CompetitionBoats.Count > 0;
+        // Additional validations for the submit button to be enabled should be added here
     }
 }
