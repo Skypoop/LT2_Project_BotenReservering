@@ -20,8 +20,8 @@ namespace ProjectBotenReservering.Core.Data.Database.Seeders
                     command.CommandText = @"INSERT INTO WindConstraint(Windforce, Min_Scull_level, Min_Sweep_level) 
                                             VALUES(@Windforce, @MinScullLevel, @MinSweepLevel)";
                     command.AddParameter("@Windforce", i);
-                    command.AddParameter("@MinScullLevel", 99);
-                    command.AddParameter("@MinSweepLevel", 99);
+                    command.AddParameter("@MinScullLevel", minLevel);
+                    command.AddParameter("@MinSweepLevel", minLevel);
                     command.ExecuteNonQuery();
                 }
             }
