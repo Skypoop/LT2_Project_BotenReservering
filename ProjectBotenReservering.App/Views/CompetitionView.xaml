@@ -353,7 +353,7 @@
                                             BackgroundColor="#f3f3f3"
                                             Padding="10,0"
                                             HeightRequest="44">
-                                    <Picker Title=""
+                                        <Picker Title=""
                                             ItemsSource="{Binding AvailableClients}"
                                             ItemDisplayBinding="{Binding FullName}"
                                             SelectedItem="{Binding SelectedClient}"
@@ -483,14 +483,6 @@
                         Padding="18,0" />
                         </Grid>
                     </Grid>
-
-                    <!-- RIGHT: empty state when no boat selected -->
-                    <Grid Grid.Column="2"
-              IsVisible="{Binding IsBoatSelected, Converter={StaticResource InverseBoolConverter}}"
-              VerticalOptions="Center"
-              HorizontalOptions="Center">
-                    </Grid>
-
                 </Grid>
             </Border>
 

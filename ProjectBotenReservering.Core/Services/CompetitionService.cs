@@ -56,10 +56,7 @@ public class CompetitionService : ICompetitionService
 
         for (int i = 0; i < amount; i++)
         {
-            if (allBoatsFromName != null)
-            {
-                _competitionBoatsList.Add(allBoatsFromName[i]);
-            }
+            _competitionBoatsList.Add(allBoatsFromName[i]);
         }
     }
 

@@ -2,23 +2,19 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ProjectBotenReservering.App.Views;
-using ProjectBotenReservering.Core.Data.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
-using ProjectBotenReservering.Core.Services;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
-public partial class CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService) : BaseViewModel
+public partial class CompetitionViewModel : BaseViewModel
 {
     private readonly IReservationService _reservationService;
     private readonly ICompetitionService _competitionService;
     private readonly IClientService _clientService;
     private readonly IClientRepository _clientRepository;
     private readonly IBoatAuthorizationService _boatAuthorizationService;
-    private readonly IReservationService _reservationService = reservationService;
-    private readonly ICompetitionService _competitionService = competitionService;
 
     [ObservableProperty]
     public partial string TeamCount { get; set; } = "0";
@@ -88,13 +84,13 @@ public partial class CompetitionViewModel(IReservationService reservationService
     public bool IsBoatSelected => SelectedBoat != null;
 
     public CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService, IClientService clientService,
-        IClientRepository clientRepository,IBoatAuthorizationService boatReservationService)
+        IClientRepository clientRepository,IBoatAuthorizationService boatAuthorizationService)
     {
         _reservationService = reservationService;
         _competitionService = competitionService;
         _clientService = clientService;
         _clientRepository = clientRepository;
-        _boatAuthorizationService = boatReservationService;
+        _boatAuthorizationService = boatAuthorizationService;
 
 
         SelectedClients = new ObservableCollection<Client>();
@@ -363,15 +359,15 @@ public partial class CompetitionViewModel(IReservationService reservationService
         {
             int capacity = GetCapacity(boat);
 
-            ObservableCollection<Client>? client;
-            bool hasClients = _clientsByBoatId.TryGetValue(boat.Id, out client);
+            ObservableCollection<Client>? clients;
+            bool hasClients = _clientsByBoatId.TryGetValue(boat.Id, out clients);
 
-            if (!hasClients || client == null)
+            if (!hasClients || clients == null)
             {
                 return false;
             }
 
-            if (client.Count != capacity)
+            if (clients.Count != capacity)
             {
                 return false;
             }
