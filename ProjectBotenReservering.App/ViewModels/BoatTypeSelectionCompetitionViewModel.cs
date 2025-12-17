@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ProjectBotenReservering.Core.Exceptions;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 
@@ -81,15 +82,44 @@ public partial class BoatTypeSelectionCompetitionViewModel : BaseViewModel
     [RelayCommand]
     public async Task SelectBoatType(BoatTypeUiItem boatUiItem)
     {
-        BoatTypeUiItem boat = _boatTypeService.GetBoatTypeById(boatUiItem.Id);
+        BoatTypeUiItem? boat = GetBoatTypeOrNull(boatUiItem);
+        if (boat is null) return;
 
-        if (boat != null)
+        if (!TrySetSelectedBoat(boat.Id, out NotEnoughBoatsException? ex))
         {
-            _competitionService.SelectedBoatId = boat.Id;
+            await ShowNotEnoughBoatsPopupAsync(ex!);
+            return;
+        }
 
-            await Shell.Current.GoToAsync("..");
+        await NavigateBackAsync();
+    }
+
+    private BoatTypeUiItem? GetBoatTypeOrNull(BoatTypeUiItem boatUiItem)
+    => _boatTypeService.GetBoatTypeById(boatUiItem.Id);
+
+    private bool TrySetSelectedBoat(int boatId, out NotEnoughBoatsException? ex)
+    {
+        try
+        {
+            _competitionService.SelectedBoatId = boatId;
+            ex = null;
+            return true;
+        }
+        catch (NotEnoughBoatsException e)
+        {
+            ex = e;
+            return false;
         }
     }
+
+    private static Task ShowNotEnoughBoatsPopupAsync(NotEnoughBoatsException ex)
+    => Shell.Current.DisplayAlert(
+        "Te weinig boten",
+        $"Nodig: {ex.Needed}\nBeschikbaar: {ex.Available}",
+        "OK");
+
+    private static Task NavigateBackAsync()
+        => Shell.Current.GoToAsync("..");
 
     partial void OnSelectedSteeringOptionChanged(SteeringOption value) => ApplyFilterOption();
     partial void OnStringInNameFilterChanged(string value) => ApplyFilterOption();

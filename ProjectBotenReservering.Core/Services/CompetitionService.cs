@@ -1,5 +1,6 @@
-﻿using ProjectBotenReservering.Core.Interfaces.Repositories;
+﻿using ProjectBotenReservering.Core.Exceptions;
 using ProjectBotenReservering.Core.Helpers;
+using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 
@@ -23,7 +24,6 @@ public class CompetitionService : ICompetitionService
         set
         {
             AddBoatsToCompetition(value, AmountBoats);
-
             _selectedBoatId = value;
         }
     }
@@ -62,10 +62,8 @@ public class CompetitionService : ICompetitionService
 
         List<Boat> allBoatsFromName = GetAllCompititionBoatsFromName(boatId);
 
-        if (allBoatsFromName.Count() < amount)
-        {
-            throw new InvalidOperationException($"Niet genoeg boten beschikbaar, Nodig: {amount}, Beschikbaar: {allBoatsFromName.Count()}");
-        }
+        if (allBoatsFromName.Count < amount)
+            throw new NotEnoughBoatsException(amount, allBoatsFromName.Count);
 
         for (int i = 0; i < amount; i++)
         {
