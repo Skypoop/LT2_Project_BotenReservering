@@ -133,9 +133,7 @@ public partial class CompetitionViewModel : BaseViewModel
 
     [RelayCommand]
     private void RemoveClient(Client client)
-    {
-        Client? currentUser = _clientService.GetCurrentClient();
-        
+    {   
         if (client == null) return;
 
         if (SelectedClients.Contains(client))
@@ -278,23 +276,23 @@ public partial class CompetitionViewModel : BaseViewModel
 
     private ObservableCollection<Client> GetOrCreateClientsForBoatId(int boatId)
     {
-        ObservableCollection<Client> Clients;
+        ObservableCollection<Client> clients;
 
-        if (_clientsByBoatId.TryGetValue(boatId, out Clients))
+        if (_clientsByBoatId.TryGetValue(boatId, out clients))
         {
-            return Clients;
+            return clients;
         }
 
-        Clients = new ObservableCollection<Client>();
-        _clientsByBoatId.Add(boatId, Clients);
+        clients = new ObservableCollection<Client>();
+        _clientsByBoatId.Add(boatId, clients);
 
         Client? currentUser = _clientService.GetCurrentClient();
         if (currentUser != null)
         {
-            Clients.Add(currentUser);
+            clients.Add(currentUser);
         }
 
-        return Clients;
+        return clients;
     }
 
     private void AddClientIfValid(Client clientToAdd)
