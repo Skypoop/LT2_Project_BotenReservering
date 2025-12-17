@@ -19,20 +19,6 @@ public partial class CompetitionViewModel : BaseViewModel
     [ObservableProperty]
     public partial string TeamCount { get; set; } = "0";
 
-    partial void OnTeamCountChanged(string value)
-    {
-        if (int.TryParse(value, out int teamCount))
-        {
-            SelectCompetitionBoatTypeIsEnable = teamCount > 1;
-
-            _competitionService.AmountBoats = int.Parse(value);
-        }
-        else
-        {
-            SelectCompetitionBoatTypeIsEnable = false;
-        }
-    }
-
     [ObservableProperty]
     public partial ObservableCollection<Boat> CompetitionBoats { get; set; } = new ObservableCollection<Boat>();
 
@@ -64,6 +50,9 @@ public partial class CompetitionViewModel : BaseViewModel
 
     [ObservableProperty]
     public partial bool SubmitButtonIsEnabled { get; set; }
+
+    [ObservableProperty] 
+    public partial bool HasWeatherWarning { get; set; }
 
     private Dictionary<int, ObservableCollection<Client>> _clientsByBoatId = new Dictionary<int, ObservableCollection<Client>>();
 
@@ -99,9 +88,6 @@ public partial class CompetitionViewModel : BaseViewModel
         AvailableClients = new ObservableCollection<Client>();
         InitializeClients();
     }
-
-
-    [ObservableProperty] public partial bool HasWeatherWarning { get; set; }
 
     [ObservableProperty] public partial string? WeatherWarningText { get; set; }
 
@@ -319,6 +305,20 @@ public partial class CompetitionViewModel : BaseViewModel
         CalculatedPersonCount = boat?.Seats * CompetitionBoats.Count ?? 0;
 
         _ = ValidateWeatherRulesAsync();
+    }
+
+    partial void OnTeamCountChanged(string value)
+    {
+        if (int.TryParse(value, out int teamCount))
+        {
+            SelectCompetitionBoatTypeIsEnable = teamCount > 1;
+
+            _competitionService.AmountBoats = int.Parse(value);
+        }
+        else
+        {
+            SelectCompetitionBoatTypeIsEnable = false;
+        }
     }
 
     partial void OnCompetitionNameChanged(string value)
