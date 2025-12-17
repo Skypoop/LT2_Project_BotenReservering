@@ -7,34 +7,30 @@ using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
-public partial class CompetitionViewModel : BaseViewModel
+public partial class CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService) : BaseViewModel
 {
-    private readonly IReservationService _reservationService;
-    private readonly ICompetitionService _competitionService;
-    private string _teamCount = "0";
+    private readonly IReservationService _reservationService = reservationService;
+    private readonly ICompetitionService _competitionService = competitionService;
 
-    public string TeamCount
+    [ObservableProperty]
+    public partial string TeamCount { get; set; } = "0";
+
+    partial void OnTeamCountChanged(string value)
     {
-        get => _teamCount;
-        set
+        if (int.TryParse(value, out int teamCount))
         {
-            if (SetProperty(ref _teamCount, value))
-            {
-                if (CheckBoatAmountIsValid(value))
-                {
-                    SelectCompetitionBoatTypeIsEnable = true;
-                    _competitionService.AmountBoats = int.Parse(value);
-                }
-                else
-                {
-                    SelectCompetitionBoatTypeIsEnable = false;
-                }
-            }
+            SelectCompetitionBoatTypeIsEnable = teamCount > 1;
+
+            _competitionService.AmountBoats = int.Parse(value);
+        }
+        else
+        {
+            SelectCompetitionBoatTypeIsEnable = false;
         }
     }
 
     [ObservableProperty]
-    public ObservableCollection<Boat> competitionBoats = new ObservableCollection<Boat>();
+    public partial ObservableCollection<Boat> CompetitionBoats { get; set; } = new ObservableCollection<Boat>();
 
     [ObservableProperty]
     public partial string CompetitionName { get; set; } = string.Empty;
@@ -62,22 +58,33 @@ public partial class CompetitionViewModel : BaseViewModel
     [ObservableProperty]
     public partial bool SubmitButtonIsEnabeld { get; set; }
 
-    public CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService, IClientService clientService)
-    {
-        _reservationService = reservationService;
-        _competitionService = competitionService;
-    }
-
     [RelayCommand]
     private async Task CreateCompetition()
     {
+        DateTime startDateTime = StartDate.Date + StartTime;
+        DateTime endDateTime = EndDate.Date + EndTime;
+        
         if (await CompetitionIsValid() == false)
             return;
         
-        if (await HandleWarningPopup() && await ReservationsNotOverlappingWithTheCompetition(StartDate + StartTime, EndDate + EndTime))
+        if (await HandleWarningPopup() && await HandleConflictingReservationsAsync(startDateTime, endDateTime))
         {
             await SaveCompetition();
             RefreshScreen();
+            
+            // Construct context string from user input for the tweet
+            string contextString = $"Naam: {CompetitionName}, " +
+                                   $"Datum: {StartDate:dd-MM-yyyy}, " +
+                                   $"Tijd: {StartTime:hh\\:mm} - {EndTime:hh\\:mm}, " +
+                                   $"Aantal Teams: {TeamCount}";
+            // TODO: Add team names to context when implemented in UI
+            // Navigate to TweetCreationView and pass the context
+            Dictionary<string, object> navigationParameter = new()
+            {
+                { "context", contextString }
+            };
+            // May have to be moved to popup as discussed in wireframe design
+            await Shell.Current.GoToAsync(nameof(TweetCreationView), navigationParameter);
         }
     }
 
@@ -92,7 +99,7 @@ public partial class CompetitionViewModel : BaseViewModel
         _competitionService.AmountBoats = 0;
         _competitionService.ClearCompetitionBoats();
         CompetitionBoats.Clear();
-        RefreshCompetitionCounters(CompetitionBoats.ToList());
+        RefreshCompetitionCounters();
     }
     
     private async Task<bool> HandleWarningPopup()
@@ -117,6 +124,7 @@ public partial class CompetitionViewModel : BaseViewModel
     {
         DateTime startDateTime = StartDate.Date + StartTime;
         DateTime endDateTime = EndDate.Date + EndTime;
+
 
         (bool isValid, string? errorMessage) = _competitionService.ValidateCompetition(startDateTime, endDateTime, CompetitionBoats.ToList());
 
@@ -145,51 +153,39 @@ public partial class CompetitionViewModel : BaseViewModel
         await Shell.Current.GoToAsync(nameof(BoatTypeSelectionCompetitionView));
     }
 
-
-    private async Task<bool> ReservationsNotOverlappingWithTheCompetition(DateTime startDateTime, DateTime endDateTime)
+    private async Task<bool> HandleConflictingReservationsAsync(DateTime startDateTime, DateTime endDateTime)
     {
-        List<Reservation> overlappingReservations = _reservationService.FindOverlappingReservations(startDateTime, endDateTime, competitionBoats.Select(b => b.Id).ToList());
+        List<int> boatIds = [.. (CompetitionBoats ?? Enumerable.Empty<Boat>()).Select(boat => boat.Id)];
+        List<Reservation> overlappingReservations = _reservationService.FindOverlappingReservations(startDateTime, endDateTime, boatIds);
 
-        if (overlappingReservations.Count > 0)
+        if (overlappingReservations.Count == 0)
         {
-            return await ShowWarningOverlappingReservationsDialog(overlappingReservations);
+            return true;
         }
 
-        return true;
+        return await ResolveReservationConflictsAsync(overlappingReservations);
     }
-
-    private async Task<bool> ShowWarningOverlappingReservationsDialog(List<Reservation> overlappingReservations)
+    private async Task<bool> ResolveReservationConflictsAsync(List<Reservation> overlappingReservations)
     {
-        bool answer = await Shell.Current.DisplayAlert("Attentie reserveringen worden beïnvloed", $"Om ruimte te maken voor deze wedstrijd worden er {overlappingReservations.Count} reserveringen geannuleerd. Tijdens het aanmaken, ga je akkoord hiermee?", "OK", "Terug");
+        bool isConfirmed = await ConfirmCancellationWithUserAsync(overlappingReservations.Count);
 
-        if (answer)
+        if (isConfirmed)
         {
-            CancelOverlappingReservations(overlappingReservations);
-
+            CancelReservations(overlappingReservations);
             return true;
         }
 
         return false;
     }
 
-    private void CancelOverlappingReservations(List<Reservation> overlappingReservations)
+    private static async Task<bool> ConfirmCancellationWithUserAsync(int count)
     {
-        _reservationService.CancelOverlappingReservations(overlappingReservations);
+        return await Shell.Current.DisplayAlert("Attentie reserveringen worden beïnvloed", $"Om ruimte te maken voor deze wedstrijd worden er {count} reserveringen geannuleerd. Tijdens het aanmaken, ga je akkoord hiermee?", "OK", "Terug");
     }
 
-    private bool CheckBoatAmountIsValid(string boatAmount)
+    private void CancelReservations(List<Reservation> overlappingReservations)
     {
-        if (string.IsNullOrWhiteSpace(boatAmount))
-        {
-            return false;
-        }
-
-        if (int.TryParse(boatAmount, out int amount))
-        {
-            return amount > 1;
-        }
-
-        return false;
+        _reservationService.CancelOverlappingReservations(overlappingReservations);
     }
 
     public void FillBoatCompetitionsList()
@@ -203,15 +199,15 @@ public partial class CompetitionViewModel : BaseViewModel
             CompetitionBoats.Add(boat);
         }
 
-        RefreshCompetitionCounters(boats);
+        RefreshCompetitionCounters();
     }
 
-    public void RefreshCompetitionCounters(List<Boat> boats)
+    public void RefreshCompetitionCounters()
     {
-        CalculatedBoatCount = boats.Count;
+        CalculatedBoatCount = CompetitionBoats.Count;
         
-        Boat? boat = boats.FirstOrDefault();
-        CalculatedPersonCount = boat?.Seats * boats.Count ?? 0;
+        Boat? boat = CompetitionBoats.FirstOrDefault();
+        CalculatedPersonCount = boat?.Seats * CompetitionBoats.Count ?? 0;
         
     }
     
