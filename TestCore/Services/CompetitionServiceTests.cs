@@ -55,6 +55,8 @@ namespace TestCore.Services
             _competitionRepositoryMock.Setup(x => x.Add(It.IsAny<Competition>())).Returns(expectedCompetition);
             _reservationServiceMock.Setup(x => x.CreateReservation(It.IsAny<Reservation>(), It.IsAny<List<Client>>())).Returns(expectedReservation);
             _reservationCompetitionRepositoryMock.Setup(x => x.Add(It.IsAny<ReservationCompetition>())).Returns((ReservationCompetition rc) => rc);
+
+            _competitionService.ClearCompetitionBoats();
             _competitionService.AmountBoats = 1;
             _competitionService.SelectedBoatId = boat.Id;
 
