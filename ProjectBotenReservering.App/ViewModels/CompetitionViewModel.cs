@@ -16,6 +16,7 @@ public partial class CompetitionViewModel : BaseViewModel
     private readonly ICompetitionService _competitionService;
     private readonly IClientService _clientService;
     private readonly IClientRepository _clientRepository;
+    private readonly IBoatAuthorizationService _boatAuthorizationService;
 
     private string _teamCount = "0";
 
@@ -90,12 +91,14 @@ public partial class CompetitionViewModel : BaseViewModel
     public bool IsBoatSelected => SelectedBoat != null;
 
     public CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService, IClientService clientService,
-        IClientRepository clientRepository)
+        IClientRepository clientRepository,IBoatAuthorizationService boatReservationService)
     {
         _reservationService = reservationService;
         _competitionService = competitionService;
         _clientService = clientService;
         _clientRepository = clientRepository;
+        _boatAuthorizationService = boatReservationService;
+
 
         SelectedClients = new ObservableCollection<Client>();
         AvailableClients = new ObservableCollection<Client>();
@@ -325,21 +328,19 @@ public partial class CompetitionViewModel : BaseViewModel
     {
         if (SelectedBoat == null) return;
 
+        BoatType requiredType = SelectedBoat.Type;
         int requiredLevel = SelectedBoat.Level;
 
-        BoatType requiredType = SelectedBoat.Type;
-        bool isScull = requiredType == BoatType.S;
-
-        string levelType = isScull ? "scull" : "sweep";
+        string levelType = requiredType == BoatType.S ? "scull" : "sweep";
 
         foreach (Client client in SelectedClients)
         {
-            int clientLevel = isScull ? client.ScullLevel : client.SweepLevel;
-
-            bool authorized = clientLevel >= requiredLevel;
+            bool authorized = _boatAuthorizationService.IsAuthorized(requiredType, requiredLevel, client);
 
             if (!authorized)
             {
+                int clientLevel = requiredType == BoatType.S ? client.ScullLevel : client.SweepLevel;
+
                 client.QualificationHelpText =
                     $"Persoon {levelType} level: {clientLevel}. Vereist: {requiredLevel}.";
                 client.IsUnderqualified = true;
