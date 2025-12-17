@@ -283,8 +283,8 @@ public partial class CompetitionViewModel : BaseViewModel
 
     private static async Task<bool> ConfirmCancellationWithUserAsync(int count)
     {
-        return await Shell.Current.DisplayAlert("Attentie reserveringen worden beïnvloed",
-            $"Om ruimte te maken voor deze wedstrijd worden er {count} reserveringen geannuleerd. Tijdens het aanmaken, ga je akkoord hiermee?",
+        return await Shell.Current.DisplayAlert("Attentie: reserveringen worden beïnvloed",
+            $"Om ruimte te maken voor deze wedstrijd worden er {count} reserveringen geannuleerd. Ga je hiermee akkoord?",
             "OK", "Terug");
     }
 
