@@ -109,6 +109,8 @@ public partial class CompetitionViewModel(
         if (await CompetitionIsValid() == false)
             return;
         
+        await ValidateWeatherRulesAsync();
+        
         if (await ShowWarningPopupAsync() && await HandleConflictingReservationsAsync(startDateTime, endDateTime))
         {
             await PlaceCompetition();
@@ -155,9 +157,11 @@ public partial class CompetitionViewModel(
     private string CreateConfirmationPopupMessage()
     {
         string message = "Waarschuwingen:\n";
-        // Add warnings to message here
         
-        // ---
+        if (HasWeatherWarning)
+        {
+            message += $"- {WeatherWarningText}\n";
+        }
         
         message += "\n- De wedstrijd zal worden aangemaakt met de opgegeven gegevens.";
         
@@ -260,6 +264,7 @@ public partial class CompetitionViewModel(
         Boat? boat = CompetitionBoats.FirstOrDefault();
         CalculatedPersonCount = boat?.Seats * CompetitionBoats.Count ?? 0;
         
+        _ = ValidateWeatherRulesAsync();
     }
     
     partial void OnCompetitionNameChanged(string value)
