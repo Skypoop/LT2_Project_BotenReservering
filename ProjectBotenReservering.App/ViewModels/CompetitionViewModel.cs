@@ -71,26 +71,72 @@ public partial class CompetitionViewModel : BaseViewModel
     [RelayCommand]
     private async Task CreateCompetition()
     {
+        if (await CompetitionIsValid() == false)
+            return;
+        
+        if (await HandleWarningPopup() && await ReservationsNotOverlappingWithTheCompetition(StartDate + StartTime, EndDate + EndTime))
+        {
+            await SaveCompetition();
+            RefreshScreen();
+        }
+    }
+
+    private void RefreshScreen()
+    {
+        CompetitionName = String.Empty;
+        StartDate = DateTime.Today;
+        StartTime = TimeSpan.Zero;
+        EndDate = DateTime.Today;
+        EndTime = TimeSpan.Zero;
+        TeamCount = "0";
+        _competitionService.AmountBoats = 0;
+        _competitionService.ClearCompetitionBoats();
+        CompetitionBoats.Clear();
+        RefreshCompetitionCounters(CompetitionBoats.ToList());
+    }
+    
+    private async Task<bool> HandleWarningPopup()
+    {
+        string message = CreateConfirmationPopupMessage();
+        return await Shell.Current.DisplayAlert("Bevestigen", message, "Bevestigen", "Terug");
+    }
+
+    private string CreateConfirmationPopupMessage()
+    {
+        string message = "Waarschuwingen:\n";
+        // Add warnings to message here
+        
+        // ---
+        
+        message += "\n- De wedstrijd zal worden aangemaakt met de opgegeven gegevens.";
+        
+        return message;
+    }
+    
+    private async Task<bool> CompetitionIsValid()
+    {
         DateTime startDateTime = StartDate.Date + StartTime;
         DateTime endDateTime = EndDate.Date + EndTime;
 
         (bool isValid, string? errorMessage) = _competitionService.ValidateCompetition(startDateTime, endDateTime, CompetitionBoats.ToList());
 
         if (!isValid)
-        {
             await Shell.Current.DisplayAlert("Fout", errorMessage, "OK");
-            return;
-        }
-
-        if (await ReservationsNotOverlappingWithTheCompetition(startDateTime, endDateTime))
-        {
-            SendCompetitionToRepositories();
-        }
+        
+        return isValid;
+    }
+    
+    private async Task SaveCompetition()
+    {
+        _competitionService.CreateCompetition(StartDate + StartTime, EndDate + EndTime, CompetitionName);
+        await ShowCompleteionMessage();
+        return;
     }
 
-    private void SendCompetitionToRepositories()
+    private async Task ShowCompleteionMessage()
     {
-        _competitionService.CreateCompetition(StartDate, EndDate, CompetitionName);
+        await Shell.Current.DisplayAlert("Wedstrijd Aangemaakt", "De wedstrijd is succesvol aangemaakt.", "OK");
+        return;
     }
     
     [RelayCommand]
@@ -162,19 +208,11 @@ public partial class CompetitionViewModel : BaseViewModel
 
     public void RefreshCompetitionCounters(List<Boat> boats)
     {
-        if (boats != null && boats.Count > 0)
-        {
-            CalculatedBoatCount = CompetitionBoats.Count;
-
-            if (boats[0].SteeringWheel)
-            {
-                CalculatedPersonCount = CompetitionBoats.Count * (boats.FirstOrDefault().Seats + 1);
-            }
-            else
-            {
-                CalculatedPersonCount = CompetitionBoats.Count * boats.FirstOrDefault().Seats;
-            }
-        }
+        CalculatedBoatCount = boats.Count;
+        
+        Boat? boat = boats.FirstOrDefault();
+        CalculatedPersonCount = boat?.Seats * boats.Count ?? 0;
+        
     }
     
     partial void OnCompetitionNameChanged(string value)

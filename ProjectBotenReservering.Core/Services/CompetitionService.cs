@@ -46,6 +46,11 @@ public class CompetitionService : ICompetitionService
         _reservationCompetitionRepository = reservationCompetitionRepository;
     }
 
+    public void ClearCompetitionBoats()
+    {
+        _competitionBoatsList.Clear();
+    }
+    
     private void AddBoatsToCompetition(int boatId, int amount)
     {
         if (_boatRepository.Get(boatId) == null)
