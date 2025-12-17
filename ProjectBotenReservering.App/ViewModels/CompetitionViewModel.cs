@@ -84,10 +84,15 @@ public partial class CompetitionViewModel : BaseViewModel
 
         if (await ReservationsNotOverlappingWithTheCompetition(startDateTime, endDateTime))
         {
-            //Make competition function
+            SendCompetitionToRepositories();
         }
     }
 
+    private void SendCompetitionToRepositories()
+    {
+        _competitionService.CreateCompetition(StartDate, EndDate, CompetitionName);
+    }
+    
     [RelayCommand]
     private async Task SelectCompetitionBoatType()
     {

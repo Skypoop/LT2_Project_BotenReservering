@@ -8,13 +8,12 @@ namespace ProjectBotenReservering.Core.Data.Mappers
     {
         public Competition Map(IDataReader reader)
         {
-            return new Competition
-            {
-                Id = reader.GetInt32(reader.GetOrdinal("Id")),
-                StartDateTime = reader.GetDateTime(reader.GetOrdinal("Start_DateTime")),
-                EndDateTime = reader.GetDateTime(reader.GetOrdinal("End_DateTime")),
-                CompetitionName = reader.GetString(reader.GetOrdinal("Competition_Name"))
-            };
+            return new Competition(
+                reader.GetDateTime(reader.GetOrdinal("Start_DateTime")),
+                 reader.GetDateTime(reader.GetOrdinal("End_DateTime")),
+                reader.GetString(reader.GetOrdinal("Competition_Name")),
+                reader.GetInt32(reader.GetOrdinal("Id"))
+            );
         }
     }
 }
