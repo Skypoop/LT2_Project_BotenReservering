@@ -57,6 +57,13 @@ public partial class CompetitionViewModel(
     [ObservableProperty]
     public partial int CalculatedBoatCount { get; set; }
 
+     [ObservableProperty]
+    public partial int CalculatedPersonCount { get; set; }
+
+    [ObservableProperty]
+    public partial bool SubmitButtonIsEnabled { get; set; }
+
+
     [ObservableProperty] public partial bool HasWeatherWarning { get; set; }
 
     [ObservableProperty] public partial string? WeatherWarningText { get; set; }
@@ -92,8 +99,6 @@ public partial class CompetitionViewModel(
             }
         }
     }
-    [ObservableProperty]
-    public partial bool SubmitButtonIsEnabled { get; set; }
 
     [RelayCommand]
     private async Task CreateCompetition()
