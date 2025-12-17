@@ -121,6 +121,31 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             return boatList;
         }
 
+        public List<Boat> GetAllFromName(string boatName)
+        {
+            List<Boat> boatlist = new List<Boat>();
+            string selecQuery = "SELECT Id, Name, Steering_Wheel, Seats, Level, Type, Kg, Operational, Club FROM Boat WHERE Name = @BoatName";
+
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
+            {
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = selecQuery;
+                    command.AddParameter("@BoatName", boatName);
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            boatlist.Add(_mapper.Map(reader));
+                        }
+                    }
+                }
+            }
+            return boatlist;
+        }
+
+
         public List<Boat> GetOperationalBoats()
         {
             List<Boat> boatList = new List<Boat>();
