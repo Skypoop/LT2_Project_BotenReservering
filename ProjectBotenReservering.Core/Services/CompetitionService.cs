@@ -53,17 +53,36 @@ public class CompetitionService : ICompetitionService
     
     private void AddBoatsToCompetition(int boatId, int amount)
     {
+        _competitionBoatsList.Clear();
+
         if (_boatRepository.Get(boatId) == null)
         {
             throw new ArgumentException($"Boat with ID {boatId} does not exist.", nameof(boatId));
         }
 
-        _competitionBoatsList.Clear();
+        List<Boat> allBoatsFromName = GetAllCompititionBoatsFromName(boatId);
+
+        if (allBoatsFromName.Count() < amount)
+        {
+            throw new InvalidOperationException($"Niet genoeg boten beschikbaar, Nodig: {amount}, Beschikbaar: {allBoatsFromName.Count()}");
+        }
 
         for (int i = 0; i < amount; i++)
         {
-            _competitionBoatsList.Add(_boatRepository.Get(boatId));
+            _competitionBoatsList.Add(allBoatsFromName[i]);
         }
+    }
+
+    private List<Boat> GetAllCompititionBoatsFromName(int id)
+    {
+        Boat? boat = _boatRepository.Get(id);
+        if (boat == null)
+            throw new ArgumentException($"Boat with ID {id} does not exist.", nameof(id));
+
+        if (string.IsNullOrWhiteSpace(boat.Name))
+            return new List<Boat>();
+
+        return _boatRepository.GetAllFromName(boat.Name) ?? new List<Boat>();
     }
 
     public Competition? CreateCompetition(DateTime startDate, DateTime endDate, string competitionName)
