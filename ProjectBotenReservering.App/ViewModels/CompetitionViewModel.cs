@@ -144,7 +144,6 @@ public partial class CompetitionViewModel(IReservationService reservationService
             await MoveToTweetScreen();
         else
             RefreshScreen();
-        
     }
 
     private async Task<bool> ShowCompletionMessage()

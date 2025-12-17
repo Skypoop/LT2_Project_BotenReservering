@@ -102,33 +102,47 @@ public class AuthServiceTests
     }
 
     [Test]
-    public void GetUserRole_ClientHasRole_ReturnsCorrectRole()
+    public void GetUserRoles_ClientHasRoles_ReturnsCorrectRoles()
     {
         int clientId = 1;
-        string expectedRole = "Lid";
+        ClientRole memberRole = new ClientRole("Lid", clientId);
+        ClientRole competitionCommissionerRole = new ClientRole("Wedstrijdcommissaris", clientId);
+        List<ClientRole> expectedRoles = new List<ClientRole>
+        {
+            memberRole,
+            competitionCommissionerRole
+        };
         List<ClientRole> clientRoles = new List<ClientRole>
         {
-            new ClientRole(expectedRole, clientId)
+            memberRole,
+            competitionCommissionerRole
         };
 
         _mockClientRoleRepo.Setup(repo => repo.GetByClientId(clientId)).Returns(clientRoles);
 
-        string result = _service.GetUserRole(clientId);
+        ClientRole[] result = _service.GetClientRoles(clientId);
 
-        result.Should().Be(expectedRole);
+        result.Should().Equal(expectedRoles);
     }
 
     [Test]
-    public void GetUserRole_ClientHasNoRole_ReturnsEmptyString()
+    public void GetUserRole_ClientHasNoRole_ReturnsEmptyArray()
     {
         int clientId = 1;
+        ClientRole memberRole = new ClientRole("Lid", clientId);
+        ClientRole competitionCommissionerRole = new ClientRole("Wedstrijdcommissaris", clientId);
+        List<ClientRole> expectedRoles = new List<ClientRole>
+        {
+            memberRole,
+            competitionCommissionerRole
+        };
         List<ClientRole> emptyRoles = new List<ClientRole>();
 
         _mockClientRoleRepo.Setup(repo => repo.GetByClientId(clientId)).Returns(emptyRoles);
 
-        string result = _service.GetUserRole(clientId);
+        ClientRole[] result = _service.GetClientRoles(clientId);
 
-        result.Should().Be(string.Empty);
+        result.Should().HaveCount(0);
     }
 
     [Test]

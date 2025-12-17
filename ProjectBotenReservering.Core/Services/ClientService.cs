@@ -5,11 +5,13 @@ using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.Core.Services;
 
-public class ClientService(IClientRepository clientRepository, IClientContext clientContext) : IClientService
+public class ClientService(IClientRepository clientRepository, IClientRoleRepository clientRoleRepository, IClientContext clientContext) : IClientService
 {
     public Client? GetCurrentClient()
     {
         int clientId = clientContext.GetCurrentClientId();
         return clientRepository.Get(clientId);
     }
+
+
 }

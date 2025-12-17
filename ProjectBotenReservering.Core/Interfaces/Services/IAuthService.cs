@@ -8,7 +8,7 @@ namespace ProjectBotenReservering.Core.Interfaces.Services
         Client? Login(string email, string password);
         bool Register(Client newClient, string password, string roleName);
         bool EmailExists(string email);
-        string GetUserRole(int clientId);
+        public ClientRole[] GetClientRoles(int clientId);
 
     }
 }

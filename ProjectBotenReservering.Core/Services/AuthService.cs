@@ -40,11 +40,10 @@ public class AuthService(IClientRepository clientRepository, IClientRoleReposito
 
         return true;
     }
-
-    public string GetUserRole(int clientId)
+    
+    public ClientRole[] GetClientRoles(int clientId)
     {
         List<ClientRole> roles = _clientRoleRepository.GetByClientId(clientId);
-        ClientRole? clientRole = roles.FirstOrDefault();
-        return clientRole?.RoleName ?? string.Empty;
+        return roles.ToArray();
     }
 }

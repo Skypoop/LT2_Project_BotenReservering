@@ -23,13 +23,15 @@ namespace ProjectBotenReservering.App.ViewModels
         private readonly IClientContext _clientContext;
         private readonly IClientRepository _clientRepository;
         private readonly MailSettings _mailSettings;
+        private readonly IClientService _clientService;
 
-        public LoginViewModel(IAuthService authService, IClientContext clientContext, MailSettings mailSettings, IClientRepository clientRepository)
+        public LoginViewModel(IAuthService authService, IClientContext clientContext, MailSettings mailSettings, IClientRepository clientRepository, IClientService clientService)
         {
             _authService = authService;
             _clientContext = clientContext;
             _mailSettings = mailSettings;
             _clientRepository = clientRepository;
+            _clientService = clientService;
         }
 
         [RelayCommand]
@@ -39,11 +41,11 @@ namespace ProjectBotenReservering.App.ViewModels
 
             if (authenticatedClient != null)
             {
-                string role = _authService.GetUserRole(authenticatedClient.Id);
+                ClientRole[] roles = _authService.GetClientRoles(authenticatedClient.Id);
 
-                if (string.Equals(role, "Gast", StringComparison.OrdinalIgnoreCase))
+                if (roles.Any(r => r.RoleName == "Gast" || r.RoleName == "Nieuw Lid"))
                 {
-                    await Shell.Current.DisplayAlert("Toegang Geweigerd", "Er is nog geen functioneel scherm beschikbaar voor een account ingelogd als Gast.", "OK");
+                    await Shell.Current.DisplayAlert("Toegang Geweigerd", $"Er is nog geen functioneel scherm beschikbaar voor een account ingelogd als Gast of Niew Lid", "OK");
                     return;
                 }
 
