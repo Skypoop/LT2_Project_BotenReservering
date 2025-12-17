@@ -21,8 +21,6 @@ public partial class CompetitionViewModel(
     [ObservableProperty]
     public partial ObservableCollection<Boat> CompetitionBoats { get; set; } = new ObservableCollection<Boat>();
 
-    [ObservableProperty]
-    public partial string CompetitionName { get; set; } = string.Empty;
     [ObservableProperty] public partial string CompetitionName { get; set; } = string.Empty;
 
     [ObservableProperty] public partial DateTime StartDate { get; set; } = DateTime.Today;
@@ -39,8 +37,6 @@ public partial class CompetitionViewModel(
 
     [ObservableProperty] public partial int CalculatedPersonCount { get; set; }
 
-    [ObservableProperty]
-    public partial int CalculatedPersonCount { get; set; }
     [ObservableProperty] public partial bool HasWeatherWarning { get; set; }
 
     [ObservableProperty] public partial string? WeatherWarningText { get; set; }
@@ -49,6 +45,33 @@ public partial class CompetitionViewModel(
     partial void OnStartTimeChanged(TimeSpan value) => _ = ValidateWeatherRulesAsync();
     partial void OnEndDateChanged(DateTime value) => _ = ValidateWeatherRulesAsync();
     partial void OnEndTimeChanged(TimeSpan value) => _ = ValidateWeatherRulesAsync();
+
+    private async Task ValidateWeatherRulesAsync()
+    {
+        HasWeatherWarning = false;
+        WeatherWarningText = string.Empty;
+
+        if (CompetitionBoats.Count == 0) return;
+
+        DateTime startDateTime = StartDate.Date + StartTime;
+        DateTime endDateTime = EndDate.Date + EndTime;
+
+        if (endDateTime <= startDateTime) return;
+
+        foreach (Boat boat in CompetitionBoats)
+        {
+            bool weatherAllowed =
+                await _boatAuthorizationService.WeatherAuthorized(boat.Id, startDateTime, endDateTime);
+
+            if (!weatherAllowed)
+            {
+                WeatherWarningText =
+                    "LET OP: Voor deze datum en tijd is het weer heftig voor een of meerdere geselecteerde boten!";
+                HasWeatherWarning = true;
+                break;
+            }
+        }
+    }
 
     [RelayCommand]
     private async Task CreateCompetition()
@@ -83,7 +106,8 @@ public partial class CompetitionViewModel(
     private async Task<bool> HandleConflictingReservationsAsync(DateTime startDateTime, DateTime endDateTime)
     {
         List<int> boatIds = [.. (CompetitionBoats ?? Enumerable.Empty<Boat>()).Select(boat => boat.Id)];
-        List<Reservation> overlappingReservations = _reservationService.FindOverlappingReservations(startDateTime, endDateTime, boatIds);
+        List<Reservation> overlappingReservations =
+            _reservationService.FindOverlappingReservations(startDateTime, endDateTime, boatIds);
 
         if (overlappingReservations.Count == 0)
         {
@@ -92,6 +116,7 @@ public partial class CompetitionViewModel(
 
         return await ResolveReservationConflictsAsync(overlappingReservations);
     }
+
     private async Task<bool> ResolveReservationConflictsAsync(List<Reservation> overlappingReservations)
     {
         bool isConfirmed = await ConfirmCancellationWithUserAsync(overlappingReservations.Count);
@@ -107,7 +132,9 @@ public partial class CompetitionViewModel(
 
     private static async Task<bool> ConfirmCancellationWithUserAsync(int count)
     {
-        return await Shell.Current.DisplayAlert("Attentie reserveringen worden beïnvloed", $"Om ruimte te maken voor deze wedstrijd worden er {count} reserveringen geannuleerd. Tijdens het aanmaken, ga je akkoord hiermee?", "OK", "Terug");
+        return await Shell.Current.DisplayAlert("Attentie reserveringen worden beïnvloed",
+            $"Om ruimte te maken voor deze wedstrijd worden er {count} reserveringen geannuleerd. Tijdens het aanmaken, ga je akkoord hiermee?",
+            "OK", "Terug");
     }
 
     private void CancelReservations(List<Reservation> overlappingReservations)
@@ -145,5 +172,7 @@ public partial class CompetitionViewModel(
         int capacityPerBoat = boatConfig.Seats + (boatConfig.SteeringWheel ? 1 : 0);
 
         CalculatedPersonCount = CalculatedBoatCount * capacityPerBoat;
+
+        _ = ValidateWeatherRulesAsync();
     }
 }
