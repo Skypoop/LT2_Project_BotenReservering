@@ -34,7 +34,6 @@ namespace TestCore.Services
                 _reservationCompetitionRepositoryMock.Object
             );
         }
-
         [Test]
         public void CreateMatch_Returns_MatchObject()
         {
@@ -43,16 +42,18 @@ namespace TestCore.Services
             DateTime endDate = DateTime.Now.AddHours(2);
             string competitionName = "Test competition";
 
-            Client? currentClient = new Client("John Doe", "john.doe@example.com", 2, 2, "Test Club", true, "hashedpassword", 1);
-            Boat? boat = new Boat("Test Boot 1", true, 1, 1, BoatType.S, 1, true, "local", 1);
-            Competition? expectedCompetition = new Competition(startDate, endDate, competitionName, 1);
-            Reservation? expectedReservation = new Reservation(DateTime.Now, startDate, endDate, currentClient.Id, boat.Id, true, 1);
+            Client currentClient = new Client("John Doe", "john.doe@example.com", 2, 2, "Test Club", true, "hashedpassword", 1);
+            Boat boat = new Boat("Test Boot 1", true, 1, 1, BoatType.S, 1, true, "local", 1);
+            List<Boat> operationalBoats = new List<Boat> { boat };
+            Competition expectedCompetition = new Competition(startDate, endDate, competitionName, 1);
+            Reservation expectedReservation = new Reservation(DateTime.Now, startDate, endDate, currentClient.Id, boat.Id, true, 1);
 
-            // Set up
+            // Setup
             _clientServiceMock.Setup(x => x.GetCurrentClient()).Returns(currentClient);
-            _boatRepositoryMock.Setup(x => x.Get(It.IsAny<int>())).Returns(boat);
-            _reservationServiceMock.Setup(x => x.CreateReservation(It.IsAny<Reservation>(), It.IsAny<List<Client>>())).Returns(expectedReservation);
+            _boatRepositoryMock.Setup(x => x.GetOperationalBoats()).Returns(operationalBoats);
+            _boatRepositoryMock.Setup(x => x.Get(boat.Id)).Returns(boat);
             _competitionRepositoryMock.Setup(x => x.Add(It.IsAny<Competition>())).Returns(expectedCompetition);
+            _reservationServiceMock.Setup(x => x.CreateReservation(It.IsAny<Reservation>(), It.IsAny<List<Client>>())).Returns(expectedReservation);
             _reservationCompetitionRepositoryMock.Setup(x => x.Add(It.IsAny<ReservationCompetition>())).Returns((ReservationCompetition rc) => rc);
             _competitionService.AmountBoats = 1;
             _competitionService.SelectedBoatId = boat.Id;
@@ -65,6 +66,9 @@ namespace TestCore.Services
             result!.StartDateTime.Should().Be(startDate);
             result.EndDateTime.Should().Be(endDate);
             result.CompetitionName.Should().Be(competitionName);
+
+            _reservationServiceMock.Verify(x => x.CreateReservation(It.IsAny<Reservation>(), It.IsAny<List<Client>>()), Times.Once);
+            _reservationCompetitionRepositoryMock.Verify(x => x.Add(It.IsAny<ReservationCompetition>()), Times.Once);
         }
     }
 }
