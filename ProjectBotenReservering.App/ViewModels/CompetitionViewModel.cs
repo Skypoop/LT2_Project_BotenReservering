@@ -244,18 +244,22 @@ public partial class CompetitionViewModel : BaseViewModel
 
     partial void OnSelectedBoatChanged(Boat? value)
     {
-        if (value == null)
+        if (value is null)
         {
             SelectedClients = new ObservableCollection<Client>();
             TeamName = string.Empty;
             return;
         }
 
-        SelectedClients = GetOrCreateClientsForBoatId(value.Id);
+        ObservableCollection<Client> clients = GetOrCreateClientsForBoatId(value.Id);
+        SelectedClients = clients ?? new ObservableCollection<Client>();
 
-        TeamName = _teamNameByBoatId.TryGetValue(value.Id, out string name)
-        ? name
-        : string.Empty;
+        string? name;
+        bool hasName = _teamNameByBoatId.TryGetValue(value.Id, out name);
+
+        TeamName = (hasName && !string.IsNullOrWhiteSpace(name))
+            ? name
+            : string.Empty;
 
         UpdateQualificationFlags();
     }
@@ -268,15 +272,15 @@ public partial class CompetitionViewModel : BaseViewModel
 
     private ObservableCollection<Client> GetOrCreateClientsForBoatId(int boatId)
     {
-        ObservableCollection<Client> clients;
+        ObservableCollection<Client>? clients;
 
-        if (_clientsByBoatId.TryGetValue(boatId, out clients))
+        if (_clientsByBoatId.TryGetValue(boatId, out clients) && clients != null)
         {
             return clients;
         }
 
         clients = new ObservableCollection<Client>();
-        _clientsByBoatId.Add(boatId, clients);
+        _clientsByBoatId[boatId] = clients;
 
         Client? currentUser = _clientService.GetCurrentClient();
         if (currentUser != null)
@@ -321,26 +325,39 @@ public partial class CompetitionViewModel : BaseViewModel
         BoatType requiredType = SelectedBoat.Type;
         int requiredLevel = SelectedBoat.Level;
 
-        string levelType = requiredType == BoatType.S ? "scull" : "sweep";
-
         foreach (Client client in SelectedClients)
         {
-            bool authorized = _boatAuthorizationService.IsAuthorized(requiredType, requiredLevel, client);
-
-            if (!authorized)
-            {
-                int clientLevel = requiredType == BoatType.S ? client.ScullLevel : client.SweepLevel;
-
-                client.QualificationHelpText =
-                    $"Persoon {levelType} level: {clientLevel}. Vereist: {requiredLevel}.";
-                client.IsUnderqualified = true;
-            }
-            else
-            {
-                client.QualificationHelpText = string.Empty;
-                client.IsUnderqualified = false;
-            }
+            ApplyQualificationState(client, requiredType, requiredLevel);
         }
+    }
+
+    private void ApplyQualificationState(Client client, BoatType requiredType, int requiredLevel)
+    {
+        bool authorized = _boatAuthorizationService.IsAuthorized(requiredType, requiredLevel, client);
+
+        if (authorized)
+        {
+            ClearQualification(client);
+            return;
+        }
+
+        SetUnderqualified(client, requiredType, requiredLevel);
+    }
+
+    private static void ClearQualification(Client client)
+    {
+        client.QualificationHelpText = string.Empty;
+        client.IsUnderqualified = false;
+    }
+
+    private static void SetUnderqualified(Client client, BoatType requiredType, int requiredLevel)
+    {
+        int clientLevel = requiredType == BoatType.S ? client.ScullLevel : client.SweepLevel;
+        string levelType = requiredType == BoatType.S ? "scull" : "sweep";
+
+        client.QualificationHelpText =
+            $"Persoon {levelType} level: {clientLevel}. Vereist: {requiredLevel}.";
+        client.IsUnderqualified = true;
     }
 
     [RelayCommand]
@@ -376,6 +393,5 @@ public partial class CompetitionViewModel : BaseViewModel
         return true;
     }
 
-    private static int GetCapacity(Boat boat)
-    => boat.Seats + (boat.SteeringWheel ? 1 : 0);
+    private static int GetCapacity(Boat boat) => boat.Seats + (boat.SteeringWheel ? 1 : 0);
 }

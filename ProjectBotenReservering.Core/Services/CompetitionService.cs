@@ -2,7 +2,6 @@
 ﻿using ProjectBotenReservering.Core.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
-using System.Diagnostics;
 
 namespace ProjectBotenReservering.Core.Services;
 
@@ -62,10 +61,14 @@ public class CompetitionService : ICompetitionService
 
     private List<Boat> GetAllCompititionBoatsFromName(int id)
     {
-        Boat boat = _boatRepository.Get(id);
-        List<Boat> allBoatsFromName = _boatRepository.GetAllFromName(boat.Name);
+        Boat? boat = _boatRepository.Get(id);
+        if (boat == null)
+            throw new ArgumentException($"Boat with ID {id} does not exist.", nameof(id));
 
-        return allBoatsFromName;
+        if (string.IsNullOrWhiteSpace(boat.Name))
+            return new List<Boat>();
+
+        return _boatRepository.GetAllFromName(boat.Name) ?? new List<Boat>();
     }
 
     public List<Boat> GetCompetitionBoats()
