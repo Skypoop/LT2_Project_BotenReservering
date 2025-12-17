@@ -10,38 +10,35 @@ using ProjectBotenReservering.Core.Services;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
-public partial class CompetitionViewModel : BaseViewModel
+public partial class CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService) : BaseViewModel
 {
     private readonly IReservationService _reservationService;
     private readonly ICompetitionService _competitionService;
     private readonly IClientService _clientService;
     private readonly IClientRepository _clientRepository;
     private readonly IBoatAuthorizationService _boatAuthorizationService;
+    private readonly IReservationService _reservationService = reservationService;
+    private readonly ICompetitionService _competitionService = competitionService;
 
-    private string _teamCount = "0";
+    [ObservableProperty]
+    public partial string TeamCount { get; set; } = "0";
 
-    public string TeamCount
+    partial void OnTeamCountChanged(string value)
     {
-        get => _teamCount;
-        set
+        if (int.TryParse(value, out int teamCount))
         {
-            if (SetProperty(ref _teamCount, value))
-            {
-                if (CheckBoatAmountIsValid(value))
-                {
-                    SelectCompetitionBoatTypeIsEnable = true;
-                    _competitionService.AmountBoats = int.Parse(value);
-                }
-                else
-                {
-                    SelectCompetitionBoatTypeIsEnable = false;
-                }
-            }
+            SelectCompetitionBoatTypeIsEnable = teamCount > 1;
+
+            _competitionService.AmountBoats = int.Parse(value);
+        }
+        else
+        {
+            SelectCompetitionBoatTypeIsEnable = false;
         }
     }
 
     [ObservableProperty]
-    public ObservableCollection<Boat> competitionBoats = new ObservableCollection<Boat>();
+    public partial ObservableCollection<Boat> CompetitionBoats { get; set; } = new ObservableCollection<Boat>();
 
     [ObservableProperty]
     public partial string CompetitionName { get; set; } = string.Empty;
@@ -108,20 +105,30 @@ public partial class CompetitionViewModel : BaseViewModel
     [RelayCommand]
     private async Task CreateCompetition()
     {
+        // Hasn't been implemented yet. Comment out if you want to test navigation to tweet creation.
+        //if (_selectedBoats == null)
+        //{
+        //    return;
+        //}
+
         DateTime startDateTime = StartDate.Date + StartTime;
         DateTime endDateTime = EndDate.Date + EndTime;
 
-        (bool isValid, string? errorMessage) = _competitionService.ValidateCompetition(startDateTime, endDateTime, competitionBoats.ToList());
-
-        if (!isValid)
+        if (await HandleConflictingReservationsAsync(startDateTime, endDateTime))
         {
-            await Shell.Current.DisplayAlert("Fout", errorMessage, "OK");
-            return;
-        }
-
-        if (await ReservationsNotOverlappingWithTheCompetition(startDateTime, endDateTime))
-        {
-            //Make competition function
+            // Construct context string from user input for the tweet
+            string contextString = $"Naam: {CompetitionName}, " +
+                                   $"Datum: {StartDate:dd-MM-yyyy}, " +
+                                   $"Tijd: {StartTime:hh\\:mm} - {EndTime:hh\\:mm}, " +
+                                   $"Aantal Teams: {TeamCount}";
+            // TODO: Add team names to context when implemented in UI
+            // Navigate to TweetCreationView and pass the context
+            Dictionary<string, object> navigationParameter = new()
+            {
+                { "context", contextString }
+            };
+            // May have to be moved to popup as discussed in wireframe design
+            await Shell.Current.GoToAsync(nameof(TweetCreationView), navigationParameter);
         }
     }
 
@@ -144,50 +151,39 @@ public partial class CompetitionViewModel : BaseViewModel
         UpdateQualificationFlags();
     }
 
-    private async Task<bool> ReservationsNotOverlappingWithTheCompetition(DateTime startDateTime, DateTime endDateTime)
+    private async Task<bool> HandleConflictingReservationsAsync(DateTime startDateTime, DateTime endDateTime)
     {
-        List<Reservation> overlappingReservations = _reservationService.FindOverlappingReservations(startDateTime, endDateTime, competitionBoats.Select(b => b.Id).ToList());
+        List<int> boatIds = [.. (CompetitionBoats ?? Enumerable.Empty<Boat>()).Select(boat => boat.Id)];
+        List<Reservation> overlappingReservations = _reservationService.FindOverlappingReservations(startDateTime, endDateTime, boatIds);
 
-        if (overlappingReservations.Count > 0)
+        if (overlappingReservations.Count == 0)
         {
-            return await ShowWarningOverlappingReservationsDialog(overlappingReservations);
+            return true;
         }
 
-        return false;
+        return await ResolveReservationConflictsAsync(overlappingReservations);
     }
-
-    private async Task<bool> ShowWarningOverlappingReservationsDialog(List<Reservation> overlappingReservations)
+    private async Task<bool> ResolveReservationConflictsAsync(List<Reservation> overlappingReservations)
     {
-        bool answer = await Shell.Current.DisplayAlert("Attentie reserveringen worden beïnvloed", $"Om ruimte te maken voor deze wedstrijd worden er {overlappingReservations.Count} reserveringen geannuleerd. Tijdens het aanmaken, ga je akkoord hiermee?", "OK", "Terug");
+        bool isConfirmed = await ConfirmCancellationWithUserAsync(overlappingReservations.Count);
 
-        if (answer)
+        if (isConfirmed)
         {
-            CancelOverlappingReservations(overlappingReservations);
-
+            CancelReservations(overlappingReservations);
             return true;
         }
 
         return false;
     }
 
-    private void CancelOverlappingReservations(List<Reservation> overlappingReservations)
+    private static async Task<bool> ConfirmCancellationWithUserAsync(int count)
     {
-        _reservationService.CancelOverlappingReservations(overlappingReservations);
+        return await Shell.Current.DisplayAlert("Attentie reserveringen worden beïnvloed", $"Om ruimte te maken voor deze wedstrijd worden er {count} reserveringen geannuleerd. Tijdens het aanmaken, ga je akkoord hiermee?", "OK", "Terug");
     }
 
-    private bool CheckBoatAmountIsValid(string boatAmount)
+    private void CancelReservations(List<Reservation> overlappingReservations)
     {
-        if (string.IsNullOrWhiteSpace(boatAmount))
-        {
-            return false;
-        }
-
-        if (int.TryParse(boatAmount, out int amount))
-        {
-            return amount > 1;
-        }
-
-        return false;
+        _reservationService.CancelOverlappingReservations(overlappingReservations);
     }
 
     public void FillBoatCompetitionsList()
@@ -201,29 +197,29 @@ public partial class CompetitionViewModel : BaseViewModel
             CompetitionBoats.Add(boat);
         }
 
-        RefreshCompetitionCounters(boats);
-
         SelectedBoat = null;
         SelectedClients = new ObservableCollection<Client>();
 
         UpdateQualificationFlags();
+        RefreshCompetitionCounters();
     }
 
-    public void RefreshCompetitionCounters(List<Boat> boats)
+    public void RefreshCompetitionCounters()
     {
-        if (boats != null && boats.Count > 0)
-        {
-            CalculatedBoatCount = CompetitionBoats.Count;
+        Boat boatConfig = CompetitionBoats.FirstOrDefault()!;
 
-            if (boats[0].SteeringWheel)
-            {
-                CalculatedPersonCount = CompetitionBoats.Count * (boats.FirstOrDefault().Seats + 1);
-            }
-            else
-            {
-                CalculatedPersonCount = CompetitionBoats.Count * boats.FirstOrDefault().Seats;
-            }
+        if (boatConfig == null)
+        {
+            CalculatedBoatCount = 0;
+            CalculatedPersonCount = 0;
+            return;
         }
+
+        CalculatedBoatCount = CompetitionBoats.Count;
+
+        int capacityPerBoat = boatConfig.Seats + (boatConfig.SteeringWheel ? 1 : 0);
+
+        CalculatedPersonCount = CalculatedBoatCount * capacityPerBoat;
     }
 
     private void InitializeClients()

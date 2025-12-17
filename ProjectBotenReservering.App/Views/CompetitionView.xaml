@@ -181,8 +181,9 @@
 						   VerticalOptions="Center"/>
 					<Border Stroke="Gray" StrokeThickness="1" StrokeShape="RoundRectangle 5" HeightRequest="35" WidthRequest="80">
 						<Entry Keyboard="Numeric" 
-							   Text="{Binding TeamCount}"
+							   Text="{Binding TeamCount, TargetNullValue=0, FallbackValue=0}"
 							   Placeholder="0" 
+                 MaxLength="4"
 							   TextColor="Black"
 							   HorizontalTextAlignment="Center"
 							   VerticalOptions="Center"/>
