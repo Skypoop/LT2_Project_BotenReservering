@@ -86,7 +86,7 @@ public partial class CompetitionViewModel : BaseViewModel
     public bool IsBoatSelected => SelectedBoat != null;
 
     public CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService, IClientService clientService,
-        IClientRepository clientRepository,IBoatAuthorizationService boatAuthorizationService)
+        IClientRepository clientRepository, IBoatAuthorizationService boatAuthorizationService)
     {
         _reservationService = reservationService;
         _competitionService = competitionService;
@@ -105,10 +105,10 @@ public partial class CompetitionViewModel : BaseViewModel
     {
         DateTime startDateTime = StartDate.Date + StartTime;
         DateTime endDateTime = EndDate.Date + EndTime;
-        
+
         if (await CompetitionIsValid() == false)
             return;
-        
+
         if (await ShowWarningPopupAsync() && await HandleConflictingReservationsAsync(startDateTime, endDateTime))
         {
             await PlaceCompetition();
@@ -128,7 +128,7 @@ public partial class CompetitionViewModel : BaseViewModel
         CompetitionBoats.Clear();
         RefreshCompetitionCounters();
     }
-    
+
     private async Task<bool> ShowWarningPopupAsync()
     {
         string message = CreateConfirmationPopupMessage();
@@ -148,7 +148,7 @@ public partial class CompetitionViewModel : BaseViewModel
         {
             { "context", contextString }
         };
-            
+
         await Shell.Current.GoToAsync(nameof(TweetCreationView), navigationParameter);
     }
 
@@ -156,14 +156,14 @@ public partial class CompetitionViewModel : BaseViewModel
     {
         string message = "Waarschuwingen:\n";
         // Add warnings to message here
-        
+
         // ---
-        
+
         message += "\n- De wedstrijd zal worden aangemaakt met de opgegeven gegevens.";
-        
+
         return message;
     }
-    
+
     private async Task<bool> CompetitionIsValid()
     {
         DateTime startDateTime = StartDate.Date + StartTime;
@@ -174,26 +174,26 @@ public partial class CompetitionViewModel : BaseViewModel
 
         if (!isValid)
             await Shell.Current.DisplayAlert("Fout", errorMessage, "OK");
-        
+
         return isValid;
     }
-    
+
     private async Task PlaceCompetition()
     {
         _competitionService.CreateCompetition(StartDate + StartTime, EndDate + EndTime, CompetitionName);
-        
+
         if (await ShowCompletionMessage())
             await MoveToTweetScreen();
         else
             RefreshScreen();
-        
+
     }
 
     private async Task<bool> ShowCompletionMessage()
     {
         return await Shell.Current.DisplayAlert("Wedstrijd Aangemaakt", "De wedstrijd is succesvol aangemaakt.\nWil je een tweet aanmaken voor social media?", "Ja", "Nee");
     }
-    
+
     [RelayCommand]
     private async Task SelectCompetitionBoatType()
     {
@@ -202,7 +202,7 @@ public partial class CompetitionViewModel : BaseViewModel
 
     [RelayCommand]
     private void RemoveClient(Client client)
-    {   
+    {
         if (client == null) return;
 
         if (SelectedClients.Contains(client))
@@ -269,22 +269,22 @@ public partial class CompetitionViewModel : BaseViewModel
     public void RefreshCompetitionCounters()
     {
         CalculatedBoatCount = CompetitionBoats.Count;
-        
+
         Boat? boat = CompetitionBoats.FirstOrDefault();
         CalculatedPersonCount = boat?.Seats * CompetitionBoats.Count ?? 0;
-        
+
     }
-    
+
     partial void OnCompetitionNameChanged(string value)
     {
         ValidateSubmitButton();
     }
-    
+
     partial void OnCalculatedBoatCountChanged(int value)
     {
         ValidateSubmitButton();
     }
-    
+
     public void ValidateSubmitButton()
     {
         SubmitButtonIsEnabled = !string.IsNullOrWhiteSpace(CompetitionName) &&
@@ -296,12 +296,9 @@ public partial class CompetitionViewModel : BaseViewModel
     {
         AvailableClients.Clear();
 
-        Client? currentUser = _clientService.GetCurrentClient();
-
         List<Client> allClients = _clientRepository.GetAll();
         foreach (Client client in allClients)
         {
-            if (currentUser != null && client.Id == currentUser.Id) continue;
             AvailableClients.Add(client);
         }
     }
@@ -355,12 +352,6 @@ public partial class CompetitionViewModel : BaseViewModel
 
         clients = new ObservableCollection<Client>();
         _clientsByBoatId[boatId] = clients;
-
-        Client? currentUser = _clientService.GetCurrentClient();
-        if (currentUser != null)
-        {
-            clients.Add(currentUser);
-        }
 
         return clients;
     }
