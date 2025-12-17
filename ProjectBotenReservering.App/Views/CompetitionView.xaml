@@ -487,18 +487,18 @@
             </Border>
 
             <Button 
-				Text="wedstrijd aanmaken"
-				FontSize="18"
-				HorizontalOptions="End"
-				IsEnabled="False"
-				CornerRadius="5"
-				Margin="0,0,0,20"
-				TranslationX="-180"
-				TranslationY="-70"
-				WidthRequest="200"
-				HeightRequest="50"
-				Command="{Binding CreateCompetitionCommand}"/>
+                Text="wedstrijd aanmaken"
+                FontSize="18"
+                HorizontalOptions="End"
+                IsEnabled="{Binding SubmitButtonIsEnabled}"
+                CornerRadius="5"
+                Margin="0,0,0,20"
+                TranslationX="-180"
+                TranslationY="-70"
+                WidthRequest="200"
+                HeightRequest="50"
+                Command="{Binding CreateCompetitionCommand}"/>
 
-		</VerticalStackLayout>
-	</Grid>
+        </VerticalStackLayout>
+    </Grid>
 </ContentView>
