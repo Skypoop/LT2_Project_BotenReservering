@@ -7,40 +7,48 @@ using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
-public partial class CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService) : BaseViewModel
+public partial class CompetitionViewModel(
+    IReservationService reservationService,
+    ICompetitionService competitionService,
+    IBoatAuthorizationService boatAuthorizationService) : BaseViewModel
 {
     private readonly IReservationService _reservationService = reservationService;
     private readonly ICompetitionService _competitionService = competitionService;
+    private readonly IBoatAuthorizationService _boatAuthorizationService = boatAuthorizationService;
 
-    [ObservableProperty]
-    public partial int TeamCount { get; set; } = 0;
+    [ObservableProperty] public partial int TeamCount { get; set; } = 0;
 
     [ObservableProperty]
     public partial ObservableCollection<Boat> CompetitionBoats { get; set; } = new ObservableCollection<Boat>();
 
     [ObservableProperty]
     public partial string CompetitionName { get; set; } = string.Empty;
+    [ObservableProperty] public partial string CompetitionName { get; set; } = string.Empty;
 
-    [ObservableProperty]
-    public partial DateTime StartDate { get; set; } = DateTime.Today;
+    [ObservableProperty] public partial DateTime StartDate { get; set; } = DateTime.Today;
 
-    [ObservableProperty]
-    public partial TimeSpan StartTime { get; set; } = TimeSpan.Zero;
+    [ObservableProperty] public partial TimeSpan StartTime { get; set; } = TimeSpan.Zero;
 
-    [ObservableProperty]
-    public partial DateTime EndDate { get; set; } = DateTime.Today;
+    [ObservableProperty] public partial DateTime EndDate { get; set; } = DateTime.Today;
 
-    [ObservableProperty]
-    public partial TimeSpan EndTime { get; set; } = TimeSpan.Zero;
+    [ObservableProperty] public partial TimeSpan EndTime { get; set; } = TimeSpan.Zero;
 
-    [ObservableProperty]
-    public partial bool SelectCompetitionBoatTypeIsEnable { get; set; } = false;
+    [ObservableProperty] public partial bool SelectCompetitionBoatTypeIsEnable { get; set; } = false;
 
-    [ObservableProperty]
-    public partial int CalculatedBoatCount { get; set; }
+    [ObservableProperty] public partial int CalculatedBoatCount { get; set; }
+
+    [ObservableProperty] public partial int CalculatedPersonCount { get; set; }
 
     [ObservableProperty]
     public partial int CalculatedPersonCount { get; set; }
+    [ObservableProperty] public partial bool HasWeatherWarning { get; set; }
+
+    [ObservableProperty] public partial string? WeatherWarningText { get; set; }
+
+    partial void OnStartDateChanged(DateTime value) => _ = ValidateWeatherRulesAsync();
+    partial void OnStartTimeChanged(TimeSpan value) => _ = ValidateWeatherRulesAsync();
+    partial void OnEndDateChanged(DateTime value) => _ = ValidateWeatherRulesAsync();
+    partial void OnEndTimeChanged(TimeSpan value) => _ = ValidateWeatherRulesAsync();
 
     [RelayCommand]
     private async Task CreateCompetition()
