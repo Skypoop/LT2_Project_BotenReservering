@@ -16,7 +16,22 @@ public partial class CompetitionViewModel(
     private readonly ICompetitionService _competitionService = competitionService;
     private readonly IBoatAuthorizationService _boatAuthorizationService = boatAuthorizationService;
 
-    [ObservableProperty] public partial int TeamCount { get; set; } = 0;
+    [ObservableProperty]
+    public partial string TeamCount { get; set; } = "0";
+
+    partial void OnTeamCountChanged(string value)
+    {
+        if (int.TryParse(value, out int teamCount))
+        {
+            SelectCompetitionBoatTypeIsEnable = teamCount > 1;
+
+            _competitionService.AmountBoats = int.Parse(value);
+        }
+        else
+        {
+            SelectCompetitionBoatTypeIsEnable = false;
+        }
+    }
 
     [ObservableProperty]
     public partial ObservableCollection<Boat> CompetitionBoats { get; set; } = new ObservableCollection<Boat>();
@@ -101,6 +116,12 @@ public partial class CompetitionViewModel(
             // May have to be moved to popup as discussed in wireframe design
             await Shell.Current.GoToAsync(nameof(TweetCreationView), navigationParameter);
         }
+    }
+
+    [RelayCommand]
+    private async Task SelectCompetitionBoatType()
+    {
+        await Shell.Current.GoToAsync(nameof(BoatTypeSelectionCompetitionView));
     }
 
     private async Task<bool> HandleConflictingReservationsAsync(DateTime startDateTime, DateTime endDateTime)
