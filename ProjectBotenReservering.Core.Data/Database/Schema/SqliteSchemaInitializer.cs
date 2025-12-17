@@ -70,11 +70,11 @@ namespace ProjectBotenReservering.Core.Data.Database.Schema
                     [Url] VARCHAR NOT NULL,
                     FOREIGN KEY (DamageReport_Id) REFERENCES DamageReport(Id))",
 
-                @"CREATE TABLE IF NOT EXISTS Match (
+                @"CREATE TABLE IF NOT EXISTS Competition (
                     [Id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                     [Start_DateTime] DATETIME NOT NULL,
                     [End_DateTime] DATETIME NOT NULL,
-                    [Match_Name] VARCHAR NOT NULL)",
+                    [Competition_Name] VARCHAR NOT NULL)",
 
                 @"CREATE TABLE IF NOT EXISTS Client_ManagementTask (
                     [Client_Id] INT NOT NULL,
@@ -103,12 +103,12 @@ namespace ProjectBotenReservering.Core.Data.Database.Schema
                     FOREIGN KEY (Role_Id) REFERENCES Role(Name),
                     FOREIGN KEY (ManagementTask_Id) REFERENCES ManagementTask(Id))",
 
-                @"CREATE TABLE IF NOT EXISTS Reservation_Match (
-                    [Match_Id] INT NOT NULL,
+                @"CREATE TABLE IF NOT EXISTS Reservation_Competition (
+                    [Competition_Id] INT NOT NULL,
                     [Reservation_Id] INT NOT NULL,
                     [Team_Name] VARCHAR NOT NULL,
-                    PRIMARY KEY(Match_Id, Reservation_Id),
-                    FOREIGN KEY(Match_Id) REFERENCES Match(Id),
+                    PRIMARY KEY(Competition_Id, Reservation_Id),
+                    FOREIGN KEY(Competition_Id) REFERENCES Competition(Id),
                     FOREIGN KEY(Reservation_Id) REFERENCES Reservation(Id))"
             };
 
