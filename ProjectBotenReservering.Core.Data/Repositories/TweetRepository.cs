@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using ProjectBotenReservering.Core.Data.RestClients;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 
-public class TweetRepository: ITweetRepository
+public class TweetRepository : ITweetRepository
 {
     private readonly TweetRestClient _restClient;
     public TweetRepository(TweetRestClient restClient)
@@ -23,9 +23,16 @@ public class TweetRepository: ITweetRepository
         return await _restClient.PostTweetAsync(tweetContent);
     }
 
-    public async Task<int> PostMediaAsync(string file)
+    public async Task<string> PostMediaAsync(Stream file, string fileName)
     {
-        throw new NotImplementedException();
+        if (file == null)
+        {
+            throw new ArgumentException("file cannot be empty", nameof(file));
+        }
+        if (fileName == null)
+        {
+            throw new ArgumentException("filename cannot be empty", nameof(fileName));
+        }
+        return await _restClient.PostMediaAsync(file, fileName);
     }
 }
-

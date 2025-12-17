@@ -32,10 +32,11 @@ public class TweetService : ITweetService
 
     public async Task<string> PublishTweetAsync(string tweetContent)
     {
-        // we need to accept a image as a parameter as well but idk the type yet
-        // in this method we probably call 2 methods in a repository one for uploading the image and getting the reference id\  
-        // one for actaully publishing the tweet
-        //optional but it would be fun to return the x link here and then embed it in the success message
+        return await _tweetRepository.PostTweetAsync(tweetContent); ;
+    }
+     public async Task<string> PublishTweetAsync(string tweetContent, Stream file, string fileName)
+    {
+        string mediaKey = await _tweetRepository.PostMediaAsync(file, fileName);
         return await _tweetRepository.PostTweetAsync(tweetContent); ;
     }
 

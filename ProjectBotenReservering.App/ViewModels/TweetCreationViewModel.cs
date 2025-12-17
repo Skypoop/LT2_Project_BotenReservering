@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ProjectBotenReservering.App.Views;
-using ProjectBotenReservering.Core.Interfaces.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 
@@ -34,10 +33,12 @@ public partial class TweetCreationViewModel : BaseViewModel
     [ObservableProperty]
     public partial bool IsTweetContentEditableByUser { get; set; }
 
-    public TweetCreationViewModel(IClientService clientService, ITweetService tweetservice)
+    private Stream? _selectedImageStream;
+
+    public TweetCreationViewModel(IClientService clientService, ITweetService tweetService)
     {
         _clientService = clientService;
-        _tweetService = tweetservice;
+        _tweetService = tweetService;
     }
 
     partial void OnCompetitionContextChanged(string value)
@@ -101,9 +102,8 @@ public partial class TweetCreationViewModel : BaseViewModel
         if (result != null)
         {
             SelectedFileName = result.FileName;
-
-            Stream stream = await result.OpenReadAsync();
-            SelectedImagePreview = ImageSource.FromStream(() => stream);
+            _selectedImageStream = await result.OpenReadAsync();
+            SelectedImagePreview = ImageSource.FromStream(() => _selectedImageStream);
             IsImagePreviewVisible = SelectedImagePreview != null;
         }
     }
@@ -111,6 +111,13 @@ public partial class TweetCreationViewModel : BaseViewModel
     [RelayCommand]
     private async Task PublishTweet()
     {
-        string response = await _tweetService.PublishTweetAsync(TweetContent);
+        string response;
+        if (_selectedImageStream != null && SelectedFileName != null)
+        {
+            response = await _tweetService.PublishTweetAsync(TweetContent, _selectedImageStream, SelectedFileName);
+            return;
+        }
+        response = await _tweetService.PublishTweetAsync(TweetContent);
+
     }
 }
