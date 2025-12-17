@@ -172,6 +172,14 @@
 
             </Grid>
 
+            <!-- Weather Warning -->
+            <Border Stroke="#Ef5350" StrokeThickness="1" StrokeShape="RoundRectangle 8" BackgroundColor="#FFEbee" Padding="15" IsVisible="{Binding HasWeatherWarning}" HorizontalOptions="Center" WidthRequest="800">
+                <HorizontalStackLayout Spacing="10" VerticalOptions="Center" HorizontalOptions="Center">
+                    <Image Source="warning_icon.png" HeightRequest="24" WidthRequest="24" VerticalOptions="Center" />
+                    <Label Text="{Binding WeatherWarningText}" TextColor="#C62828" VerticalOptions="Center" LineBreakMode="WordWrap" />
+                </HorizontalStackLayout>
+            </Border>
+
             <!-- TEAMS COUNT SECTION -->
             <VerticalStackLayout HorizontalOptions="Center" Spacing="10">
                 <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
