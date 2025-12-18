@@ -120,15 +120,15 @@ public partial class CompetitionViewModel : BaseViewModel
     {
         foreach (Boat boat in CompetitionBoats)
         {
-            WeatherAuthorizationResultEnum weatherAllowed = await _boatAuthorizationService.WeatherAuthorized(boat.Id, startDateTime, endDateTime);
+            WeatherAuthorizationResultEnum result = await _boatAuthorizationService.WeatherAuthorized(boat.Id, startDateTime, endDateTime);
 
-            if (weatherAllowed > 0)
+            if (result != WeatherAuthorizationResultEnum.Authorized)
             {
-                return weatherAllowed;
+                return result;
             }
         }
 
-        return 0;
+        return WeatherAuthorizationResultEnum.Authorized;
     }
 
     private void ClearWeatherWarning()

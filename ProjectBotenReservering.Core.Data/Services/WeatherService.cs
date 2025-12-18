@@ -41,6 +41,8 @@ namespace ProjectBotenReservering.Core.Data.Services
                 return windSpeeds.Skip(startIndex).Take(indexRange).Max();
             } catch(InvalidOperationException exception)
             {
+                Console.WriteLine(exception.Message);
+
                 return 0;
             }
         }
@@ -56,16 +58,6 @@ namespace ProjectBotenReservering.Core.Data.Services
 
                 WeatherData? weatherData = JsonSerializer.Deserialize<WeatherData>(jsonResponse);
 
-                if (weatherData?.CurrentWeather == null)
-                {
-                    throw new InvalidOperationException("Weather data is missing.");
-                }
-
-                if (weatherData?.Hourly == null)
-                {
-                    throw new InvalidOperationException("Hourly weather data is missing.");
-                }
-
                 string startDateFormatted = FormatDateTime(beginDate);
                 string endDateFormatted = FormatDateTime(endDate);
 
@@ -77,8 +69,11 @@ namespace ProjectBotenReservering.Core.Data.Services
                 int windforce = WindforceService.GetWindforce(maxWindSpeed);
 
                 return windforce;
-            } catch(InvalidOperationException exception)
+            }
+            catch (Exception exception)
             {
+                Console.WriteLine(exception.Message);
+
                 return 0;
             }
         }

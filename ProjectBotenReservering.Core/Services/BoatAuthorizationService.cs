@@ -36,12 +36,12 @@ public class BoatAuthorizationService : IBoatAuthorizationService
 
     public async Task<WeatherAuthorizationResultEnum> WeatherAuthorized(int boatId, DateTime beginDate, DateTime endDate)
     {
-        if(beginDate.Subtract(DateTime.Now).TotalDays > 7)
+        if (beginDate.Subtract(DateTime.Now).TotalDays > 7)
         {
             return WeatherAuthorizationResultEnum.DateTooFarInFuture;
         }
 
-        if(endDate.Subtract(DateTime.Now).TotalDays > 7)
+        if (endDate.Subtract(DateTime.Now).TotalDays > 7)
         {
             return WeatherAuthorizationResultEnum.DateTooFarInFuture;
         }
