@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ProjectBotenReservering.App.Views;
+using ProjectBotenReservering.Core.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
@@ -96,20 +97,14 @@ public partial class CompetitionViewModel : BaseViewModel
     partial void OnEndDateChanged(DateTime value) => _ = ValidateWeatherRulesAsync();
     partial void OnEndTimeChanged(TimeSpan value) => _ = ValidateWeatherRulesAsync();
 
-    private DateTime GetProtocolStartDateTime()
-    {
-        DateTime startDateTime = StartDate.Date + StartTime;
-        return startDateTime.AddMinutes(-30);
-    }
-
     private async Task ValidateWeatherRulesAsync()
     {
         ClearWeatherWarning();
 
         if (CompetitionBoats.Count == 0) return;
 
-        DateTime startDateTime = GetProtocolStartDateTime();
-        DateTime endDateTime = EndDate.Date + EndTime;
+        DateTime startDateTime = CompetitionTimeHelper.GetStartTimeWithPreparation(StartDate, StartTime);
+        DateTime endDateTime = CompetitionTimeHelper.CombineDateAndTime(EndDate, EndTime);
 
         if (endDateTime <= startDateTime) return;
 
@@ -151,17 +146,17 @@ public partial class CompetitionViewModel : BaseViewModel
     [RelayCommand]
     private async Task CreateCompetition()
     {
-        DateTime protocolStartDateTime = GetProtocolStartDateTime();
-        DateTime endDateTime = EndDate.Date + EndTime;
+        DateTime startDateTime = CompetitionTimeHelper.GetStartTimeWithPreparation(StartDate, StartTime);
+        DateTime endDateTime = CompetitionTimeHelper.CombineDateAndTime(EndDate, EndTime);
 
-        if (await CompetitionIsValid(protocolStartDateTime, endDateTime) == false)
+        if (await CompetitionIsValid(startDateTime, endDateTime) == false)
             return;
 
         await ValidateWeatherRulesAsync();
 
-        if (await ShowWarningPopupAsync() && await HandleConflictingReservationsAsync(protocolStartDateTime, endDateTime))
+        if (await ShowWarningPopupAsync() && await HandleConflictingReservationsAsync(startDateTime, endDateTime))
         {
-            await PlaceCompetition(protocolStartDateTime, endDateTime);
+            await PlaceCompetition(startDateTime, endDateTime);
         }
     }
 
