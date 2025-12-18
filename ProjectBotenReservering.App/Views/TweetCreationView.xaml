@@ -64,7 +64,7 @@
                            FontSize="20"
                            Margin="10"/>
 
-                    <Label Text="0/{Binding ContentLength}"
+                    <Label Text="{Binding ContentLength, StringFormat='{0}/280'}"
                            Grid.Row="1"
                            HorizontalOptions="End"
                            VerticalOptions="End"
