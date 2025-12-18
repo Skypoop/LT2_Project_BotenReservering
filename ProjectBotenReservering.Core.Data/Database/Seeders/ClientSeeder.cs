@@ -4,9 +4,9 @@ using ProjectBotenReservering.Core.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Database;
 using ProjectBotenReservering.Core.Models;
 
-namespace ProjectBotenReservering.Core.Data.Database.Fixtures
+namespace ProjectBotenReservering.Core.Data.Database.Seeders
 {
-    public class ClientFixture : IDatabaseFixture
+    public class ClientSeeder : IDatabaseSeeder
     {
         public int Order => 2;
 

@@ -1,6 +1,8 @@
 ﻿using System.Data;
+using ProjectBotenReservering.Core.Data.Database.Fixtures;
 using ProjectBotenReservering.Core.Data.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Database;
+using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.Core.Data.Database.Seeders
 {
@@ -12,14 +14,14 @@ namespace ProjectBotenReservering.Core.Data.Database.Seeders
         {
             if (!connection.IsTableEmpty("Role")) return;
 
-            List<string> roles = new List<string> { "Lid", "Nieuw Lid", "Gast" };
+            List<Role> roles = RoleFixture.Roles;
 
-            foreach (string role in roles)
+            foreach (Role role in roles)
             {
                 using (IDbCommand command = connection.CreateCommand())
                 {
                     command.CommandText = "INSERT INTO Role(Name) VALUES(@Name)";
-                    command.AddParameter("@Name", role);
+                    command.AddParameter("@Name", role.Name);
                     command.ExecuteNonQuery();
                 }
             }

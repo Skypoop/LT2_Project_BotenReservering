@@ -232,7 +232,6 @@ public partial class CompetitionViewModel : BaseViewModel
             await MoveToTweetScreen();
         else
             RefreshScreen();
-
     }
 
     private async Task<bool> ShowCompletionMessage()
