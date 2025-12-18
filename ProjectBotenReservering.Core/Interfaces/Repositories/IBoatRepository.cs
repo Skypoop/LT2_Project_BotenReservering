@@ -7,6 +7,7 @@ public interface IBoatRepository
     public Boat Add(Boat item);
     public Boat? Get(int id);
     public List<Boat> GetAll();
+    public List<Boat> GetAllFromName(string boatName);
     public List<Boat> GetOperationalBoats();
     public void Delete(int boatId);
 }
