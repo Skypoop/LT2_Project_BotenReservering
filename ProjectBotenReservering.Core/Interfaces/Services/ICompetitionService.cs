@@ -13,4 +13,8 @@ public interface ICompetitionService
     bool HasEnoughBoats(int boatId);
     public bool SetSelectedBoat(int boatId, DateTime startTime, DateTime endTime);
 
+    bool IsClientAssignedToAnyTeam(IEnumerable<BoatCompetitionUiItem> items, int clientId);
+    bool IsCompetitionItemComplete(BoatCompetitionUiItem item);
+    bool AreAllTeamsComplete(IEnumerable<BoatCompetitionUiItem> items);
+
 }
