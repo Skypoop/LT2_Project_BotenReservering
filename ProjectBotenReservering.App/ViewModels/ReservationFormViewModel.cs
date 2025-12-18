@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Plugin.Maui.Calendar.Models;
 using ProjectBotenReservering.App.Helpers;
 using ProjectBotenReservering.Core.Constants;
+using ProjectBotenReservering.Core.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
@@ -211,26 +212,23 @@ public partial class ReservationFormViewModel : BaseViewModel
         }
         else if (_reservationService.IsBookingWithinAllowedReservationTime(startDateTime) && BoatId != 0)
         {
+            WeatherAuthorizationResultEnum weatherResult = await _boatAuthorizationService.WeatherAuthorized(BoatId, startDateTime, endDateTime);
+
+            if (weatherResult != WeatherAuthorizationResultEnum.Authorized)
             {
-                bool weatherAllowed = await _boatAuthorizationService.WeatherAuthorized(BoatId, startDateTime, endDateTime);
+                DateWarningText = MessageHelper.ConvertWeatherAuthorizationMessageToUi(weatherResult);
 
-                if (!weatherAllowed)
-                {
-                    DateWarningText = "LET OP: Voor deze datum en tijd is het weer heftig voor deze boot type!";
-                    HasWeatherWarning = true;
-                }
+                HasWeatherWarning = true;
             }
-
 
             if (EndTime > StartTime)
             {
                 if (!_reservationService.IsValidReservationLength(startDateTime, endDateTime))
                 {
-                    TimeWarningText = "De reservering duurt te lang. max 2 uur lang";
+                    TimeWarningText = "De reservering duurt te lang. max 2 uur";
                     HasTimeWarning = true;
                 }
             }
-
         }
 
         SaveReservationCommand.NotifyCanExecuteChanged();

@@ -5,11 +5,12 @@ using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.Core.Services;
 
-public class AuthService(IClientRepository clientRepository, IClientRoleRepository clientRoleRepository, IRoleRepository roleRepository) : IAuthService
+public class AuthService(IClientRepository clientRepository, IClientRoleRepository clientRoleRepository, IRoleRepository roleRepository, IRoleManagementTaskRepository roleManagementTaskRepository) : IAuthService
 {
     private readonly IClientRepository _clientRepository = clientRepository;
     private readonly IClientRoleRepository _clientRoleRepository = clientRoleRepository;
     private readonly IRoleRepository _roleRepository = roleRepository;
+    private readonly IRoleManagementTaskRepository _roleManagementTaskRepository = roleManagementTaskRepository;
 
     public Client? Login(string email, string password)
     {
@@ -40,11 +41,36 @@ public class AuthService(IClientRepository clientRepository, IClientRoleReposito
 
         return true;
     }
-
-    public string GetUserRole(int clientId)
+    
+    public ClientRole[] GetClientRoles(int clientId)
     {
         List<ClientRole> roles = _clientRoleRepository.GetByClientId(clientId);
-        ClientRole? clientRole = roles.FirstOrDefault();
-        return clientRole?.RoleName ?? string.Empty;
+        return roles.ToArray();
     }
+    
+    public bool CanClientUseApp(int clientId)
+    {
+        List<ClientRole> roles = _clientRoleRepository.GetByClientId(clientId);
+        return !roles.Any(r => r.RoleName == "Gast" || r.RoleName == "Nieuw Lid");
+    }
+    
+    public TabItem[] GetAuthorisedTabs(int clientId, TabItem[] allTabItems)
+    {
+        ClientRole[] roles = GetClientRoles(clientId);
+
+        List<TabItem> accessibleTabs = new List<TabItem>();
+        
+        foreach (ClientRole role in roles)
+        {
+            List<RoleManagementTask> roleManagementTasks = _roleManagementTaskRepository.GetByRoleId(role.RoleName);
+
+            foreach (RoleManagementTask roleManagementTask in roleManagementTasks)
+            {
+                accessibleTabs.Add(allTabItems[roleManagementTask.ManagementTaskId - 1]);
+            }
+        }
+
+        return accessibleTabs.Distinct().ToArray();
+    }
+    
 }

@@ -1,7 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ProjectBotenReservering.App.Helpers;
 using ProjectBotenReservering.App.Views;
+using ProjectBotenReservering.Core.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
@@ -92,32 +94,32 @@ public partial class CompetitionViewModel : BaseViewModel
 
         if (CompetitionItems.Count == 0) return;
 
-        DateTime startDateTime = StartDate.Date + StartTime;
-        DateTime endDateTime = EndDate.Date + EndTime;
+        DateTime startDateTime = CompetitionTimeHelper.GetStartTimeWithPreparation(StartDate, StartTime);
+        DateTime endDateTime = CompetitionTimeHelper.CombineDateAndTime(EndDate, EndTime);
 
         if (endDateTime <= startDateTime) return;
 
-        bool hasWeatherIssues = await CheckWeatherConditionsAsync(startDateTime, endDateTime);
+        WeatherAuthorizationResultEnum result = await CheckWeatherConditionsAsync(startDateTime, endDateTime);
 
-        if (hasWeatherIssues)
+        if (result != WeatherAuthorizationResultEnum.Authorized)
         {
-            SetWeatherWarning();
+            SetWeatherWarning(result);
         }
     }
 
-    private async Task<bool> CheckWeatherConditionsAsync(DateTime startDateTime, DateTime endDateTime)
+    private async Task<WeatherAuthorizationResultEnum> CheckWeatherConditionsAsync(DateTime startDateTime, DateTime endDateTime)
     {
         foreach (BoatCompetitionUiItem item in CompetitionItems)
         {
-            bool weatherAllowed = await _boatAuthorizationService.WeatherAuthorized(item.Boat.Id, startDateTime, endDateTime);
+            WeatherAuthorizationResultEnum result = await _boatAuthorizationService.WeatherAuthorized(boat.Id, startDateTime, endDateTime);
 
-            if (!weatherAllowed)
+            if (result != WeatherAuthorizationResultEnum.Authorized)
             {
-                return true;
+                return result;
             }
         }
 
-        return false;
+        return WeatherAuthorizationResultEnum.Authorized;
     }
 
     private void ClearWeatherWarning()
@@ -126,26 +128,27 @@ public partial class CompetitionViewModel : BaseViewModel
         WeatherWarningText = string.Empty;
     }
 
-    private void SetWeatherWarning()
+    private void SetWeatherWarning(WeatherAuthorizationResultEnum weatherAuthorizationResult)
     {
-        WeatherWarningText = "LET OP: Voor deze datum en tijd is het weer heftig voor een of meerdere geselecteerde boten!";
+        WeatherWarningText = MessageHelper.ConvertWeatherAuthorizationMessageToUi(weatherAuthorizationResult);
+
         HasWeatherWarning = true;
     }
 
     [RelayCommand]
     private async Task CreateCompetition()
     {
-        DateTime startDateTime = StartDate.Date + StartTime;
-        DateTime endDateTime = EndDate.Date + EndTime;
+        DateTime startDateTime = CompetitionTimeHelper.GetStartTimeWithPreparation(StartDate, StartTime);
+        DateTime endDateTime = CompetitionTimeHelper.CombineDateAndTime(EndDate, EndTime);
 
-        if (await CompetitionIsValid() == false)
+        if (await CompetitionIsValid(startDateTime, endDateTime) == false)
             return;
 
         await ValidateWeatherRulesAsync();
 
         if (await ShowWarningPopupAsync() && await HandleConflictingReservationsAsync(startDateTime, endDateTime))
         {
-            await PlaceCompetition();
+            await PlaceCompetition(startDateTime, endDateTime);
         }
     }
 
@@ -196,18 +199,19 @@ public partial class CompetitionViewModel : BaseViewModel
         }
 
         message += "\n- De wedstrijd zal worden aangemaakt met de opgegeven gegevens.";
+        message += "\n- Let op: De reservering start 30 minuten eerder i.v.m. uitgifte protocol.";
 
         return message;
     }
 
-    private async Task<bool> CompetitionIsValid()
+    private async Task<bool> CompetitionIsValid(DateTime startDateTime, DateTime endDateTime)
     {
         DateTime startDateTime = StartDate.Date + StartTime;
         DateTime endDateTime = EndDate.Date + EndTime;
 
         List<Boat> boats = CompetitionItems.Select((BoatCompetitionUiItem x) => x.Boat).ToList();
 
-        (bool isValid, string? errorMessage) = _competitionService.ValidateCompetition(startDateTime, endDateTime, boats);
+        (bool isValid, string? errorMessage) = _competitionService.ValidateCompetition(startDateTime, endDateTime, CompetitionBoats.ToList());
 
         if (!isValid)
             await Shell.Current.DisplayAlert("Fout", errorMessage, "OK");
@@ -215,15 +219,14 @@ public partial class CompetitionViewModel : BaseViewModel
         return isValid;
     }
 
-    private async Task PlaceCompetition()
+    private async Task PlaceCompetition(DateTime startDateTime, DateTime endDateTime)
     {
-        _competitionService.CreateCompetition(StartDate + StartTime, EndDate + EndTime, CompetitionName);
+        _competitionService.CreateCompetition(startDateTime, endDateTime, CompetitionName);
 
         if (await ShowCompletionMessage())
             await MoveToTweetScreen();
         else
             RefreshScreen();
-
     }
 
     private async Task<bool> ShowCompletionMessage()
