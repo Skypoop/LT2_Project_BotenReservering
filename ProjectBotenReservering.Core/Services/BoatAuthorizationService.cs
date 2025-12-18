@@ -33,11 +33,14 @@ public class BoatAuthorizationService : IBoatAuthorizationService
             _ => false
         };
     }
-
-    // Number value scheme
-    // 0. Succes
-    // 1. Higher boat level required
-    // 2. Selected dates are to far in the future
+    /// <summary>
+    /// This method checks for the weather conditions for the boat(s)
+    /// </summary>
+    /// <returns>
+    /// 0(int) = Authorized <br/>
+    /// 1(int) = Unauthorized (boat requires a higher level) <br/>
+    /// 2(int) = Unauthorized (date too far in the future) <br/>
+    /// </returns>
     public async Task<int> WeatherAuthorized(int boatId, DateTime beginDate, DateTime endDate)
     {
         if(beginDate.Subtract(DateTime.Now).TotalDays > 7)
