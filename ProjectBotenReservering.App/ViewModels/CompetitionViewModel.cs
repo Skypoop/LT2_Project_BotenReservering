@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using ProjectBotenReservering.App.Helpers;
 using ProjectBotenReservering.App.Views;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
@@ -16,6 +15,7 @@ public partial class CompetitionViewModel : BaseViewModel
     private readonly IClientService _clientService;
     private readonly IClientRepository _clientRepository;
     private readonly IBoatAuthorizationService _boatAuthorizationService;
+    private readonly ICompetitionMailService _competitionMailService;
 
     [ObservableProperty]
     public partial string TeamCount { get; set; } = "0";
@@ -82,14 +82,14 @@ public partial class CompetitionViewModel : BaseViewModel
     public bool IsBoatSelected => SelectedBoat != null;
 
     public CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService, IClientService clientService,
-        IClientRepository clientRepository, IBoatAuthorizationService boatAuthorizationService)
+        IClientRepository clientRepository, IBoatAuthorizationService boatAuthorizationService, ICompetitionMailService competitionMailService)
     {
         _reservationService = reservationService;
         _competitionService = competitionService;
         _clientService = clientService;
         _clientRepository = clientRepository;
         _boatAuthorizationService = boatAuthorizationService;
-
+        _competitionMailService = competitionMailService;
 
         SelectedClients = new ObservableCollection<Client>();
         AvailableClients = new ObservableCollection<Client>();
@@ -113,25 +113,25 @@ public partial class CompetitionViewModel : BaseViewModel
 
         bool hasWeatherIssues = await CheckWeatherConditionsAsync(StartTimeWithPreparation, EndDateTime);
 
-        if (result != WeatherAuthorizationResultEnum.Authorized)
+        if (hasWeatherIssues)
         {
-            SetWeatherWarning(result);
+            SetWeatherWarning();
         }
     }
 
-    private async Task<WeatherAuthorizationResultEnum> CheckWeatherConditionsAsync(DateTime startDateTime, DateTime endDateTime)
+    private async Task<bool> CheckWeatherConditionsAsync(DateTime startDateTime, DateTime endDateTime)
     {
         foreach (Boat boat in CompetitionBoats)
         {
-            WeatherAuthorizationResultEnum result = await _boatAuthorizationService.WeatherAuthorized(boat.Id, startDateTime, endDateTime);
+            bool weatherAllowed = await _boatAuthorizationService.WeatherAuthorized(boat.Id, startDateTime, endDateTime);
 
-            if (result != WeatherAuthorizationResultEnum.Authorized)
+            if (!weatherAllowed)
             {
-                return result;
+                return true;
             }
         }
 
-        return WeatherAuthorizationResultEnum.Authorized;
+        return false;
     }
 
     private void ClearWeatherWarning()
@@ -140,10 +140,9 @@ public partial class CompetitionViewModel : BaseViewModel
         WeatherWarningText = string.Empty;
     }
 
-    private void SetWeatherWarning(WeatherAuthorizationResultEnum weatherAuthorizationResult)
+    private void SetWeatherWarning()
     {
-        WeatherWarningText = MessageHelper.ConvertWeatherAuthorizationMessageToUi(weatherAuthorizationResult);
-
+        WeatherWarningText = "LET OP: Voor deze datum en tijd is het weer heftig voor een of meerdere geselecteerde boten!";
         HasWeatherWarning = true;
     }
 
@@ -227,10 +226,26 @@ public partial class CompetitionViewModel : BaseViewModel
     {
         _competitionService.CreateCompetition(startDateTime, endDateTime, CompetitionName);
 
+        await SendCompetitionEmailsAsync();
+
         if (await ShowCompletionMessage())
             await MoveToTweetScreen();
         else
             RefreshScreen();
+    }
+
+    private async Task SendCompetitionEmailsAsync()
+    {
+        CompetitionEmailContext context = new CompetitionEmailContext(
+            CompetitionName,
+            StartTimeWithPreparation,
+            EndDateTime,
+            _clientsByBoatId,
+            _teamNameByBoatId,
+            CompetitionBoats
+        );
+
+        await _competitionMailService.SendCompetitionConfirmationEmailsAsync(context);
     }
 
     private async Task<bool> ShowCompletionMessage()
@@ -377,6 +392,8 @@ public partial class CompetitionViewModel : BaseViewModel
 
         AddClientIfValid(clientToAdd);
     }
+
+
 
     partial void OnSelectedBoatChanged(Boat? value)
     {
