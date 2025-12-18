@@ -111,7 +111,7 @@ public partial class CompetitionViewModel : BaseViewModel
     {
         foreach (BoatCompetitionUiItem item in CompetitionItems)
         {
-            WeatherAuthorizationResultEnum result = await _boatAuthorizationService.WeatherAuthorized(boat.Id, startDateTime, endDateTime);
+            WeatherAuthorizationResultEnum result = await _boatAuthorizationService.WeatherAuthorized(item.Boat.Id, startDateTime, endDateTime);
 
             if (result != WeatherAuthorizationResultEnum.Authorized)
             {
@@ -206,12 +206,10 @@ public partial class CompetitionViewModel : BaseViewModel
 
     private async Task<bool> CompetitionIsValid(DateTime startDateTime, DateTime endDateTime)
     {
-        DateTime startDateTime = StartDate.Date + StartTime;
-        DateTime endDateTime = EndDate.Date + EndTime;
 
         List<Boat> boats = CompetitionItems.Select((BoatCompetitionUiItem x) => x.Boat).ToList();
 
-        (bool isValid, string? errorMessage) = _competitionService.ValidateCompetition(startDateTime, endDateTime, CompetitionBoats.ToList());
+        (bool isValid, string? errorMessage) = _competitionService.ValidateCompetition(startDateTime, endDateTime, boats);
 
         if (!isValid)
             await Shell.Current.DisplayAlert("Fout", errorMessage, "OK");
