@@ -257,6 +257,7 @@ public partial class CompetitionViewModel : BaseViewModel
         }
 
         UpdateQualificationFlags();
+        ValidateSubmitButton();
     }
 
     private async Task<bool> HandleConflictingReservationsAsync(DateTime startDateTime, DateTime endDateTime)
@@ -360,7 +361,8 @@ public partial class CompetitionViewModel : BaseViewModel
         SubmitButtonIsEnabled =
         !string.IsNullOrWhiteSpace(CompetitionName) &&
         CompetitionBoats.Count > 0 &&
-        AreAllTeamNamesFilled();
+        AreAllTeamNamesFilled() &&
+        AreBoatsAtFullCapacity();
 
         // Additional validations for the submit button to be enabled should be added here
 
@@ -462,6 +464,7 @@ public partial class CompetitionViewModel : BaseViewModel
         SelectedClients.Add(clientToAdd);
 
         UpdateQualificationFlags();
+        ValidateSubmitButton();
     }
 
     private bool IsClientAlreadyInAnyBoat(int clientId)
