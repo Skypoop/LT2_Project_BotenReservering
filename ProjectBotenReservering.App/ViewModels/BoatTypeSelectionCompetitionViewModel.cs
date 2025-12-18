@@ -85,9 +85,18 @@ public partial class BoatTypeSelectionCompetitionViewModel : BaseViewModel
 
         if (boat != null)
         {
-            _competitionService.SelectedBoatId = boat.Id;
-
-            await Shell.Current.GoToAsync("..");
+            if (_competitionService.HasEnoughBoats(boat.Id))
+            {
+                _competitionService.SetSelectedBoat(boat.Id);
+                await Shell.Current.GoToAsync("..");
+            }
+            else
+            {
+                await Shell.Current.DisplayAlert(
+                    "Niet genoeg boten",
+                    $"Er zijn niet genoeg boten van het type {boat.Name} beschikbaar.",
+                    "OK");
+            }
         }
     }
 
