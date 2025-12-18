@@ -107,27 +107,27 @@ public partial class CompetitionViewModel : BaseViewModel
 
         if (endDateTime <= startDateTime) return;
 
-        bool hasWeatherIssues = await CheckWeatherConditionsAsync(startDateTime, endDateTime);
+        int weatherIssues = await CheckWeatherConditionsAsync(startDateTime, endDateTime);
 
-        if (hasWeatherIssues)
+        if (weatherIssues > 0)
         {
-            SetWeatherWarning();
+            SetWeatherWarning(weatherIssues);
         }
     }
 
-    private async Task<bool> CheckWeatherConditionsAsync(DateTime startDateTime, DateTime endDateTime)
+    private async Task<int> CheckWeatherConditionsAsync(DateTime startDateTime, DateTime endDateTime)
     {
         foreach (Boat boat in CompetitionBoats)
         {
-            bool weatherAllowed = await _boatAuthorizationService.WeatherAuthorized(boat.Id, startDateTime, endDateTime);
+            int weatherAllowed = await _boatAuthorizationService.WeatherAuthorized(boat.Id, startDateTime, endDateTime);
 
-            if (!weatherAllowed)
+            if (weatherAllowed > 0)
             {
-                return true;
+                return weatherAllowed;
             }
         }
 
-        return false;
+        return 0;
     }
 
     private void ClearWeatherWarning()
@@ -136,9 +136,18 @@ public partial class CompetitionViewModel : BaseViewModel
         WeatherWarningText = string.Empty;
     }
 
-    private void SetWeatherWarning()
+    private void SetWeatherWarning(int weatherIssueLevel)
     {
-        WeatherWarningText = "LET OP: Voor deze datum en tijd is het weer heftig voor een of meerdere geselecteerde boten!";
+        if (weatherIssueLevel == 1)
+        {
+            WeatherWarningText = "LET OP: Voor deze datum en tijd is het weer heftig voor een of meerdere geselecteerde boten!";
+        }
+
+        if (weatherIssueLevel == 2)
+        {
+            WeatherWarningText = "LET OP: Het weer kan alleen voorspeld worden tot 7 dagen vooruit";
+        }
+
         HasWeatherWarning = true;
     }
 

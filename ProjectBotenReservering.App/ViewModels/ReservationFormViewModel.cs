@@ -212,13 +212,19 @@ public partial class ReservationFormViewModel : BaseViewModel
         else if (_reservationService.IsBookingWithinAllowedReservationTime(startDateTime) && BoatId != 0)
         {
             {
-                bool weatherAllowed = await _boatAuthorizationService.WeatherAuthorized(BoatId, startDateTime, endDateTime);
+                int weatherAllowed = await _boatAuthorizationService.WeatherAuthorized(BoatId, startDateTime, endDateTime);
 
-                if (!weatherAllowed)
+                if (weatherAllowed == 1)
                 {
                     DateWarningText = "LET OP: Voor deze datum en tijd is het weer heftig voor deze boot type!";
-                    HasWeatherWarning = true;
                 }
+
+                if (weatherAllowed == 2)
+                {
+                    DateWarningText = "LET OP: Het weer kan alleen voorspeld worden tot 7 dagen vooruit";
+                }
+
+                HasWeatherWarning = true;
             }
 
 

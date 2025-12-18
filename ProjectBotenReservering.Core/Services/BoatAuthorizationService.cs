@@ -34,23 +34,37 @@ public class BoatAuthorizationService : IBoatAuthorizationService
         };
     }
 
-    public async Task<bool> WeatherAuthorized(int boatId, DateTime beginDate, DateTime endDate)
+    // Number value scheme
+    // 0. Succes
+    // 1. Higher boat level required
+    // 2. Selected dates are to far in the future
+    public async Task<int> WeatherAuthorized(int boatId, DateTime beginDate, DateTime endDate)
     {
+        if(beginDate.Subtract(DateTime.Now).TotalDays > 7)
+        {
+            return 2;
+        }
+
+        if(endDate.Subtract(DateTime.Now).TotalDays > 7)
+        {
+            return 2;
+        }
+
         int windforce = await _weatherService.GetWeatherAsync(beginDate, endDate);
         WindConstraint? minLevels = _windConstraintRepository.Get(windforce);
         Boat? boat = _boatRepository.Get(boatId);
 
         if (minLevels == null || boat == null)
         {
-            return false;
+            return 1;
         }
 
-        if ((boat.Type == BoatType.B && boat.Level >= minLevels.MinSweepLevel) || (boat.Type == BoatType.S && boat.Level >= minLevels.MinScullLevel))
+        if ((boat.Type == BoatType.B && boat.Level <= minLevels.MinSweepLevel) || (boat.Type == BoatType.S && boat.Level <= minLevels.MinScullLevel))
         {
-            return true;
+            return 1;
         }
 
-        return false;
+        return 0;
     }
 
     public bool IsAuthorized(BoatType boatType, int boatLevel) => IsAuthorized(boatType, boatLevel, _clientService.GetCurrentClient());

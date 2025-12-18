@@ -8,7 +8,7 @@ public interface IBoatAuthorizationService
     bool IsAuthorized(BoatType boatType, int boatLevel, Client client);
     bool IsAuthorized(int boatId, Client client);
 
-    Task<bool> WeatherAuthorized(int boatId, DateTime beginDate, DateTime endDate);
+    Task<int> WeatherAuthorized(int boatId, DateTime beginDate, DateTime endDate);
 
     IEnumerable<T> FilterAuthorized<T>(IEnumerable<T> items, Func<T, BoatType> boatTypeSelector, Func<T, int> boatLevelSelector);
 }
