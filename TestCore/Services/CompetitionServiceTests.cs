@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
 using Moq;
-using ProjectBotenReservering.Core.Constants;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
@@ -35,7 +34,7 @@ namespace TestCore.Services
             );
         }
         [Test]
-        public void CreateMatch_Returns_MatchObject()
+        public void CreateMatch_Returns_CompetitionObject()
         {
             // Arrange
             DateTime startDate = DateTime.Now;
@@ -43,7 +42,7 @@ namespace TestCore.Services
             string competitionName = "Test competition";
 
             Client currentClient = new Client("John Doe", "john.doe@example.com", 2, 2, "Test Club", true, "hashedpassword", 1);
-            Boat boat = new Boat("Test Boot 1", true, 1, 1, BoatType.S, 1, true, "local", 1);
+            Boat boat = new Boat("Test boat 1", true, 1, 1, BoatType.S, 1, true, "local", 1);
             List<Boat> operationalBoats = new List<Boat> { boat };
             Competition expectedCompetition = new Competition(startDate, endDate, competitionName, 1);
             Reservation expectedReservation = new Reservation(DateTime.Now, startDate, endDate, currentClient.Id, boat.Id, true, 1);
@@ -59,10 +58,8 @@ namespace TestCore.Services
             _competitionService.AmountBoats = 1;
             _competitionService.SelectedBoatId = boat.Id;
 
-            // Act
             Competition? result = _competitionService.CreateCompetition(startDate, endDate, competitionName);
 
-            // Assert
             result.Should().NotBeNull();
             result!.StartDateTime.Should().Be(startDate);
             result.EndDateTime.Should().Be(endDate);
