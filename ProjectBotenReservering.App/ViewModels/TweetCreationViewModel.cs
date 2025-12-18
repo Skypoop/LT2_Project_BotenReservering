@@ -34,7 +34,6 @@ public partial class TweetCreationViewModel : BaseViewModel
     [ObservableProperty]
     public partial bool IsTweetContentEditableByUser { get; set; }
 
-    private Stream? _selectedImageStream;
     private byte[]? _selectedImageBytes;  
     public TweetCreationViewModel(IClientService clientService, ITweetService tweetService)
     {
