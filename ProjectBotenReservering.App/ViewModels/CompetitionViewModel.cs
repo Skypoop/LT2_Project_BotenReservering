@@ -41,8 +41,10 @@ public partial class CompetitionViewModel : BaseViewModel
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(EndDateTime))]
     public partial TimeSpan EndTime { get; set; } = TimeSpan.Zero;
-    public DateTime StartTimeWithPreparation => (StartDate.Date + StartTime).AddMinutes(-30);
+
     public DateTime EndDateTime => EndDate.Date + EndTime;
+    public DateTime StartDateTime => StartDate.Date + StartTime;
+    public DateTime StartTimeWithPreparation => (StartDate.Date + StartTime).AddMinutes(-30);
 
     [ObservableProperty]
     public partial string TeamName { get; set; } = string.Empty;
@@ -109,7 +111,7 @@ public partial class CompetitionViewModel : BaseViewModel
 
         if (CompetitionBoats.Count == 0) return;
 
-        if (EndDateTime <= StartTimeWithPreparation) return;
+        if (EndDateTime <= StartDateTime) return;
 
         WeatherAuthorizationResultEnum result = await CheckWeatherConditionsAsync(StartTimeWithPreparation, EndDateTime);
 
