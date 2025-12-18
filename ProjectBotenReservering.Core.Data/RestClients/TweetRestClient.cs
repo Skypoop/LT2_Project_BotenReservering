@@ -12,7 +12,7 @@ using Tweetinvi.Core.Web;
 using ProjectBotenReservering.Core.Data.Helpers;
 using ProjectBotenReservering.Core.Interfaces.RestClients;
 
-public class TweetRestClient: ITweetRestClient
+public class TweetRestClient : ITweetRestClient
 {
     private readonly TwitterClient _client;
 
@@ -54,11 +54,11 @@ public class TweetRestClient: ITweetRestClient
     private static string ExtractMediaIdStringFromResponse(ITwitterResult result)
     {
         if (!result.Response.IsSuccessStatusCode)
-            throw new InvalidOperationException($"Media upload failed ({result.Response.StatusCode}): {result.Content}");
+            throw new HttpRequestException($"Twitter API Error: {result.Response.StatusCode}");
 
         using JsonDocument doc = JsonDocument.Parse(result.Content);
         JsonElement root = doc.RootElement;
-         
+
         return root.GetProperty("media_id_string").GetString()
                ?? throw new InvalidOperationException("media_id_string not found in response");
     }
@@ -88,6 +88,6 @@ public class TweetRestClient: ITweetRestClient
         {
             return true;
         }
-        return false;
+        throw new HttpRequestException($"Twitter API Error: {result.Response.StatusCode}");
     }
 }

@@ -1,8 +1,10 @@
-﻿using ProjectBotenReservering.Core.Interfaces.Helpers;
+﻿using ProjectBotenReservering.Core.Exceptions;
+using ProjectBotenReservering.Core.Interfaces.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 
 namespace ProjectBotenReservering.Core.Services;
+
 public class TweetService : ITweetService
 {
     private readonly ILlmService _llmService;
@@ -29,23 +31,29 @@ public class TweetService : ITweetService
 
         return await _llmService.GenerateTextWithContextAsync(finalUserPrompt, systemPrompt);
     }
-    private string MakeResponseMessage(bool isSuccess)
+    private async Task<string> TweetExceptionHandler(Func<Task<bool>> action)
     {
-        if(isSuccess)
+        try
         {
-            return "Tweet is succesvol geplaatst!";
+            bool success = await action();
+            return success ? "Gelukt!" : "Er is iets mis gegaan...";
         }
-        return "Excuses er is iets fout gegaan";
+        catch (Exception ex)
+        {
+            throw new TweetPostException("Foutmelding...", ex);
+        }
     }
 
     public async Task<string> PublishTweetAsync(string tweetContent)
     {
-        return MakeResponseMessage(await _tweetRepository.PublishTweetAsync(tweetContent));
+        return await TweetExceptionHandler(() => _tweetRepository.PublishTweetAsync(tweetContent));
     }
-     public async Task<string> PublishTweetWithMediaAsync(string tweetContent, byte[] fileBytes, string fileName)
+    public async Task<string> PublishTweetWithMediaAsync(string tweetContent, byte[] fileBytes, string fileName)
     {
-        string mediaKey = await _tweetRepository.UploadMediaAsync(new MemoryStream(fileBytes), fileName);
-        return MakeResponseMessage(await _tweetRepository.PublishTweetAsync(tweetContent, mediaKey));
+        return await TweetExceptionHandler(async () =>
+        {
+            string mediaKey = await _tweetRepository.UploadMediaAsync(new MemoryStream(fileBytes), fileName);
+            return await _tweetRepository.PublishTweetAsync(tweetContent, mediaKey);
+        });
     }
-
 }

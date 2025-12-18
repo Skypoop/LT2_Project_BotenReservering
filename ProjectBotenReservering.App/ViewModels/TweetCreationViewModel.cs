@@ -1,9 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ProjectBotenReservering.App.Views;
+using ProjectBotenReservering.Core.Data.Helpers;
+using ProjectBotenReservering.Core.Exceptions;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
-using ProjectBotenReservering.Core.Data.Helpers;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
@@ -110,20 +111,35 @@ public partial class TweetCreationViewModel : BaseViewModel
         SelectedFileName = result.FileName;
         IsImagePreviewVisible = true;
     }
+    
 
     [RelayCommand]
     private async Task PublishTweet()
     {
         string responseMessage;
-        if (_selectedImageBytes != null && SelectedFileName != null)
+
+        try
         {
-            responseMessage = await _tweetService.PublishTweetWithMediaAsync(TweetContent, _selectedImageBytes, SelectedFileName);
+            if (_selectedImageBytes != null && SelectedFileName != null)
+            {
+                responseMessage = await _tweetService.PublishTweetWithMediaAsync(TweetContent, _selectedImageBytes, SelectedFileName);
+            }
+            else
+            {
+                responseMessage = await _tweetService.PublishTweetAsync(TweetContent);
+            }
         }
-        else
+        catch (TweetPostException ex)
         {
-            responseMessage = await _tweetService.PublishTweetAsync(TweetContent);
+            responseMessage = $"Fout: {ex.Message}";
         }
-        await Shell.Current.DisplayAlert("Info", responseMessage, "OK");
+
+        await ShowFeedbackAndNavigate(responseMessage);
+    }
+
+    private async Task ShowFeedbackAndNavigate(string message)
+    {
+        await Shell.Current.DisplayAlert("Info", message, "OK");
         await Shell.Current.GoToAsync("..");
     }
 }
