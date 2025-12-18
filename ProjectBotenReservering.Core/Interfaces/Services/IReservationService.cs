@@ -14,4 +14,6 @@ public interface IReservationService
     public bool IsReservationTimeBlocked(IEnumerable<Reservation> reservations, DateTime startTime, DateTime endTime, BoatTypeUiItem boatType);
     public void CancelOverlappingReservations(List<Reservation> reserservations);
     public List<Reservation> FindOverlappingReservations(DateTime startDate, DateTime endDate, List<int> boatIds);
+
+    public Dictionary<Boat, int> CountOverlappingActiveReservations(List<Boat> boats, DateTime startDate, DateTime endDate);
 }

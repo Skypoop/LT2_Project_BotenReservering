@@ -55,20 +55,33 @@ public class CompetitionService : ICompetitionService
 
         return allBoatsFromName.Count >= AmountBoats;
     }
-    public void SetSelectedBoat(int boatId)
+    public bool SetSelectedBoat(int boatId, DateTime startTime, DateTime endTime)
     {
         _competitionBoatsList.Clear();
 
         List<Boat> allBoatsFromName = GetAllCompetitionBoatsFromName(boatId);
+        allBoatsFromName = OrderBoatListByAvailability(allBoatsFromName, startTime, endTime);
+        
         int countToAdd = Math.Min(allBoatsFromName.Count, AmountBoats);
-
+        
         for (int i = 0; i < countToAdd; i++)
         {
             _competitionBoatsList.Add(allBoatsFromName[i]);
         }
 
         SelectedBoatId = boatId;
+        
+        bool hasAnyOverlap = _reservationService.CountOverlappingActiveReservations(_competitionBoatsList, startTime, endTime).Values.Any(v => v != 0);
+        return hasAnyOverlap;
     }
+    
+    private List<Boat> OrderBoatListByAvailability(List<Boat> boats, DateTime startDateTime, DateTime endDateTime)
+    {
+        Dictionary<Boat, int> boatAvailability = _reservationService.CountOverlappingActiveReservations(boats, startDateTime, endDateTime);
+        
+        return boatAvailability.OrderBy(b => b.Value).Select(b=> b.Key).ToList();
+    }
+    
     private List<Boat> GetAllCompetitionBoatsFromName(int id)
     {
         Boat? boat = _boatRepository.Get(id);
