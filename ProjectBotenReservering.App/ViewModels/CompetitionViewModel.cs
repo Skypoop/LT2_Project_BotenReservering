@@ -350,10 +350,18 @@ public partial class CompetitionViewModel : BaseViewModel
         ValidateSubmitButton();
     }
 
+    partial void OnTeamNameChanged(string oldValue, string newValue)
+    {
+        ValidateSubmitButton();
+    }
+
     public void ValidateSubmitButton()
     {
-        SubmitButtonIsEnabled = !string.IsNullOrWhiteSpace(CompetitionName) &&
-                                CompetitionBoats.Count > 0;
+        SubmitButtonIsEnabled =
+        !string.IsNullOrWhiteSpace(CompetitionName) &&
+        CompetitionBoats.Count > 0 &&
+        AreAllTeamNamesFilled();
+
         // Additional validations for the submit button to be enabled should be added here
 
         _ = ValidateWeatherRulesAsync();
@@ -517,6 +525,23 @@ public partial class CompetitionViewModel : BaseViewModel
             }
 
             if (clients.Count != capacity)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private bool AreAllTeamNamesFilled()
+    {
+        if (CompetitionBoats.Count == 0)
+            return false;
+
+        foreach (Boat boat in CompetitionBoats)
+        {
+            if (!_teamNameByBoatId.TryGetValue(boat.Id, out string? name) ||
+                string.IsNullOrWhiteSpace(name))
             {
                 return false;
             }
