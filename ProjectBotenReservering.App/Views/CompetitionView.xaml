@@ -262,11 +262,11 @@
                                 Padding="8"
                                 VerticalOptions="FillAndExpand">
                             <CollectionView SelectionMode="Single"
-                                            ItemsSource="{Binding CompetitionBoats}"
-                                            SelectedItem="{Binding SelectedBoat, Mode=TwoWay}"
+                                            ItemsSource="{Binding CompetitionItems}"
+                                            SelectedItem="{Binding SelectedCompetitionItem, Mode=TwoWay}"
                                             VerticalOptions="FillAndExpand">
                                 <CollectionView.ItemTemplate>
-                                    <DataTemplate x:DataType="models:Boat">
+                                    <DataTemplate x:DataType="models:BoatCompetitionUiItem">
                                         <Border Padding="10"
                                                 Margin="0,4"
                                                 Stroke="#eeeeee"
@@ -286,7 +286,7 @@
                                                        IsVisible="{Binding IsComplete}"/>
 
                                                 <Label Grid.Column="1"
-                                                       Text="{Binding Name}"
+                                                       Text="{Binding Boat.Name}"
                                                        FontSize="14"
                                                        TextColor="Black"
                                                        VerticalOptions="Center"
@@ -326,7 +326,7 @@
                                 <Label Text="Geselecteerde boot"
                                        FontSize="12"
                                        TextColor="Gray" />
-                                <Label Text="{Binding SelectedBoat.Name}"
+                                <Label Text="{Binding SelectedCompetitionItem.Boat.Name}"
                                        FontSize="16"
                                        FontAttributes="Bold"
                                        TextColor="Black" />
@@ -345,7 +345,7 @@
                                            Placeholder="Teamnaam"
                                            TextColor="Black"
                                            VerticalOptions="Center"
-                                           Text="{Binding TeamName, Mode=TwoWay}" />
+                                           Text="{Binding SelectedCompetitionItem.TeamName, Mode=TwoWay}" />
                                     <Label Grid.Column="1"
                                            Text="✎"
                                            TextColor="Gray"
@@ -405,14 +405,14 @@
                                FontSize="14"
                                TextColor="Black" />
                                     <Label Grid.Column="1"
-                               Text="{Binding SelectedClients.Count}"
+                               Text="{Binding SelectedCompetitionItem.SelectedClients.Count}"
                                FontSize="12"
                                TextColor="Gray"
                                VerticalOptions="Center" />
                                 </Grid>
 
                                 <CollectionView Grid.Row="1"
-                                    ItemsSource="{Binding SelectedClients}"
+                                    ItemsSource="{Binding SelectedCompetitionItem.SelectedClients}"
                                     SelectionMode="None"
                                     VerticalOptions="FillAndExpand">
                                     <CollectionView.ItemsLayout>
