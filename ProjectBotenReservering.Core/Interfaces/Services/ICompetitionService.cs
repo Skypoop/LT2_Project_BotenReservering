@@ -11,6 +11,6 @@ public interface ICompetitionService
     (bool IsValid, string? ErrorMessage) ValidateCompetition(DateTime start, DateTime end, List<Boat> boats);
     public Competition? CreateCompetition(DateTime startDate, DateTime endDate, string competitionName);
     bool HasEnoughBoats(int boatId);
-    void SetSelectedBoat(int boatId);
+    public bool SetSelectedBoat(int boatId, DateTime startTime, DateTime endTime);
 
 }

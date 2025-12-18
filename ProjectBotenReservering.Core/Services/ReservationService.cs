@@ -124,6 +124,29 @@ public class ReservationService : IReservationService
     {
         List<Reservation> reservations = _reservationRepository.GetAll();
 
-        return reservations.Where(r => r.Active && r.StartTime < endDate && r.EndTime > startDate && boatIds.Contains(r.BoatId)).ToList();
+        return reservations.Where(r => r.Active 
+                                       && ((r.StartTime < endDate && r.StartTime > startDate) 
+                                       || (r.EndTime < endDate && r.EndTime > startDate) 
+                                       || (r.StartTime == startDate && r.EndTime == endDate))
+                                       && boatIds.Contains(r.BoatId)).ToList();
+    }
+    
+    public Dictionary<Boat, int> CountOverlappingActiveReservations(List<Boat> boats, DateTime startDate, DateTime endDate)
+    {
+        List<Reservation> reservations = _reservationRepository.GetAll();
+
+        Dictionary<Boat, int> boatReservationCounts = new Dictionary<Boat, int>();
+
+        foreach (Boat boat in boats)
+        {
+            int count = reservations.Count(r => r.Active 
+                                                && ((r.StartTime < endDate && r.StartTime > startDate) 
+                                                || (r.EndTime < endDate && r.EndTime > startDate)
+                                                || (r.StartTime == startDate && r.EndTime == endDate)) 
+                                                && r.BoatId == boat.Id);
+            boatReservationCounts.Add(boat, count);
+        }
+
+        return boatReservationCounts;
     }
 }
