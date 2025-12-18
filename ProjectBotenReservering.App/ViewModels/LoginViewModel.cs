@@ -41,9 +41,8 @@ namespace ProjectBotenReservering.App.ViewModels
 
             if (authenticatedClient != null)
             {
-                ClientRole[] roles = _authService.GetClientRoles(authenticatedClient.Id);
 
-                if (roles.Any(r => r.RoleName == "Gast" || r.RoleName == "Nieuw Lid"))
+                if (_authService.CanClientUseApp(authenticatedClient.Id) == false)
                 {
                     await Shell.Current.DisplayAlert("Toegang Geweigerd", $"Er is nog geen functioneel scherm beschikbaar voor een account ingelogd als Gast of Niew Lid", "OK");
                     return;

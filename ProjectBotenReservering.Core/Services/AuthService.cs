@@ -46,4 +46,10 @@ public class AuthService(IClientRepository clientRepository, IClientRoleReposito
         List<ClientRole> roles = _clientRoleRepository.GetByClientId(clientId);
         return roles.ToArray();
     }
+    
+    public bool CanClientUseApp(int clientId)
+    {
+        List<ClientRole> roles = _clientRoleRepository.GetByClientId(clientId);
+        return !roles.Any(r => r.RoleName == "Gast" || r.RoleName == "Nieuw Lid");
+    }
 }
