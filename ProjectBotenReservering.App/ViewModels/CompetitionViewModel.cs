@@ -111,7 +111,7 @@ public partial class CompetitionViewModel : BaseViewModel
 
         if (EndDateTime <= StartTimeWithPreparation) return;
 
-        bool hasWeatherIssues = await CheckWeatherConditionsAsync(StartTimeWithPreparation, EndDateTime);
+        WeatherAuthorizationResultEnum result = await CheckWeatherConditionsAsync(StartTimeWithPreparation, EndDateTime);
 
         if (result != WeatherAuthorizationResultEnum.Authorized)
         {
