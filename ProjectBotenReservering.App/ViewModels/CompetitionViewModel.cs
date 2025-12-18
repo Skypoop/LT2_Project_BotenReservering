@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ProjectBotenReservering.App.Helpers;
 using ProjectBotenReservering.App.Views;
-using ProjectBotenReservering.Core.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
@@ -28,16 +27,24 @@ public partial class CompetitionViewModel : BaseViewModel
     public partial string CompetitionName { get; set; } = string.Empty;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(StartTimeWithPreparation))]
     public partial DateTime StartDate { get; set; } = DateTime.Today;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(StartTimeWithPreparation))]
     public partial TimeSpan StartTime { get; set; } = TimeSpan.Zero;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(EndDateTime))]
     public partial DateTime EndDate { get; set; } = DateTime.Today;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(EndDateTime))]
     public partial TimeSpan EndTime { get; set; } = TimeSpan.Zero;
+
+    public DateTime EndDateTime => EndDate.Date + EndTime;
+    public DateTime StartDateTime => StartDate.Date + StartTime;
+    public DateTime StartTimeWithPreparation => (StartDate.Date + StartTime).AddMinutes(-30);
 
     [ObservableProperty]
     public partial string TeamName { get; set; } = string.Empty;
@@ -104,12 +111,9 @@ public partial class CompetitionViewModel : BaseViewModel
 
         if (CompetitionBoats.Count == 0) return;
 
-        DateTime startDateTime = CompetitionTimeHelper.GetStartTimeWithPreparation(StartDate, StartTime);
-        DateTime endDateTime = CompetitionTimeHelper.CombineDateAndTime(EndDate, EndTime);
+        if (EndDateTime <= StartDateTime) return;
 
-        if (endDateTime <= startDateTime) return;
-
-        WeatherAuthorizationResultEnum result = await CheckWeatherConditionsAsync(startDateTime, endDateTime);
+        WeatherAuthorizationResultEnum result = await CheckWeatherConditionsAsync(StartTimeWithPreparation, EndDateTime);
 
         if (result != WeatherAuthorizationResultEnum.Authorized)
         {
@@ -148,17 +152,14 @@ public partial class CompetitionViewModel : BaseViewModel
     [RelayCommand]
     private async Task CreateCompetition()
     {
-        DateTime startDateTime = CompetitionTimeHelper.GetStartTimeWithPreparation(StartDate, StartTime);
-        DateTime endDateTime = CompetitionTimeHelper.CombineDateAndTime(EndDate, EndTime);
-
-        if (await CompetitionIsValid(startDateTime, endDateTime) == false)
+        if (await CompetitionIsValid(StartTimeWithPreparation, EndDateTime) == false)
             return;
 
         await ValidateWeatherRulesAsync();
 
-        if (await ShowWarningPopupAsync() && await HandleConflictingReservationsAsync(startDateTime, endDateTime))
+        if (await ShowWarningPopupAsync() && await HandleConflictingReservationsAsync(StartTimeWithPreparation, EndDateTime))
         {
-            await PlaceCompetition(startDateTime, endDateTime);
+            await PlaceCompetition(StartTimeWithPreparation, EndDateTime);
         }
     }
 
@@ -186,8 +187,8 @@ public partial class CompetitionViewModel : BaseViewModel
     {
         // Construct context string from user input for the tweet
         string contextString = $"Naam: {CompetitionName}, " +
-                               $"Datum: {StartDate:dd-MM-yyyy}, " +
-                               $"Tijd: {StartTime:hh\\:mm} - {EndTime:hh\\:mm}, " +
+                               $"Start: {StartDate:dd-MM-yyyy} om {StartTime:hh\\:mm}, " +
+                               $"Einde: {EndDate:dd-MM-yyyy} om {EndTime:hh\\:mm}, " +
                                $"Aantal Teams: {TeamCount}";
         // TO-DO: Add team names to context when implemented in UI
         // Navigate to TweetCreationView and pass the context
