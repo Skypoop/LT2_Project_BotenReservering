@@ -16,7 +16,9 @@ public partial class TweetCreationViewModel : BaseViewModel
     public partial string PageWelcomeMessage { get; set; } = string.Empty;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ContentLength))]
     public partial string TweetContent { get; set; } = string.Empty;
+    public int ContentLength => TweetContent.Length;
 
     [ObservableProperty]
     public partial string CompetitionContext { get; set; } = string.Empty;
@@ -44,6 +46,11 @@ public partial class TweetCreationViewModel : BaseViewModel
         SetupPage();
     }
 
+    partial void OnTweetContentChanged(string value)
+    {
+        throw new NotImplementedException();
+    } 
+    
     private async Task GenerateTweet()
     {
         try
