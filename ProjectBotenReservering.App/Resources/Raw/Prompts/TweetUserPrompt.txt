@@ -1,0 +1,2 @@
+Generate a promotional tweet based on the following competition details:
+{0}

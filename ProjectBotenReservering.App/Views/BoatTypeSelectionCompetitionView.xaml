@@ -3,8 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:ProjectBotenReservering.App.ViewModels"
              xmlns:models="clr-namespace:ProjectBotenReservering.Core.Models;assembly=ProjectBotenReservering.Core"
-             x:Class="ProjectBotenReservering.App.Views.BoatTypeSelectionMatchView"
-             x:DataType="vm:BoatTypeSelectionMatchViewModel"
+             x:Class="ProjectBotenReservering.App.Views.BoatTypeSelectionCompetitionView"
+             x:DataType="vm:BoatTypeSelectionCompetitionViewModel"
              BackgroundColor="White"
              Shell.NavBarIsVisible="False">
 

@@ -11,9 +11,11 @@ using ProjectBotenReservering.Core.Data.Database.Schema;
 using ProjectBotenReservering.Core.Data.Database.Seeders;
 using ProjectBotenReservering.Core.Data.Mappers;
 using ProjectBotenReservering.Core.Data.Repositories;
+using ProjectBotenReservering.Core.Data.RestClients;
 using ProjectBotenReservering.Core.Data.Services;
 using ProjectBotenReservering.Core.Interfaces.Context;
 using ProjectBotenReservering.Core.Interfaces.Database;
+using ProjectBotenReservering.Core.Interfaces.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Mappers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
@@ -60,8 +62,11 @@ namespace ProjectBotenReservering.App
             MailSettings mailSettings = configuration.GetSection("MailConnection").Get<MailSettings>()!;
             builder.Services.AddSingleton(mailSettings);
 
-            builder.Services.AddSingleton<IDbConnectionFactory>(provider => new SqliteConnectionFactory(connectionString));
+            builder.Services.AddSingleton<IDbConnectionFactory>(provider =>
+                new SqliteConnectionFactory(connectionString));
             builder.Services.AddSingleton<IDatabaseBootstrap, SqliteDatabaseBootstrap>();
+
+            builder.Services.AddSingleton<IPromptHelper, PromptHelper>();
 
             builder.Services.AddSingleton<ISchemaInitializer, SqliteSchemaInitializer>();
             builder.Services.AddTransient<IDatabaseSeeder, BoatSeeder>();
@@ -100,6 +105,17 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<ICompetitionRepository, CompetitionRepository>();
             builder.Services.AddSingleton<IReservationCompetitionRepository, ReservationCompetitionRepository>();
 
+            builder.Services.AddSingleton((IServiceProvider sp) =>
+            {
+                string? apiKey = configuration["GeminiApiKey"];
+                if (string.IsNullOrEmpty(apiKey))
+                {
+                    throw new InvalidOperationException("GeminiApiKey is missing in appsettings.json");
+                }
+                return new LlmRestClient(apiKey);
+            });
+            builder.Services.AddSingleton<ILlmRepository, LlmRepository>();
+
             builder.Services.AddSingleton<ISmtpMailService, SmtpMailService>();
             builder.Services.AddSingleton<IWeatherService, WeatherService>();
             builder.Services.AddSingleton<IBoatTypeService, BoatTypeService>();
@@ -108,6 +124,9 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IReservationService, ReservationService>();
             builder.Services.AddSingleton<IClientContext, ClientContext>();
             builder.Services.AddSingleton<IAuthService, AuthService>();
+            builder.Services.AddSingleton<ILlmService, LlmService>();
+            builder.Services.AddSingleton<ICompetitionService, CompetitionService>();
+            builder.Services.AddSingleton<ITweetService, TweetService>();
 
             builder.Services.AddSingleton<App>();
             builder.Services.AddSingleton<TabItemToViewHelper>();
@@ -118,8 +137,7 @@ namespace ProjectBotenReservering.App
             builder.Services.AddTransient<RegisterView>().AddTransient<RegisterViewModel>();
             builder.Services.AddTransient<CompetitionView>().AddTransient<CompetitionViewModel>();
             builder.Services.AddTransient<TweetCreationView>().AddTransient<TweetCreationViewModel>();
-            builder.Services.AddTransient<BoatTypeSelectionMatchView>().AddTransient<BoatTypeSelectionMatchViewModel>();
-
+            builder.Services.AddTransient<BoatTypeSelectionCompetitionView>().AddTransient<BoatTypeSelectionCompetitionViewModel>();
 
 #if DEBUG
             builder.Logging.AddDebug();

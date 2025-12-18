@@ -6,7 +6,7 @@ using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
-public partial class BoatTypeSelectionMatchViewModel : BaseViewModel
+public partial class BoatTypeSelectionCompetitionViewModel : BaseViewModel
 {
     public ObservableCollection<BoatTypeUiItem> BoatTypeItems { get; set; } = [];
     public List<BoatTypeUiItem> AllBoatTypes { get; set; }
@@ -28,12 +28,15 @@ public partial class BoatTypeSelectionMatchViewModel : BaseViewModel
     public partial int MinWeightFilter { get; set; } = 0;
 
     private readonly IBoatTypeService _boatTypeService;
+    private readonly ICompetitionService _competitionService;
 
-    public BoatTypeSelectionMatchViewModel(IBoatTypeService boatTypeService)
+    public BoatTypeSelectionCompetitionViewModel(IBoatTypeService boatTypeService, ICompetitionService competitionService)
     {
         _boatTypeService = boatTypeService;
         AllBoatTypes = _boatTypeService.GetBoatTypes();
         SelectedSteeringOption = SteeringOptions.First();
+        _competitionService = competitionService;
+
         ApplyFilterOption();
     }
 
@@ -76,14 +79,25 @@ public partial class BoatTypeSelectionMatchViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    public async Task SelectBoatType(BoatTypeUiItem boatType)
+    public async Task SelectBoatType(BoatTypeUiItem boatUiItem)
     {
-        Dictionary<string, object> navigationParameter = new Dictionary<string, object>
-        {
-            { "SelectedBoatTypeId", boatType.Id }
-        };
+        BoatTypeUiItem boat = _boatTypeService.GetBoatTypeById(boatUiItem.Id);
 
-        await Shell.Current.GoToAsync("..", navigationParameter);
+        if (boat != null)
+        {
+            if (_competitionService.HasEnoughBoats(boat.Id))
+            {
+                _competitionService.SetSelectedBoat(boat.Id);
+                await Shell.Current.GoToAsync("..");
+            }
+            else
+            {
+                await Shell.Current.DisplayAlert(
+                    "Niet genoeg boten",
+                    $"Er zijn niet genoeg boten van het type {boat.Name} beschikbaar.",
+                    "OK");
+            }
+        }
     }
 
     partial void OnSelectedSteeringOptionChanged(SteeringOption value) => ApplyFilterOption();
