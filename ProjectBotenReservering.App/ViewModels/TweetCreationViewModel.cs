@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using ProjectBotenReservering.App.Views;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
+using ProjectBotenReservering.Core.Data.Helpers;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
@@ -34,7 +35,7 @@ public partial class TweetCreationViewModel : BaseViewModel
     public partial bool IsTweetContentEditableByUser { get; set; }
 
     private Stream? _selectedImageStream;
-
+    private byte[]? _selectedImageBytes;  
     public TweetCreationViewModel(IClientService clientService, ITweetService tweetService)
     {
         _clientService = clientService;
@@ -99,25 +100,26 @@ public partial class TweetCreationViewModel : BaseViewModel
     private async Task PickFileAsync()
     {
         FileResult? result = await FilePicker.Default.PickAsync(PickOptions.Images);
-        if (result != null)
-        {
-            SelectedFileName = result.FileName;
-            _selectedImageStream = await result.OpenReadAsync();
-            SelectedImagePreview = ImageSource.FromStream(() => _selectedImageStream);
-            IsImagePreviewVisible = SelectedImagePreview != null;
-        }
+        if (result == null) return;
+
+        Stream stream = await result.OpenReadAsync();
+        _selectedImageBytes = await StreamHelper.ReadStreamToBytesAsync(stream);
+        stream.Dispose();  
+
+        SelectedImagePreview = ImageSource.FromStream(() => new MemoryStream(_selectedImageBytes));
+
+        SelectedFileName = result.FileName;
+        IsImagePreviewVisible = true;
     }
 
     [RelayCommand]
     private async Task PublishTweet()
     {
         string response;
-        if (_selectedImageStream != null && SelectedFileName != null)
+        if (_selectedImageBytes != null && SelectedFileName != null)
         {
-            response = await _tweetService.PublishTweetAsync(TweetContent, _selectedImageStream, SelectedFileName);
-            return;
+            response = await _tweetService.PublishTweetWithMediaAsync(TweetContent, _selectedImageBytes, SelectedFileName);
         }
         response = await _tweetService.PublishTweetAsync(TweetContent);
-
     }
 }

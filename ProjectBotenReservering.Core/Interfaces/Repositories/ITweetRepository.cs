@@ -2,6 +2,6 @@
 
 public interface ITweetRepository
 {
-    Task<string> PostMediaAsync(Stream file, string fileName);
-    Task<string> PostTweetAsync(string tweetContent);
+    Task<string> UploadMediaAsync(Stream mediaStream, string fileName);
+    Task<string> PublishTweetAsync(string text, string? mediaId = null);
 }

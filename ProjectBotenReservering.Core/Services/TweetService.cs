@@ -32,12 +32,12 @@ public class TweetService : ITweetService
 
     public async Task<string> PublishTweetAsync(string tweetContent)
     {
-        return await _tweetRepository.PostTweetAsync(tweetContent); ;
+        return await _tweetRepository.PublishTweetAsync(tweetContent); 
     }
-     public async Task<string> PublishTweetAsync(string tweetContent, Stream file, string fileName)
+     public async Task<string> PublishTweetWithMediaAsync(string tweetContent, byte[] fileBytes, string fileName)
     {
-        string mediaKey = await _tweetRepository.PostMediaAsync(file, fileName);
-        return await _tweetRepository.PostTweetAsync(tweetContent); ;
+        string mediaKey = await _tweetRepository.UploadMediaAsync(new MemoryStream(fileBytes), fileName);
+        return await _tweetRepository.PublishTweetAsync(tweetContent, mediaKey);
     }
 
 }
