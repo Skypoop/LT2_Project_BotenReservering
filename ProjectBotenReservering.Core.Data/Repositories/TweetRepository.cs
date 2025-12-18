@@ -23,7 +23,7 @@ public class TweetRepository : ITweetRepository
         return await _restClient.UploadMediaAsync(mediaStream, fileName);
     }
 
-    public async Task<string> PublishTweetAsync(string text, string? mediaId = null)
+    public async Task<bool> PublishTweetAsync(string text, string? mediaId = null)
     {
         if (string.IsNullOrWhiteSpace(text))
             throw new ArgumentException("Tweet text cannot be empty.", nameof(text));

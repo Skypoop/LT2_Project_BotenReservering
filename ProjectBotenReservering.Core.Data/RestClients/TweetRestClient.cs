@@ -1,6 +1,5 @@
 ﻿namespace ProjectBotenReservering.Core.Data.RestClients;
 
-using ProjectBotenReservering.Core.Data.Helpers;
 using System;
 using System.IO;
 using System.Net.Http;
@@ -10,8 +9,10 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Tweetinvi;
 using Tweetinvi.Core.Web;
+using ProjectBotenReservering.Core.Data.Helpers;
+using ProjectBotenReservering.Core.Interfaces.RestClients;
 
-public class TweetRestClient
+public class TweetRestClient: ITweetRestClient
 {
     private readonly TwitterClient _client;
 
@@ -27,11 +28,11 @@ public class TweetRestClient
         return ExtractMediaIdStringFromResponse(result);
     }
 
-    public async Task<string> PublishTweetAsync(string text, string? mediaId = null)
+    public async Task<bool> PublishTweetAsync(string text, string? mediaId = null)
     {
         string payload = BuildTweetJson(text, mediaId);
         ITwitterResult result = await PostTweetPostAsync(payload);
-        return TransformStatusCodeToResponseMessage(result);
+        return CheckTweetPostedSuccesfully(result);
     }
 
     private async Task<ITwitterResult> PostMediaUploadAsync(byte[] mediaBytes, string fileName)
@@ -81,12 +82,12 @@ public class TweetRestClient
         });
     }
 
-    private static string TransformStatusCodeToResponseMessage(ITwitterResult result)
+    private static bool CheckTweetPostedSuccesfully(ITwitterResult result)
     {
         if (result.Response.IsSuccessStatusCode)
         {
-            return "Tweet is succesvol geplaatst!";
+            return true;
         }
-        return "Er is iets fout gegaan, excuses!";
+        return false;
     }
 }

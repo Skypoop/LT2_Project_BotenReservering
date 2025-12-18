@@ -1,6 +1,6 @@
-﻿namespace ProjectBotenReservering.Core.Interfaces.Repositories;
+﻿namespace ProjectBotenReservering.Core.Interfaces.RestClients;
 
-public interface ITweetRepository
+public interface ITweetRestClient
 {
     Task<string> UploadMediaAsync(Stream mediaStream, string fileName);
     Task<bool> PublishTweetAsync(string text, string? mediaId = null);

@@ -29,15 +29,23 @@ public class TweetService : ITweetService
 
         return await _llmService.GenerateTextWithContextAsync(finalUserPrompt, systemPrompt);
     }
+    private string MakeResponseMessage(bool isSuccess)
+    {
+        if(isSuccess)
+        {
+            return "Tweet is succesvol geplaatst!";
+        }
+        return "Excuses er is iets fout gegaan";
+    }
 
     public async Task<string> PublishTweetAsync(string tweetContent)
     {
-        return await _tweetRepository.PublishTweetAsync(tweetContent); 
+        return MakeResponseMessage(await _tweetRepository.PublishTweetAsync(tweetContent));
     }
      public async Task<string> PublishTweetWithMediaAsync(string tweetContent, byte[] fileBytes, string fileName)
     {
         string mediaKey = await _tweetRepository.UploadMediaAsync(new MemoryStream(fileBytes), fileName);
-        return await _tweetRepository.PublishTweetAsync(tweetContent, mediaKey);
+        return MakeResponseMessage(await _tweetRepository.PublishTweetAsync(tweetContent, mediaKey));
     }
 
 }

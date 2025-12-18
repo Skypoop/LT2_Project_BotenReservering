@@ -115,11 +115,16 @@ public partial class TweetCreationViewModel : BaseViewModel
     [RelayCommand]
     private async Task PublishTweet()
     {
-        string response;
+        string responseMessage;
         if (_selectedImageBytes != null && SelectedFileName != null)
         {
-            response = await _tweetService.PublishTweetWithMediaAsync(TweetContent, _selectedImageBytes, SelectedFileName);
+            responseMessage = await _tweetService.PublishTweetWithMediaAsync(TweetContent, _selectedImageBytes, SelectedFileName);
         }
-        response = await _tweetService.PublishTweetAsync(TweetContent);
+        else
+        {
+            responseMessage = await _tweetService.PublishTweetAsync(TweetContent);
+        }
+        await Shell.Current.DisplayAlert("Info", responseMessage, "OK");
+        await Shell.Current.GoToAsync("..");
     }
 }
