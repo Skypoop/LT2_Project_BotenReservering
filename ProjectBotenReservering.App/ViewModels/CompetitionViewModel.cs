@@ -348,13 +348,21 @@ public partial class CompetitionViewModel : BaseViewModel
 
     public void ValidateSubmitButton()
     {
-        SubmitButtonIsEnabled =
+        bool allFieldsFilled =
             !string.IsNullOrWhiteSpace(CompetitionName) &&
             CompetitionItems.Count > 0 &&
-            AreAllTeamNamesFilled() &&
-            AreBoatsAtFullCapacity();
+            _competitionService.AreAllTeamsComplete(CompetitionItems);
 
-        _ = ValidateWeatherRulesAsync();
+        SubmitButtonIsEnabled = allFieldsFilled;
+
+        if (allFieldsFilled)
+        {
+            _ = ValidateWeatherRulesAsync();
+        }
+        else
+        {
+            ClearWeatherWarning();
+        }
     }
 
     private void InitializeClients()
@@ -393,12 +401,6 @@ public partial class CompetitionViewModel : BaseViewModel
             return;
         }
 
-        //bool alreadyInBoat = SelectedCompetitionItem.SelectedClients.Any((Client x) => x.Id == clientToAdd.Id);
-        //if (alreadyInBoat)
-        //{
-        //    return;
-        //}
-
         if (IsClientAlreadyInAnyBoat(clientToAdd.Id))
         {
             ShowClientIsAlreadyInABoat(clientToAdd);
@@ -413,12 +415,7 @@ public partial class CompetitionViewModel : BaseViewModel
 
     private bool IsClientAlreadyInAnyBoat(int clientId)
     {
-        foreach (BoatCompetitionUiItem item in CompetitionItems)
-        {
-            if (item.SelectedClients.Any((Client c) => c.Id == clientId))
-                return true;
-        }
-        return false;
+        return _competitionService.IsClientAssignedToAnyTeam(CompetitionItems, clientId);
     }
 
     private void ShowClientIsAlreadyInABoat(Client client)

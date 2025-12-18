@@ -118,6 +118,18 @@ public class CompetitionService : ICompetitionService
         return competition;
     }
 
+    public bool AreAllTeamsComplete(IEnumerable<BoatCompetitionUiItem> items)
+    {
+        return items.All(item =>
+            !string.IsNullOrWhiteSpace(item.TeamName) &&
+            item.SelectedClients.Count == item.Capacity);
+    }
+
+    public bool IsClientAssignedToAnyTeam(IEnumerable<BoatCompetitionUiItem> items, int clientId)
+    {
+        return items.Any(item => item.SelectedClients.Any(c => c.Id == clientId));
+    }
+
     public List<Boat> GetCompetitionBoats()
     {
         return _competitionBoatsList;
