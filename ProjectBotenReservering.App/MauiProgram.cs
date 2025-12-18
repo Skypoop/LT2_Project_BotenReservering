@@ -72,6 +72,8 @@ namespace ProjectBotenReservering.App
             builder.Services.AddTransient<IDatabaseSeeder, BoatSeeder>();
             builder.Services.AddTransient<IDatabaseSeeder, RoleSeeder>();
             builder.Services.AddTransient<IDatabaseSeeder, WindConstraintSeeder>();
+            builder.Services.AddTransient<IDatabaseSeeder, ManagementTaskSeeder>();
+            builder.Services.AddTransient<IDatabaseSeeder, RoleManagementTaskSeeder>();
             builder.Services.AddTransient<IDatabaseSeeder, ClientSeeder>();
             builder.Services.AddTransient<IDatabaseFixture, ReservationFixture>();
             builder.Services.AddTransient<IDatabaseSeeder, ClientRoleSeeder>();

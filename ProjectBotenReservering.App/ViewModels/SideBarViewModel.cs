@@ -32,13 +32,13 @@ public partial class SideBarViewModel : BaseViewModel
         
         ClientRole[] roles = _authService.GetClientRoles(curClient.Id);
 
-        Tabs = new ObservableCollection<TabItem>();
-        if(roles.Any(r => r.RoleName == "Lid"))
-            Tabs.Add(new TabItem("boat_image.png", typeof(BoatTypesView)));
+        TabItem[] tabItems =       
+        {
+            new ("boat_image.png", typeof(BoatTypesView)),
+            new ("competition_image.png", typeof(CompetitionView)),
+        };
         
-        if(roles.Any(r => r.RoleName == "WedstrijdCommissaris"))
-            Tabs.Add(new TabItem("competition_image.png", typeof(CompetitionView)));
-        
+        Tabs = new ObservableCollection<TabItem>(_authService.GetAuthorisedTabs(curClient.Id, tabItems));
 
         SelectedTab = Tabs[0];
 

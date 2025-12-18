@@ -13,6 +13,8 @@ public class AuthServiceTests
     private Mock<IClientRepository> _mockClientRepo;
     private Mock<IClientRoleRepository> _mockClientRoleRepo;
     private Mock<IRoleRepository> _mockRoleRepo;
+    private Mock<IRoleManagementTaskRepository> _mockRoleManagementTaskRepo;
+    
     private AuthService _service;
 
     [SetUp]
@@ -21,11 +23,13 @@ public class AuthServiceTests
         _mockClientRepo = new Mock<IClientRepository>();
         _mockClientRoleRepo = new Mock<IClientRoleRepository>();
         _mockRoleRepo = new Mock<IRoleRepository>();
+        _mockRoleManagementTaskRepo = new Mock<IRoleManagementTaskRepository>();
 
         _service = new AuthService(
             _mockClientRepo.Object,
             _mockClientRoleRepo.Object,
-            _mockRoleRepo.Object
+            _mockRoleRepo.Object,
+            _mockRoleManagementTaskRepo.Object
         );
     }
 

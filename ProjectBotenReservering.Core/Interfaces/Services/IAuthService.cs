@@ -10,6 +10,7 @@ namespace ProjectBotenReservering.Core.Interfaces.Services
         bool EmailExists(string email);
         public ClientRole[] GetClientRoles(int clientId);
         public bool CanClientUseApp(int clientId);
+        public TabItem[] GetAuthorisedTabs(int clientId, TabItem[] allTabItems);
 
     }
 }
