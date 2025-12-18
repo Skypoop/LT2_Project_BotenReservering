@@ -96,13 +96,19 @@ public partial class CompetitionViewModel : BaseViewModel
     partial void OnEndDateChanged(DateTime value) => _ = ValidateWeatherRulesAsync();
     partial void OnEndTimeChanged(TimeSpan value) => _ = ValidateWeatherRulesAsync();
 
+    private DateTime GetProtocolStartDateTime()
+    {
+        DateTime startDateTime = StartDate.Date + StartTime;
+        return startDateTime.AddMinutes(-30);
+    }
+
     private async Task ValidateWeatherRulesAsync()
     {
         ClearWeatherWarning();
 
         if (CompetitionBoats.Count == 0) return;
 
-        DateTime startDateTime = StartDate.Date + StartTime;
+        DateTime startDateTime = GetProtocolStartDateTime();
         DateTime endDateTime = EndDate.Date + EndTime;
 
         if (endDateTime <= startDateTime) return;
@@ -145,17 +151,17 @@ public partial class CompetitionViewModel : BaseViewModel
     [RelayCommand]
     private async Task CreateCompetition()
     {
-        DateTime startDateTime = StartDate.Date + StartTime;
+        DateTime protocolStartDateTime = GetProtocolStartDateTime();
         DateTime endDateTime = EndDate.Date + EndTime;
 
-        if (await CompetitionIsValid() == false)
+        if (await CompetitionIsValid(protocolStartDateTime, endDateTime) == false)
             return;
 
         await ValidateWeatherRulesAsync();
 
-        if (await ShowWarningPopupAsync() && await HandleConflictingReservationsAsync(startDateTime, endDateTime))
+        if (await ShowWarningPopupAsync() && await HandleConflictingReservationsAsync(protocolStartDateTime, endDateTime))
         {
-            await PlaceCompetition();
+            await PlaceCompetition(protocolStartDateTime, endDateTime);
         }
     }
 
@@ -206,16 +212,13 @@ public partial class CompetitionViewModel : BaseViewModel
         }
 
         message += "\n- De wedstrijd zal worden aangemaakt met de opgegeven gegevens.";
+        message += "\n- Let op: De reservering start 30 minuten eerder i.v.m. uitgifte protocol.";
 
         return message;
     }
 
-    private async Task<bool> CompetitionIsValid()
+    private async Task<bool> CompetitionIsValid(DateTime startDateTime, DateTime endDateTime)
     {
-        DateTime startDateTime = StartDate.Date + StartTime;
-        DateTime endDateTime = EndDate.Date + EndTime;
-
-
         (bool isValid, string? errorMessage) = _competitionService.ValidateCompetition(startDateTime, endDateTime, CompetitionBoats.ToList());
 
         if (!isValid)
@@ -224,9 +227,9 @@ public partial class CompetitionViewModel : BaseViewModel
         return isValid;
     }
 
-    private async Task PlaceCompetition()
+    private async Task PlaceCompetition(DateTime startDateTime, DateTime endDateTime)
     {
-        _competitionService.CreateCompetition(StartDate + StartTime, EndDate + EndTime, CompetitionName);
+        _competitionService.CreateCompetition(startDateTime, endDateTime, CompetitionName);
 
         if (await ShowCompletionMessage())
             await MoveToTweetScreen();
