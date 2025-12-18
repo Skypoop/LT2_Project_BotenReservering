@@ -14,20 +14,7 @@ public interface ICompetitionService
     void SetSelectedBoat(int boatId);
 
     bool IsClientAssignedToAnyTeam(IEnumerable<BoatCompetitionUiItem> items, int clientId);
-
-    public bool IsCompetitionItemComplete(BoatCompetitionUiItem item)
-    {
-        return !string.IsNullOrWhiteSpace(item.TeamName) &&
-               item.SelectedClients.Count == item.Capacity;
-    }
-
-    public bool AreAllTeamsComplete(IEnumerable<BoatCompetitionUiItem> items)
-    {
-        return items.All(item => IsCompetitionItemComplete(item));
-    }
-    public bool IsClientAlreadyAssigned(IEnumerable<BoatCompetitionUiItem> items, int clientId)
-    {
-        return items.Any(item => item.SelectedClients.Any(c => c.Id == clientId));
-    }
+    bool IsCompetitionItemComplete(BoatCompetitionUiItem item);
+    bool AreAllTeamsComplete(IEnumerable<BoatCompetitionUiItem> items);
 
 }
