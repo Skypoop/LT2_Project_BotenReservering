@@ -276,7 +276,7 @@
                     StrokeThickness="1"
                     StrokeShape="RoundRectangle 8"
                     MaximumWidthRequest="1200"
-                    HeightRequest="{OnIdiom Desktop=350, Tablet=500, Phone=560}"
+                    HeightRequest="{OnIdiom Desktop=425, Tablet=500, Phone=560}"
                     Padding="12"
                     VerticalOptions="Start"
                     IsVisible="{Binding IsMainEditorVisible, Mode=OneWay}">
