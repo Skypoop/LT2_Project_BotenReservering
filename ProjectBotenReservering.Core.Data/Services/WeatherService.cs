@@ -58,6 +58,13 @@ namespace ProjectBotenReservering.Core.Data.Services
 
                 WeatherData? weatherData = JsonSerializer.Deserialize<WeatherData>(jsonResponse);
 
+                if (weatherData == null || weatherData.Hourly == null || weatherData.Hourly.Time == null || weatherData.Hourly.WindSpeed10m == null)
+                {
+                    Console.WriteLine("Weather data or required properties are null.");
+
+                    return 0;
+                }
+
                 string startDateFormatted = FormatDateTime(beginDate);
                 string endDateFormatted = FormatDateTime(endDate);
 

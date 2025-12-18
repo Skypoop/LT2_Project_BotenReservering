@@ -55,7 +55,7 @@ public class BoatAuthorizationService : IBoatAuthorizationService
             return WeatherAuthorizationResultEnum.RequiresHigherBoatLevel;
         }
 
-        if ((boat.Type == BoatType.B && boat.Level <= minLevels.MinSweepLevel) || (boat.Type == BoatType.S && boat.Level <= minLevels.MinScullLevel))
+        if ((boat.Type == BoatType.B && boat.Level < minLevels.MinSweepLevel) || (boat.Type == BoatType.S && boat.Level < minLevels.MinScullLevel))
         {
             return WeatherAuthorizationResultEnum.RequiresHigherBoatLevel;
         }

@@ -4,6 +4,7 @@
     {
         Authorized,
         RequiresHigherBoatLevel,
-        DateTooFarInFuture
+        DateTooFarInFuture,
+        DataNotLoaded
     }
 }
