@@ -251,6 +251,8 @@ public partial class CompetitionViewModel : BaseViewModel
     {
         if (client == null) return;
 
+        if (SelectedBoat == null) return;
+
         if (SelectedClients.Contains(client))
         {
             SelectedClients.Remove(client);
@@ -258,6 +260,7 @@ public partial class CompetitionViewModel : BaseViewModel
 
         UpdateQualificationFlags();
         ValidateSubmitButton();
+        UpdateBoatCompletionStatus(SelectedBoat);
     }
 
     private async Task<bool> HandleConflictingReservationsAsync(DateTime startDateTime, DateTime endDateTime)
@@ -351,11 +354,6 @@ public partial class CompetitionViewModel : BaseViewModel
         ValidateSubmitButton();
     }
 
-    partial void OnTeamNameChanged(string oldValue, string newValue)
-    {
-        ValidateSubmitButton();
-    }
-
     public void ValidateSubmitButton()
     {
         SubmitButtonIsEnabled =
@@ -415,7 +413,13 @@ public partial class CompetitionViewModel : BaseViewModel
     partial void OnTeamNameChanged(string value)
     {
         if (SelectedBoat == null) return;
+
         _teamNameByBoatId[SelectedBoat.Id] = value ?? string.Empty;
+
+        ValidateSubmitButton();
+
+        UpdateBoatCompletionStatus(SelectedBoat);
+
     }
 
     private ObservableCollection<Client> GetOrCreateClientsForBoatId(int boatId)
@@ -440,7 +444,7 @@ public partial class CompetitionViewModel : BaseViewModel
         int capacity = SelectedBoat.Seats;
         if (SelectedBoat.SteeringWheel)
         {
-            capacity = capacity + 1;
+            capacity = GetCapacity(SelectedBoat);
         }
 
         if (SelectedClients.Count >= capacity)
@@ -465,6 +469,7 @@ public partial class CompetitionViewModel : BaseViewModel
 
         UpdateQualificationFlags();
         ValidateSubmitButton();
+        UpdateBoatCompletionStatus(SelectedBoat);
     }
 
     private bool IsClientAlreadyInAnyBoat(int clientId)
@@ -538,7 +543,6 @@ public partial class CompetitionViewModel : BaseViewModel
         Shell.Current.DisplayAlert("Waarschuwing", message, "OK");
     }
 
-    //Call this for validation (This function checks whether one or more boats are not completely filled) Returns: Bool
     private bool AreBoatsAtFullCapacity()
     {
         foreach (Boat boat in CompetitionBoats)
@@ -577,6 +581,22 @@ public partial class CompetitionViewModel : BaseViewModel
         }
 
         return true;
+    }
+
+    private void UpdateBoatCompletionStatus(Boat boat)
+    {
+        if (boat == null) return;
+
+        bool hasName = _teamNameByBoatId.TryGetValue(boat.Id, out string? name)
+                       && !string.IsNullOrWhiteSpace(name);
+
+        int capacity = boat.Seats + (boat.SteeringWheel ? 1 : 0);
+
+        bool isFull = _clientsByBoatId.TryGetValue(boat.Id, out ObservableCollection<Client>? clients)
+                      && clients != null
+                      && clients.Count == capacity;
+
+        boat.IsComplete = hasName && isFull;
     }
 
     private static int GetCapacity(Boat boat) => boat.Seats + (boat.SteeringWheel ? 1 : 0);
