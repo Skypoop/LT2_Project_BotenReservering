@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ProjectBotenReservering.App.Views;
+using ProjectBotenReservering.Core.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
@@ -107,19 +108,19 @@ public partial class CompetitionViewModel : BaseViewModel
 
         if (endDateTime <= startDateTime) return;
 
-        int weatherIssues = await CheckWeatherConditionsAsync(startDateTime, endDateTime);
+        WeatherAuthorizationResultEnum result = await CheckWeatherConditionsAsync(startDateTime, endDateTime);
 
-        if (weatherIssues > 0)
+        if (result != WeatherAuthorizationResultEnum.Authorized)
         {
-            SetWeatherWarning(weatherIssues);
+            SetWeatherWarning(result);
         }
     }
 
-    private async Task<int> CheckWeatherConditionsAsync(DateTime startDateTime, DateTime endDateTime)
+    private async Task<WeatherAuthorizationResultEnum> CheckWeatherConditionsAsync(DateTime startDateTime, DateTime endDateTime)
     {
         foreach (Boat boat in CompetitionBoats)
         {
-            int weatherAllowed = await _boatAuthorizationService.WeatherAuthorized(boat.Id, startDateTime, endDateTime);
+            WeatherAuthorizationResultEnum weatherAllowed = await _boatAuthorizationService.WeatherAuthorized(boat.Id, startDateTime, endDateTime);
 
             if (weatherAllowed > 0)
             {
@@ -136,17 +137,9 @@ public partial class CompetitionViewModel : BaseViewModel
         WeatherWarningText = string.Empty;
     }
 
-    private void SetWeatherWarning(int weatherIssueLevel)
+    private void SetWeatherWarning(WeatherAuthorizationResultEnum weatherAuthorizationResult)
     {
-        if (weatherIssueLevel == 1)
-        {
-            WeatherWarningText = "LET OP: Voor deze datum en tijd is het weer heftig voor een of meerdere geselecteerde boten!";
-        }
-
-        if (weatherIssueLevel == 2)
-        {
-            WeatherWarningText = "LET OP: Het weer kan alleen voorspeld worden tot 7 dagen vooruit";
-        }
+        WeatherWarningText = MessageHelper.ConvertWeatherAuthorizationMessageToUi(weatherAuthorizationResult);
 
         HasWeatherWarning = true;
     }

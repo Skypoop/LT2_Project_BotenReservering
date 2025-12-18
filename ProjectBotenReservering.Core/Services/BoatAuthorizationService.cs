@@ -33,24 +33,17 @@ public class BoatAuthorizationService : IBoatAuthorizationService
             _ => false
         };
     }
-    /// <summary>
-    /// This method checks for the weather conditions for the boat(s)
-    /// </summary>
-    /// <returns>
-    /// 0(int) = Authorized <br/>
-    /// 1(int) = Unauthorized (boat requires a higher level) <br/>
-    /// 2(int) = Unauthorized (date too far in the future) <br/>
-    /// </returns>
-    public async Task<int> WeatherAuthorized(int boatId, DateTime beginDate, DateTime endDate)
+
+    public async Task<WeatherAuthorizationResultEnum> WeatherAuthorized(int boatId, DateTime beginDate, DateTime endDate)
     {
         if(beginDate.Subtract(DateTime.Now).TotalDays > 7)
         {
-            return 2;
+            return WeatherAuthorizationResultEnum.DateTooFarInFuture;
         }
 
         if(endDate.Subtract(DateTime.Now).TotalDays > 7)
         {
-            return 2;
+            return WeatherAuthorizationResultEnum.DateTooFarInFuture;
         }
 
         int windforce = await _weatherService.GetWeatherAsync(beginDate, endDate);
@@ -59,15 +52,15 @@ public class BoatAuthorizationService : IBoatAuthorizationService
 
         if (minLevels == null || boat == null)
         {
-            return 1;
+            return WeatherAuthorizationResultEnum.RequiresHigherBoatLevel;
         }
 
         if ((boat.Type == BoatType.B && boat.Level <= minLevels.MinSweepLevel) || (boat.Type == BoatType.S && boat.Level <= minLevels.MinScullLevel))
         {
-            return 1;
+            return WeatherAuthorizationResultEnum.RequiresHigherBoatLevel;
         }
 
-        return 0;
+        return WeatherAuthorizationResultEnum.Authorized;
     }
 
     public bool IsAuthorized(BoatType boatType, int boatLevel) => IsAuthorized(boatType, boatLevel, _clientService.GetCurrentClient());
