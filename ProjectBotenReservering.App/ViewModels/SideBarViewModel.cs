@@ -26,11 +26,11 @@ public partial class SideBarViewModel : BaseViewModel
         _clientService = clientService;
         _authService = authService;
         
-        Client? curClient = _clientService.GetCurrentClient();
-        if (curClient == null)
+        Client? currentClient = _clientService.GetCurrentClient();
+        if (currentClient == null)
             throw new Exception("No client found");
         
-        ClientRole[] roles = _authService.GetClientRoles(curClient.Id);
+        ClientRole[] roles = _authService.GetClientRoles(currentClient.Id);
 
         TabItem[] tabItems =       
         {
@@ -38,7 +38,7 @@ public partial class SideBarViewModel : BaseViewModel
             new ("competition_image.png", typeof(CompetitionView)),
         };
         
-        Tabs = new ObservableCollection<TabItem>(_authService.GetAuthorisedTabs(curClient.Id, tabItems));
+        Tabs = new ObservableCollection<TabItem>(_authService.GetAuthorisedTabs(currentClient.Id, tabItems));
 
         SelectedTab = Tabs[0];
 
