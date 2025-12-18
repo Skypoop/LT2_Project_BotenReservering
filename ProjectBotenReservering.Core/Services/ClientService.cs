@@ -12,6 +12,4 @@ public class ClientService(IClientRepository clientRepository, IClientRoleReposi
         int clientId = clientContext.GetCurrentClientId();
         return clientRepository.Get(clientId);
     }
-
-
 }
