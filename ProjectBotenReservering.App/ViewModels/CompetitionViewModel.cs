@@ -242,7 +242,16 @@ public partial class CompetitionViewModel : BaseViewModel
     [RelayCommand]
     private async Task SelectCompetitionBoatType()
     {
-        await Shell.Current.GoToAsync(nameof(BoatTypeSelectionCompetitionView));
+        DateTime startDateTime = StartDate.Date + StartTime;
+        DateTime endDateTime = EndDate.Date + EndTime;
+
+        Dictionary<string, object> navigationParameter = new Dictionary<string, object>
+        {
+            { "start", startDateTime },
+            { "end", endDateTime }
+        };
+        
+        await Shell.Current.GoToAsync(nameof(BoatTypeSelectionCompetitionView), navigationParameter);
     }
 
     [RelayCommand]

@@ -6,8 +6,19 @@ using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
-public partial class BoatTypeSelectionCompetitionViewModel : BaseViewModel
+public partial class BoatTypeSelectionCompetitionViewModel : BaseViewModel, IQueryAttributable
 {
+    private DateTime _startDateTime = DateTime.MinValue;
+    private DateTime _endDateTime = DateTime.MinValue;
+    public void ApplyQueryAttributes(IDictionary<string, object> query)
+    {
+        if (query == null) return;
+        if (query.TryGetValue("start", out object? startObj) && startObj is DateTime start)
+            _startDateTime = start;
+        if (query.TryGetValue("end", out object? endObj) && endObj is DateTime end)
+            _endDateTime = end;
+    }
+    
     public ObservableCollection<BoatTypeUiItem> BoatTypeItems { get; set; } = [];
     public List<BoatTypeUiItem> AllBoatTypes { get; set; }
 
@@ -33,7 +44,7 @@ public partial class BoatTypeSelectionCompetitionViewModel : BaseViewModel
     public BoatTypeSelectionCompetitionViewModel(IBoatTypeService boatTypeService, ICompetitionService competitionService)
     {
         _boatTypeService = boatTypeService;
-        AllBoatTypes = _boatTypeService.GetAllBoatTypes();
+        AllBoatTypes = _boatTypeService.GetBoatTypes();
         SelectedSteeringOption = SteeringOptions.First();
         _competitionService = competitionService;
 
@@ -83,21 +94,34 @@ public partial class BoatTypeSelectionCompetitionViewModel : BaseViewModel
     {
         BoatTypeUiItem boat = _boatTypeService.GetBoatTypeById(boatUiItem.Id);
 
-        if (boat != null)
+        if (_competitionService.HasEnoughBoats(boat.Id) == false)
         {
-            if (_competitionService.HasEnoughBoats(boat.Id))
-            {
-                _competitionService.SetSelectedBoat(boat.Id);
-                await Shell.Current.GoToAsync("..");
-            }
-            else
-            {
-                await Shell.Current.DisplayAlert(
-                    "Niet genoeg boten",
-                    $"Er zijn niet genoeg boten van het type {boat.Name} beschikbaar.",
-                    "OK");
-            }
+            await Shell.Current.DisplayAlert(
+                "Niet genoeg boten",
+                $"Er zijn niet genoeg boten van het type {boat.Name} beschikbaar.",
+                "OK");
+            return;
         }
+        
+        bool hasOverlap = _competitionService.SetSelectedBoat(boat.Id, _startDateTime, _endDateTime);
+        if (hasOverlap)
+        {
+            bool shouldContinue = await ShowOverlapWarning();
+            
+            if (!shouldContinue)
+                return;
+        }
+
+        await Shell.Current.GoToAsync("..");
+    }
+    
+    private async Task<bool> ShowOverlapWarning()
+    {
+        return await Shell.Current.DisplayAlert(
+            "Waarschuwing",
+            "Er zijn te weinig boten beschikbaar voor de geselecteerde boottype en tijdsperiode. U kunt doorgaan, dan worden de overlappende reserveringen geannuleerd bij het bevestigen van de wedstrijd.",
+            "Ga door",
+            "Ga terug");
     }
 
     partial void OnSelectedSteeringOptionChanged(SteeringOption value) => ApplyFilterOption();
