@@ -29,41 +29,60 @@ namespace ProjectBotenReservering.Core.Data.Services
         // The startIndex and endIndex define the range within the windSpeeds list.
         private static decimal GetMaxWindSpeedInRange(List<decimal> windSpeeds, int startIndex, int endIndex)
         {
-            int indexRange = endIndex - startIndex + 1;
+            try
+            {
+                int indexRange = endIndex - startIndex + 1;
 
-            if (indexRange <= 0)
-                throw new InvalidOperationException("Ongeldige index range: index range moet altijd 1 of hoger zijn.");
+                if (indexRange <= 0)
+                {
+                    throw new InvalidOperationException($"Ongeldige index range: index range moet altijd 1 of hoger zijn, index was: {indexRange}");
+                }
 
-            return windSpeeds.Skip(startIndex).Take(indexRange).Max();
+                return windSpeeds.Skip(startIndex).Take(indexRange).Max();
+            } catch(InvalidOperationException exception)
+            {
+                Console.WriteLine(exception.Message);
+
+                return 0;
+            }
         }
 
         public async Task<int> GetWeatherAsync(DateTime beginDate, DateTime endDate)
         {
-            HttpResponseMessage response = await _httpClient.GetAsync(
-                "?latitude=52.52&longitude=13.41&current=wind_speed_10m&hourly=wind_speed_10m&current_weather=true"
-            );
-            response.EnsureSuccessStatusCode();
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync("?latitude=52.52&longitude=13.41&current=wind_speed_10m&hourly=wind_speed_10m&current_weather=true");
+                response.EnsureSuccessStatusCode();
 
-            string jsonResponse = await response.Content.ReadAsStringAsync();
+                string jsonResponse = await response.Content.ReadAsStringAsync();
 
-            WeatherData? weatherData = JsonSerializer.Deserialize<WeatherData>(jsonResponse);
+                WeatherData? weatherData = JsonSerializer.Deserialize<WeatherData>(jsonResponse);
 
-            if (weatherData?.CurrentWeather == null)
-                throw new InvalidOperationException("Weather data is missing.");
+                if (weatherData == null)
+                {
+                    Console.WriteLine("Weather data or required properties are null.");
 
-            if (weatherData?.Hourly == null)
-                throw new InvalidOperationException("Hourly weather data is missing.");
+                    return 0;
+                }
 
-            string startDateFormatted = FormatDateTime(beginDate);
-            string endDateFormatted = FormatDateTime(endDate);
+                string startDateFormatted = FormatDateTime(beginDate);
+                string endDateFormatted = FormatDateTime(endDate);
 
-            int startDateIndex = GetDateIndex(weatherData.Hourly.Time, startDateFormatted);
-            int endDateIndex = GetDateIndex(weatherData.Hourly.Time, endDateFormatted);
+                int startDateIndex = GetDateIndex(weatherData.Hourly.Time, startDateFormatted);
+                int endDateIndex = GetDateIndex(weatherData.Hourly.Time, endDateFormatted);
 
-            decimal maxWindSpeed = GetMaxWindSpeedInRange(weatherData.Hourly.WindSpeed10m, startDateIndex, endDateIndex);
+                decimal maxWindSpeed = GetMaxWindSpeedInRange(weatherData.Hourly.WindSpeed10m, startDateIndex, endDateIndex);
 
-            int windforce = WindforceService.GetWindforce(maxWindSpeed);
-            return windforce;
+                int windforce = WindforceService.GetWindforce(maxWindSpeed);
+
+                return windforce;
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+
+                return 0;
+            }
         }
     }
 }
