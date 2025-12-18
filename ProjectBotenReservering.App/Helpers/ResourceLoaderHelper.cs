@@ -1,10 +1,11 @@
 ﻿using System.Reflection;
+using ProjectBotenReservering.Core.Interfaces.Helpers;
 
 namespace ProjectBotenReservering.App.Helpers
 {
-    public static class ResourceLoaderHelper
+    public class ResourceLoaderHelper : IResourceLoader
     {
-        public static async Task<string> LoadEmbeddedResourceAsync(string fileName)
+        public async Task<string> LoadEmbeddedResourceAsync(string fileName)
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
             string[] allResources = assembly.GetManifestResourceNames();

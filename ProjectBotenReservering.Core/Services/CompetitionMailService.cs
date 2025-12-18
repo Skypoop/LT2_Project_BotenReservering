@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Text;
+using ProjectBotenReservering.Core.Interfaces.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 
@@ -8,17 +9,17 @@ namespace ProjectBotenReservering.Core.Services;
 public class CompetitionMailService : ICompetitionMailService
 {
     private readonly ISmtpMailService _smtpMailService;
-    private readonly ResourceLoaderHelper _resourceHelper;
+    private readonly IResourceLoader _resourceLoader;
 
-    public CompetitionMailService(ISmtpMailService smtpMailService, ResourceLoaderHelper resourceHelper)
+    public CompetitionMailService(ISmtpMailService smtpMailService, IResourceLoader resourceLoader)
     {
         _smtpMailService = smtpMailService;
-        _resourceHelper = resourceHelper;
+        _resourceLoader = resourceLoader;
     }
 
     public async Task SendCompetitionConfirmationEmailsAsync(CompetitionEmailContext context)
     {
-        string rawBody = await ResourceLoaderHelper.LoadEmbeddedResourceAsync("CompetitionConfirmation.html");
+        string rawBody = await _resourceLoader.LoadEmbeddedResourceAsync("CompetitionConfirmation.html");
         if (string.IsNullOrEmpty(rawBody))
         {
             return;

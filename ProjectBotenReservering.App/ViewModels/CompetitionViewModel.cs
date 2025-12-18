@@ -27,10 +27,12 @@ public partial class CompetitionViewModel : BaseViewModel
     public partial string CompetitionName { get; set; } = string.Empty;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(StartDateTime))]
     [NotifyPropertyChangedFor(nameof(StartTimeWithPreparation))]
     public partial DateTime StartDate { get; set; } = DateTime.Today;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(StartDateTime))]
     [NotifyPropertyChangedFor(nameof(StartTimeWithPreparation))]
     public partial TimeSpan StartTime { get; set; } = TimeSpan.Zero;
 
@@ -41,8 +43,11 @@ public partial class CompetitionViewModel : BaseViewModel
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(EndDateTime))]
     public partial TimeSpan EndTime { get; set; } = TimeSpan.Zero;
-    public DateTime StartTimeWithPreparation => (StartDate.Date + StartTime).AddMinutes(-30);
+
+    public DateTime StartDateTime => StartDate.Date + StartTime;
     public DateTime EndDateTime => EndDate.Date + EndTime;
+    public DateTime StartTimeWithPreparation => StartDateTime.AddMinutes(-30);
+
 
     [ObservableProperty]
     public partial string TeamName { get; set; } = string.Empty;
@@ -109,29 +114,29 @@ public partial class CompetitionViewModel : BaseViewModel
 
         if (CompetitionBoats.Count == 0) return;
 
-        if (EndDateTime <= StartTimeWithPreparation) return;
+        if (EndDateTime <= StartDateTime) return;
 
-        bool hasWeatherIssues = await CheckWeatherConditionsAsync(StartTimeWithPreparation, EndDateTime);
+        WeatherAuthorizationResultEnum result = await CheckWeatherConditionsAsync(StartTimeWithPreparation, EndDateTime);
 
-        if (hasWeatherIssues)
+        if (result != WeatherAuthorizationResultEnum.Authorized)
         {
             SetWeatherWarning();
         }
     }
 
-    private async Task<bool> CheckWeatherConditionsAsync(DateTime startDateTime, DateTime endDateTime)
+    private async Task<WeatherAuthorizationResultEnum> CheckWeatherConditionsAsync(DateTime startDateTime, DateTime endDateTime)
     {
         foreach (Boat boat in CompetitionBoats)
         {
-            bool weatherAllowed = await _boatAuthorizationService.WeatherAuthorized(boat.Id, startDateTime, endDateTime);
+            WeatherAuthorizationResultEnum result = await _boatAuthorizationService.WeatherAuthorized(boat.Id, startDateTime, endDateTime);
 
-            if (!weatherAllowed)
+            if (result != WeatherAuthorizationResultEnum.Authorized)
             {
-                return true;
+                return result;
             }
         }
 
-        return false;
+        return WeatherAuthorizationResultEnum.Authorized;
     }
 
     private void ClearWeatherWarning()
@@ -182,13 +187,11 @@ public partial class CompetitionViewModel : BaseViewModel
 
     private async Task MoveToTweetScreen()
     {
-        // Construct context string from user input for the tweet
         string contextString = $"Naam: {CompetitionName}, " +
                                $"Start: {StartDate:dd-MM-yyyy} om {StartTime:hh\\:mm}, " +
                                $"Einde: {EndDate:dd-MM-yyyy} om {EndTime:hh\\:mm}, " +
                                $"Aantal Teams: {TeamCount}";
         // TO-DO: Add team names to context when implemented in UI
-        // Navigate to TweetCreationView and pass the context
         Dictionary<string, object> navigationParameter = new()
         {
             { "context", contextString }
@@ -392,8 +395,6 @@ public partial class CompetitionViewModel : BaseViewModel
 
         AddClientIfValid(clientToAdd);
     }
-
-
 
     partial void OnSelectedBoatChanged(Boat? value)
     {
