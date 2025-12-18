@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ProjectBotenReservering.App.Helpers;
 using ProjectBotenReservering.App.Views;
 using ProjectBotenReservering.Core.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
@@ -108,27 +109,27 @@ public partial class CompetitionViewModel : BaseViewModel
 
         if (endDateTime <= startDateTime) return;
 
-        bool hasWeatherIssues = await CheckWeatherConditionsAsync(startDateTime, endDateTime);
+        WeatherAuthorizationResultEnum result = await CheckWeatherConditionsAsync(startDateTime, endDateTime);
 
-        if (hasWeatherIssues)
+        if (result != WeatherAuthorizationResultEnum.Authorized)
         {
-            SetWeatherWarning();
+            SetWeatherWarning(result);
         }
     }
 
-    private async Task<bool> CheckWeatherConditionsAsync(DateTime startDateTime, DateTime endDateTime)
+    private async Task<WeatherAuthorizationResultEnum> CheckWeatherConditionsAsync(DateTime startDateTime, DateTime endDateTime)
     {
         foreach (Boat boat in CompetitionBoats)
         {
-            bool weatherAllowed = await _boatAuthorizationService.WeatherAuthorized(boat.Id, startDateTime, endDateTime);
+            WeatherAuthorizationResultEnum result = await _boatAuthorizationService.WeatherAuthorized(boat.Id, startDateTime, endDateTime);
 
-            if (!weatherAllowed)
+            if (result != WeatherAuthorizationResultEnum.Authorized)
             {
-                return true;
+                return result;
             }
         }
 
-        return false;
+        return WeatherAuthorizationResultEnum.Authorized;
     }
 
     private void ClearWeatherWarning()
@@ -137,9 +138,10 @@ public partial class CompetitionViewModel : BaseViewModel
         WeatherWarningText = string.Empty;
     }
 
-    private void SetWeatherWarning()
+    private void SetWeatherWarning(WeatherAuthorizationResultEnum weatherAuthorizationResult)
     {
-        WeatherWarningText = "LET OP: Voor deze datum en tijd is het weer heftig voor een of meerdere geselecteerde boten!";
+        WeatherWarningText = MessageHelper.ConvertWeatherAuthorizationMessageToUi(weatherAuthorizationResult);
+
         HasWeatherWarning = true;
     }
 
