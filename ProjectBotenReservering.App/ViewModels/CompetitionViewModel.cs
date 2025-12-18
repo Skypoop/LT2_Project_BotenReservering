@@ -453,9 +453,35 @@ public partial class CompetitionViewModel : BaseViewModel
             return;
         }
 
+        if (IsClientAlreadyInAnyBoat(clientToAdd.Id))
+        {
+            ShowClientIsAlreadyInABoat(clientToAdd);
+            return;
+        }
+        
         SelectedClients.Add(clientToAdd);
 
         UpdateQualificationFlags();
+    }
+
+    private bool IsClientAlreadyInAnyBoat(int clientId)
+    {
+        foreach (Boat boat in CompetitionBoats)
+        {
+            if (!_clientsByBoatId.TryGetValue(boat.Id, out ObservableCollection<Client>? clients) || clients == null)
+                continue;
+
+            if (clients.Any(c => c.Id == clientId))
+                return true;
+        }
+
+        return false;
+    }
+
+    private void ShowClientIsAlreadyInABoat(Client client)
+    {
+        string message = $"{client.FullName} zit al in een andere boot";
+        Shell.Current.DisplayAlert("Waarschuwing", message, "OK");
     }
 
     private void UpdateQualificationFlags()
