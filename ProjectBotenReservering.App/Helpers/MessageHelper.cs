@@ -1,6 +1,6 @@
 ﻿using ProjectBotenReservering.Core.Models;
 
-namespace ProjectBotenReservering.Core.Helpers
+namespace ProjectBotenReservering.App.Helpers
 {
     public static class MessageHelper
     {
