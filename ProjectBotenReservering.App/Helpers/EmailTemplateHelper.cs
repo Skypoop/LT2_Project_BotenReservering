@@ -1,23 +1,14 @@
 ﻿using System.Collections.ObjectModel;
 using System.Text;
-using ProjectBotenReservering.Core.Interfaces.Helpers;
-using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.App.Helpers;
-
-public class EmailTemplateHelper : IEmailTemplateHelper
+public static class EmailTemplateHelper
 {
-    private readonly IResourceLoader _resourceLoader;
-
-    public EmailTemplateHelper(IResourceLoader resourceLoader)
+    public static async Task<(string Subject, string Body)> RenderCompetitionConfirmationAsync(CompetitionEmailContext context, Client currentClient, int boatId)
     {
-        _resourceLoader = resourceLoader;
-    }
+        string rawBody = await ResourceLoaderHelper.LoadEmbeddedResourceAsync("CompetitionConfirmation.html");
 
-    public async Task<(string Subject, string Body)> RenderCompetitionConfirmationAsync(CompetitionEmailContext context, Client currentClient, int boatId)
-    {
-        string rawBody = await _resourceLoader.LoadEmbeddedResourceAsync("CompetitionConfirmation.html");
         if (string.IsNullOrEmpty(rawBody))
         {
             return (string.Empty, string.Empty);
@@ -38,18 +29,18 @@ public class EmailTemplateHelper : IEmailTemplateHelper
         return (subject, personalizedBody);
     }
 
-    private string GetBoatName(int boatId, IReadOnlyCollection<Boat> boats)
+    private static string GetBoatName(int boatId, IReadOnlyCollection<Boat> boats)
     {
         Boat? boat = boats.FirstOrDefault((Boat b) => b.Id == boatId);
         return boat?.Name ?? "Onbekende Boot";
     }
 
-    private string GetTeamName(int boatId, IReadOnlyDictionary<int, string> teamNames)
+    private static string GetTeamName(int boatId, IReadOnlyDictionary<int, string> teamNames)
     {
         return teamNames.TryGetValue(boatId, out string? name) ? name : "Naamloos Team";
     }
 
-    private string BuildCompetitorsHtml(int excludedBoatId, CompetitionEmailContext context)
+    private static string BuildCompetitorsHtml(int excludedBoatId, CompetitionEmailContext context)
     {
         StringBuilder competitorsSb = new StringBuilder();
         bool hasCompetitors = false;
@@ -70,7 +61,7 @@ public class EmailTemplateHelper : IEmailTemplateHelper
         return hasCompetitors ? competitorsSb.ToString() : "<p>Geen tegenstanders.</p>";
     }
 
-    private string BuildTeamMembersHtml(IEnumerable<Client> teamMembers, int currentClientId)
+    private static string BuildTeamMembersHtml(IEnumerable<Client> teamMembers, int currentClientId)
     {
         StringBuilder myTeamSb = new StringBuilder();
         foreach (Client member in teamMembers)
@@ -81,7 +72,7 @@ public class EmailTemplateHelper : IEmailTemplateHelper
         return myTeamSb.ToString();
     }
 
-    private string FormatEmailBody(string template, string clientName, string teamName, string boatName, string startTime, string endTime, string teamMembersHtml, string competitorsHtml, string competitionName)
+    private static string FormatEmailBody(string template, string clientName, string teamName, string boatName, string startTime, string endTime, string teamMembersHtml, string competitorsHtml, string competitionName)
     {
         return template
             .Replace("{Name}", clientName)

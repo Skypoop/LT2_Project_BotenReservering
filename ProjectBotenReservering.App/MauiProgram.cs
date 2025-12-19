@@ -67,8 +67,6 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<IDatabaseBootstrap, SqliteDatabaseBootstrap>();
 
             builder.Services.AddSingleton<IPromptHelper, PromptHelper>();
-            builder.Services.AddSingleton<IResourceLoader, ResourceLoaderHelper>();
-            builder.Services.AddSingleton<IEmailTemplateHelper, EmailTemplateHelper>();
 
             builder.Services.AddSingleton<ISchemaInitializer, SqliteSchemaInitializer>();
             builder.Services.AddTransient<IDatabaseSeeder, BoatSeeder>();

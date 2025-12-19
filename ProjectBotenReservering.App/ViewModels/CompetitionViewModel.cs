@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ProjectBotenReservering.App.Helpers;
 using ProjectBotenReservering.App.Views;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
@@ -185,7 +186,7 @@ public partial class CompetitionViewModel : BaseViewModel
                                $"Start: {StartDate:dd-MM-yyyy} om {StartTime:hh\\:mm}, " +
                                $"Einde: {EndDate:dd-MM-yyyy} om {EndTime:hh\\:mm}, " +
                                $"Aantal Teams: {TeamCount}";
-        // TO-DO: Add team names to context when implemented in UI
+
         Dictionary<string, object> navigationParameter = new()
         {
             { "context", contextString }
@@ -211,7 +212,6 @@ public partial class CompetitionViewModel : BaseViewModel
 
     private async Task<bool> CompetitionIsValid(DateTime startDateTime, DateTime endDateTime)
     {
-
         List<Boat> boats = CompetitionItems.Select((BoatCompetitionUiItem x) => x.Boat).ToList();
 
         (bool isValid, string? errorMessage) = _competitionService.ValidateCompetition(startDateTime, endDateTime, boats);
@@ -249,7 +249,24 @@ public partial class CompetitionViewModel : BaseViewModel
             competitionBoats
         );
 
-        await _competitionMailService.SendCompetitionConfirmationEmailsAsync(context);
+        List<(string Email, string Subject, string Body)> emailsToSend = new List<(string Email, string Subject, string Body)>();
+
+        foreach (BoatCompetitionUiItem item in CompetitionItems)
+        {
+            foreach (Client client in item.SelectedClients)
+            {
+                if (string.IsNullOrEmpty(client.Email)) continue;
+
+                (string Subject, string Body) result = await EmailTemplateHelper.RenderCompetitionConfirmationAsync(context, client, item.Boat.Id);
+
+                if (!string.IsNullOrEmpty(result.Body))
+                {
+                    emailsToSend.Add((client.Email, result.Subject, result.Body));
+                }
+            }
+        }
+
+        await _competitionMailService.SendPreparedEmailsAsync(emailsToSend);
     }
 
     private async Task<bool> ShowCompletionMessage()

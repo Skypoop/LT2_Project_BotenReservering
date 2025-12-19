@@ -4,5 +4,5 @@ namespace ProjectBotenReservering.Core.Interfaces.Services;
 
 public interface ICompetitionEmailService
 {
-    Task SendCompetitionConfirmationEmailsAsync(CompetitionEmailContext context);
+    Task SendPreparedEmailsAsync(List<(string Email, string Subject, string Body)> emails);
 }
