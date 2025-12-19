@@ -277,13 +277,14 @@
                                                   VerticalOptions="Center"
                                                   HorizontalOptions="Fill">
                                                 <Label Grid.Column="0"
-                                                       Text="✔️"
+                                                       Text="{Binding DisplayIcon}"
                                                        FontSize="14"
                                                        VerticalOptions="Center"
                                                        HorizontalOptions="Start"
                                                        Margin="0"
                                                        Padding="0" 
-                                                       IsVisible="{Binding IsComplete}"/>
+                                                       IsVisible="True"/>
+
 
                                                 <Label Grid.Column="1"
                                                        Text="{Binding Boat.Name}"
