@@ -19,6 +19,8 @@ public partial class TweetCreationViewModel : BaseViewModel
 
     [ObservableProperty]
     public partial string TweetContent { get; set; } = string.Empty;
+    [ObservableProperty]
+    public partial int ContentLength { get; set; }
 
     [ObservableProperty]
     public partial string CompetitionContext { get; set; } = string.Empty;
@@ -35,7 +37,7 @@ public partial class TweetCreationViewModel : BaseViewModel
     [ObservableProperty]
     public partial bool IsTweetContentEditableByUser { get; set; }
 
-    private byte[]? _selectedImageBytes;  
+    private byte[]? _selectedImageBytes;
     public TweetCreationViewModel(IClientService clientService, ITweetService tweetService)
     {
         _clientService = clientService;
@@ -45,6 +47,11 @@ public partial class TweetCreationViewModel : BaseViewModel
     partial void OnCompetitionContextChanged(string value)
     {
         SetupPage();
+    }
+
+    partial void OnTweetContentChanged(string value)
+    {
+        ContentLength = TweetContent.Length;
     }
 
     private async Task GenerateTweet()
@@ -91,7 +98,7 @@ public partial class TweetCreationViewModel : BaseViewModel
 
     private void SetupPageWelcomeMessage(string username)
     {
-        PageWelcomeMessage = $"Hallo {username} ik maak voor jou een tweet concept! " +
+        PageWelcomeMessage = $"Hallo {username}, er wordt een promotioneel tweet concept gegenereerd. " +
                              "Pas gerust aan wat je wilt zodra hij gegenereerd is! " +
                              "Alle wijzigingen worden automatisch opgeslagen.";
     }
@@ -104,14 +111,14 @@ public partial class TweetCreationViewModel : BaseViewModel
 
         Stream stream = await result.OpenReadAsync();
         _selectedImageBytes = await StreamHelper.ReadStreamToBytesAsync(stream);
-        stream.Dispose();  
+        stream.Dispose();
 
         SelectedImagePreview = ImageSource.FromStream(() => new MemoryStream(_selectedImageBytes));
 
         SelectedFileName = result.FileName;
         IsImagePreviewVisible = true;
     }
-    
+
 
     [RelayCommand]
     private async Task PublishTweet()
