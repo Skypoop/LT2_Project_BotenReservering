@@ -1,6 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ProjectBotenReservering.App.Views;
+using ProjectBotenReservering.Core.Data.Helpers;
+using ProjectBotenReservering.Core.Exceptions;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
 
@@ -33,10 +35,11 @@ public partial class TweetCreationViewModel : BaseViewModel
     [ObservableProperty]
     public partial bool IsTweetContentEditableByUser { get; set; }
 
-    public TweetCreationViewModel(IClientService clientService, ITweetService tweetservice)
+    private byte[]? _selectedImageBytes;  
+    public TweetCreationViewModel(IClientService clientService, ITweetService tweetService)
     {
         _clientService = clientService;
-        _tweetService = tweetservice;
+        _tweetService = tweetService;
     }
 
     partial void OnCompetitionContextChanged(string value)
@@ -97,19 +100,46 @@ public partial class TweetCreationViewModel : BaseViewModel
     private async Task PickFileAsync()
     {
         FileResult? result = await FilePicker.Default.PickAsync(PickOptions.Images);
-        if (result != null)
-        {
-            SelectedFileName = result.FileName;
+        if (result == null) return;
 
-            Stream stream = await result.OpenReadAsync();
-            SelectedImagePreview = ImageSource.FromStream(() => stream);
-            IsImagePreviewVisible = SelectedImagePreview != null;
-        }
+        Stream stream = await result.OpenReadAsync();
+        _selectedImageBytes = await StreamHelper.ReadStreamToBytesAsync(stream);
+        stream.Dispose();  
+
+        SelectedImagePreview = ImageSource.FromStream(() => new MemoryStream(_selectedImageBytes));
+
+        SelectedFileName = result.FileName;
+        IsImagePreviewVisible = true;
     }
+    
 
     [RelayCommand]
-    private void PublishTweet()
+    private async Task PublishTweet()
     {
-        // Add implementation to publish tweet through service
+        string responseMessage;
+
+        try
+        {
+            if (_selectedImageBytes != null && SelectedFileName != null)
+            {
+                responseMessage = await _tweetService.PublishTweetWithMediaAsync(TweetContent, _selectedImageBytes, SelectedFileName);
+            }
+            else
+            {
+                responseMessage = await _tweetService.PublishTweetAsync(TweetContent);
+            }
+        }
+        catch (TweetPostException ex)
+        {
+            responseMessage = $"Fout: {ex.Message}";
+        }
+
+        await ShowFeedbackAndNavigate(responseMessage);
+    }
+
+    private async Task ShowFeedbackAndNavigate(string message)
+    {
+        await Shell.Current.DisplayAlert("Info", message, "OK");
+        await Shell.Current.GoToAsync("..");
     }
 }
