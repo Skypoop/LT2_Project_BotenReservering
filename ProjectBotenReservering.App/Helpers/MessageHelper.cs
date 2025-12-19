@@ -8,7 +8,7 @@ namespace ProjectBotenReservering.App.Helpers
         {
             return weatherAuthorizationResult switch
             {
-                WeatherAuthorizationResultEnum.RequiresHigherBoatLevel => "LET OP: Voor deze datum en tijd is het weer heftig voor een of meerdere geselecteerde boten!",
+                WeatherAuthorizationResultEnum.RequiresHigherBoatLevel => "LET OP: Voor deze datum en tijd is het weer erg heftig voor dit boottype!",
                 WeatherAuthorizationResultEnum.DateTooFarInFuture => "LET OP: Het weer kan alleen voorspeld worden tot 7 dagen vooruit!",
                 WeatherAuthorizationResultEnum.DataNotLoaded => "LET OP: Kon geen weer data inladen",
                 _ => string.Empty,

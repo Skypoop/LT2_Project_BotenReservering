@@ -1,2 +1,2 @@
-Generate a promotional tweet based on the following competition details:
+Generate a promotional tweet of MAX 280 characters based on the following competition details:
 {0}
