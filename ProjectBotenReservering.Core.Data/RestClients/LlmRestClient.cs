@@ -4,8 +4,9 @@ using System;
 using System.Threading.Tasks;
 using Google.GenAI;
 using Google.GenAI.Types;
+using ProjectBotenReservering.Core.Interfaces.RestClients;
 
-public class LlmRestClient
+public class LlmRestClient: ILlmRestClient
 {
     private readonly Client _client;
     private const string DEFAULT_MODEL = "gemini-2.5-flash";

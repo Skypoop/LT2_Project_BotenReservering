@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ProjectBotenReservering.App.Helpers;
 using ProjectBotenReservering.App.Views;
-using ProjectBotenReservering.Core.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
@@ -22,22 +21,27 @@ public partial class CompetitionViewModel : BaseViewModel
     public partial string TeamCount { get; set; } = "0";
 
     [ObservableProperty]
-    public partial ObservableCollection<Boat> CompetitionBoats { get; set; } = new ObservableCollection<Boat>();
-
-    [ObservableProperty]
     public partial string CompetitionName { get; set; } = string.Empty;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(StartTimeWithPreparation))]
     public partial DateTime StartDate { get; set; } = DateTime.Today;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(StartTimeWithPreparation))]
     public partial TimeSpan StartTime { get; set; } = TimeSpan.Zero;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(EndDateTime))]
     public partial DateTime EndDate { get; set; } = DateTime.Today;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(EndDateTime))]
     public partial TimeSpan EndTime { get; set; } = TimeSpan.Zero;
+
+    public DateTime EndDateTime => EndDate.Date + EndTime;
+    public DateTime StartDateTime => StartDate.Date + StartTime;
+    public DateTime StartTimeWithPreparation => (StartDate.Date + StartTime).AddMinutes(-30);
 
     [ObservableProperty]
     public partial string TeamName { get; set; } = string.Empty;
@@ -56,25 +60,20 @@ public partial class CompetitionViewModel : BaseViewModel
     [ObservableProperty]
     public partial bool HasWeatherWarning { get; set; }
 
-    private Dictionary<int, ObservableCollection<Client>> _clientsByBoatId = new Dictionary<int, ObservableCollection<Client>>();
+    [ObservableProperty]
+    public partial ObservableCollection<BoatCompetitionUiItem> CompetitionItems { get; set; } = new();
 
-    private readonly Dictionary<int, string> _teamNameByBoatId = new();
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsBoatSelected))]
+    public partial BoatCompetitionUiItem? SelectedCompetitionItem { get; set; }
+
+    public bool IsBoatSelected => SelectedCompetitionItem != null;
 
     [ObservableProperty]
     public partial Client? SelectedClient { get; set; }
 
-    private ObservableCollection<Client> _selectedClients = new ObservableCollection<Client>();
-    public ObservableCollection<Client> SelectedClients
-    {
-        get => _selectedClients;
-        set => SetProperty(ref _selectedClients, value);
-    }
-    public ObservableCollection<Client> AvailableClients { get; }
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsBoatSelected))]
-    public partial Boat? SelectedBoat { get; set; }
-    public bool IsBoatSelected => SelectedBoat != null;
+    public ObservableCollection<Client> AvailableClients { get; }
 
     public CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService, IClientService clientService,
         IClientRepository clientRepository, IBoatAuthorizationService boatAuthorizationService)
@@ -85,8 +84,6 @@ public partial class CompetitionViewModel : BaseViewModel
         _clientRepository = clientRepository;
         _boatAuthorizationService = boatAuthorizationService;
 
-
-        SelectedClients = new ObservableCollection<Client>();
         AvailableClients = new ObservableCollection<Client>();
         InitializeClients();
     }
@@ -102,14 +99,11 @@ public partial class CompetitionViewModel : BaseViewModel
     {
         ClearWeatherWarning();
 
-        if (CompetitionBoats.Count == 0) return;
+        if (CompetitionItems.Count == 0) return;
 
-        DateTime startDateTime = CompetitionTimeHelper.GetStartTimeWithPreparation(StartDate, StartTime);
-        DateTime endDateTime = CompetitionTimeHelper.CombineDateAndTime(EndDate, EndTime);
+        if (EndDateTime <= StartDateTime) return;
 
-        if (endDateTime <= startDateTime) return;
-
-        WeatherAuthorizationResultEnum result = await CheckWeatherConditionsAsync(startDateTime, endDateTime);
+        WeatherAuthorizationResultEnum result = await CheckWeatherConditionsAsync(StartTimeWithPreparation, EndDateTime);
 
         if (result != WeatherAuthorizationResultEnum.Authorized)
         {
@@ -119,9 +113,9 @@ public partial class CompetitionViewModel : BaseViewModel
 
     private async Task<WeatherAuthorizationResultEnum> CheckWeatherConditionsAsync(DateTime startDateTime, DateTime endDateTime)
     {
-        foreach (Boat boat in CompetitionBoats)
+        foreach (BoatCompetitionUiItem item in CompetitionItems)
         {
-            WeatherAuthorizationResultEnum result = await _boatAuthorizationService.WeatherAuthorized(boat.Id, startDateTime, endDateTime);
+            WeatherAuthorizationResultEnum result = await _boatAuthorizationService.WeatherAuthorized(item.Boat.Id, startDateTime, endDateTime);
 
             if (result != WeatherAuthorizationResultEnum.Authorized)
             {
@@ -148,17 +142,14 @@ public partial class CompetitionViewModel : BaseViewModel
     [RelayCommand]
     private async Task CreateCompetition()
     {
-        DateTime startDateTime = CompetitionTimeHelper.GetStartTimeWithPreparation(StartDate, StartTime);
-        DateTime endDateTime = CompetitionTimeHelper.CombineDateAndTime(EndDate, EndTime);
-
-        if (await CompetitionIsValid(startDateTime, endDateTime) == false)
+        if (await CompetitionIsValid(StartTimeWithPreparation, EndDateTime) == false)
             return;
 
         await ValidateWeatherRulesAsync();
 
-        if (await ShowWarningPopupAsync() && await HandleConflictingReservationsAsync(startDateTime, endDateTime))
+        if (await ShowWarningPopupAsync() && await HandleConflictingReservationsAsync(StartTimeWithPreparation, EndDateTime))
         {
-            await PlaceCompetition(startDateTime, endDateTime);
+            await PlaceCompetition(StartTimeWithPreparation, EndDateTime);
         }
     }
 
@@ -172,7 +163,7 @@ public partial class CompetitionViewModel : BaseViewModel
         TeamCount = "0";
         _competitionService.AmountBoats = 0;
         _competitionService.ClearCompetitionBoats();
-        CompetitionBoats.Clear();
+        CompetitionItems.Clear();
         RefreshCompetitionCounters();
     }
 
@@ -186,8 +177,8 @@ public partial class CompetitionViewModel : BaseViewModel
     {
         // Construct context string from user input for the tweet
         string contextString = $"Naam: {CompetitionName}, " +
-                               $"Datum: {StartDate:dd-MM-yyyy}, " +
-                               $"Tijd: {StartTime:hh\\:mm} - {EndTime:hh\\:mm}, " +
+                               $"Start: {StartDate:dd-MM-yyyy} om {StartTime:hh\\:mm}, " +
+                               $"Einde: {EndDate:dd-MM-yyyy} om {EndTime:hh\\:mm}, " +
                                $"Aantal Teams: {TeamCount}";
         // TO-DO: Add team names to context when implemented in UI
         // Navigate to TweetCreationView and pass the context
@@ -216,7 +207,10 @@ public partial class CompetitionViewModel : BaseViewModel
 
     private async Task<bool> CompetitionIsValid(DateTime startDateTime, DateTime endDateTime)
     {
-        (bool isValid, string? errorMessage) = _competitionService.ValidateCompetition(startDateTime, endDateTime, CompetitionBoats.ToList());
+
+        List<Boat> boats = CompetitionItems.Select((BoatCompetitionUiItem x) => x.Boat).ToList();
+
+        (bool isValid, string? errorMessage) = _competitionService.ValidateCompetition(startDateTime, endDateTime, boats);
 
         if (!isValid)
             await Shell.Current.DisplayAlert("Fout", errorMessage, "OK");
@@ -258,18 +252,21 @@ public partial class CompetitionViewModel : BaseViewModel
     private void RemoveClient(Client client)
     {
         if (client == null) return;
+        if (SelectedCompetitionItem == null) return;
 
-        if (SelectedClients.Contains(client))
+        if (SelectedCompetitionItem.SelectedClients.Contains(client))
         {
-            SelectedClients.Remove(client);
+            SelectedCompetitionItem.SelectedClients.Remove(client);
         }
 
         UpdateQualificationFlags();
+        ValidateSubmitButton();
     }
 
     private async Task<bool> HandleConflictingReservationsAsync(DateTime startDateTime, DateTime endDateTime)
     {
-        List<int> boatIds = [.. (CompetitionBoats ?? Enumerable.Empty<Boat>()).Select(boat => boat.Id)];
+        List<int> boatIds = [.. (CompetitionItems ?? Enumerable.Empty<BoatCompetitionUiItem>())
+                            .Select((BoatCompetitionUiItem item) => item.Boat.Id)];
         List<Reservation> overlappingReservations =
             _reservationService.FindOverlappingReservations(startDateTime, endDateTime, boatIds);
 
@@ -308,17 +305,19 @@ public partial class CompetitionViewModel : BaseViewModel
 
     public void FillBoatCompetitionsList()
     {
-        CompetitionBoats.Clear();
-        _clientsByBoatId.Clear();
+        CompetitionItems.Clear();
 
         List<Boat> boats = _competitionService.GetCompetitionBoats();
         foreach (Boat boat in boats)
         {
-            CompetitionBoats.Add(boat);
+            BoatCompetitionUiItem uiItem = new BoatCompetitionUiItem(boat);
+
+            uiItem.PropertyChanged += (s, e) => ValidateSubmitButton();
+
+            CompetitionItems.Add(uiItem);
         }
 
-        SelectedBoat = null;
-        SelectedClients = new ObservableCollection<Client>();
+        SelectedCompetitionItem = null;
 
         UpdateQualificationFlags();
         RefreshCompetitionCounters();
@@ -326,10 +325,10 @@ public partial class CompetitionViewModel : BaseViewModel
 
     public void RefreshCompetitionCounters()
     {
-        CalculatedBoatCount = CompetitionBoats.Count;
+        CalculatedBoatCount = CompetitionItems.Count;
 
-        Boat? boat = CompetitionBoats.FirstOrDefault();
-        CalculatedPersonCount = boat?.Seats * CompetitionBoats.Count ?? 0;
+        BoatCompetitionUiItem? item = CompetitionItems.FirstOrDefault();
+        CalculatedPersonCount = item?.Capacity * CompetitionItems.Count ?? 0;
 
         _ = ValidateWeatherRulesAsync();
     }
@@ -360,11 +359,21 @@ public partial class CompetitionViewModel : BaseViewModel
 
     public void ValidateSubmitButton()
     {
-        SubmitButtonIsEnabled = !string.IsNullOrWhiteSpace(CompetitionName) &&
-                                CompetitionBoats.Count > 0;
-        // Additional validations for the submit button to be enabled should be added here
+        bool allFieldsFilled =
+            !string.IsNullOrWhiteSpace(CompetitionName) &&
+            CompetitionItems.Count > 0 &&
+            _competitionService.AreAllTeamsComplete(CompetitionItems);
 
-        _ = ValidateWeatherRulesAsync();
+        SubmitButtonIsEnabled = allFieldsFilled;
+
+        if (allFieldsFilled)
+        {
+            _ = ValidateWeatherRulesAsync();
+        }
+        else
+        {
+            ClearWeatherWarning();
+        }
     }
 
     private void InitializeClients()
@@ -388,84 +397,52 @@ public partial class CompetitionViewModel : BaseViewModel
         AddClientIfValid(clientToAdd);
     }
 
-    partial void OnSelectedBoatChanged(Boat? value)
+    partial void OnSelectedCompetitionItemChanged(BoatCompetitionUiItem? value)
     {
-        if (value is null)
-        {
-            SelectedClients = new ObservableCollection<Client>();
-            TeamName = string.Empty;
-            return;
-        }
-
-        ObservableCollection<Client> clients = GetOrCreateClientsForBoatId(value.Id);
-        SelectedClients = clients ?? new ObservableCollection<Client>();
-
-        string? name;
-        bool hasName = _teamNameByBoatId.TryGetValue(value.Id, out name);
-
-        TeamName = (hasName && !string.IsNullOrWhiteSpace(name))
-            ? name
-            : string.Empty;
-
         UpdateQualificationFlags();
-    }
-
-    partial void OnTeamNameChanged(string value)
-    {
-        if (SelectedBoat == null) return;
-        _teamNameByBoatId[SelectedBoat.Id] = value ?? string.Empty;
-    }
-
-    private ObservableCollection<Client> GetOrCreateClientsForBoatId(int boatId)
-    {
-        ObservableCollection<Client>? clients;
-
-        if (_clientsByBoatId.TryGetValue(boatId, out clients) && clients != null)
-        {
-            return clients;
-        }
-
-        clients = new ObservableCollection<Client>();
-        _clientsByBoatId[boatId] = clients;
-
-        return clients;
     }
 
     private void AddClientIfValid(Client clientToAdd)
     {
-        if (SelectedBoat == null) return;
+        if (SelectedCompetitionItem == null) return;
 
-        int capacity = SelectedBoat.Seats;
-        if (SelectedBoat.SteeringWheel)
+        if (SelectedCompetitionItem.SelectedClients.Count >= SelectedCompetitionItem.Capacity)
         {
-            capacity = capacity + 1;
-        }
-
-        if (SelectedClients.Count >= capacity)
-        {
-            _ = Shell.Current.DisplayAlert("Vol", $"De boot zit vol ({capacity} plaatsen).", "OK");
+            _ = Shell.Current.DisplayAlert("Vol", $"De boot zit vol ({SelectedCompetitionItem.Capacity} plaatsen).", "OK");
             return;
         }
 
-        bool alreadyInBoat = SelectedClients.Any(x => x.Id == clientToAdd.Id);
-        if (alreadyInBoat)
+        if (IsClientAlreadyInAnyBoat(clientToAdd.Id))
         {
+            ShowClientIsAlreadyInABoat(clientToAdd);
             return;
         }
 
-        SelectedClients.Add(clientToAdd);
+        SelectedCompetitionItem.SelectedClients.Add(clientToAdd);
 
         UpdateQualificationFlags();
+        ValidateSubmitButton();
+    }
+
+    private bool IsClientAlreadyInAnyBoat(int clientId)
+    {
+        return _competitionService.IsClientAssignedToAnyTeam(CompetitionItems, clientId);
+    }
+
+    private void ShowClientIsAlreadyInABoat(Client client)
+    {
+        string message = $"{client.FullName} zit al in een andere boot";
+        Shell.Current.DisplayAlert("Waarschuwing", message, "OK");
     }
 
     private void UpdateQualificationFlags()
     {
-        if (SelectedBoat == null) return;
+        if (SelectedCompetitionItem == null) return;
 
-        BoatType requiredType = SelectedBoat.Type;
-        int requiredLevel = SelectedBoat.Level;
+        BoatType requiredType = SelectedCompetitionItem.Boat.Type;
+        int requiredLevel = SelectedCompetitionItem.Boat.Level;
 
-        foreach (Client client in SelectedClients)
+        foreach (Client client in SelectedCompetitionItem.SelectedClients)
         {
             ApplyQualificationState(client, requiredType, requiredLevel);
         }
@@ -509,29 +486,28 @@ public partial class CompetitionViewModel : BaseViewModel
         Shell.Current.DisplayAlert("Waarschuwing", message, "OK");
     }
 
-    //Call this for validation (This function checks whether one or more boats are not completely filled) Returns: Bool
     private bool AreBoatsAtFullCapacity()
     {
-        foreach (Boat boat in CompetitionBoats)
+        foreach (BoatCompetitionUiItem item in CompetitionItems)
         {
-            int capacity = GetCapacity(boat);
-
-            ObservableCollection<Client>? clients;
-            bool hasClients = _clientsByBoatId.TryGetValue(boat.Id, out clients);
-
-            if (!hasClients || clients == null)
-            {
+            if (item.SelectedClients.Count != item.Capacity)
                 return false;
-            }
+        }
+        return true;
+    }
 
-            if (clients.Count != capacity)
+    private bool AreAllTeamNamesFilled()
+    {
+        if (CompetitionItems.Count == 0)
+            return false;
+
+        foreach (BoatCompetitionUiItem item in CompetitionItems)
+        {
+            if (string.IsNullOrWhiteSpace(item.TeamName))
             {
                 return false;
             }
         }
-
         return true;
     }
-
-    private static int GetCapacity(Boat boat) => boat.Seats + (boat.SteeringWheel ? 1 : 0);
 }
