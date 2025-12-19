@@ -220,7 +220,7 @@ public partial class CompetitionViewModel : BaseViewModel
 
     private async Task PlaceCompetition(DateTime startDateTime, DateTime endDateTime)
     {
-        _competitionService.CreateCompetition(startDateTime, endDateTime, CompetitionName);
+        _competitionService.CreateCompetition(startDateTime, endDateTime, CompetitionName, CompetitionItems.ToList());
 
         if (await ShowCompletionMessage())
             await MoveToTweetScreen();
