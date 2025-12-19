@@ -75,6 +75,8 @@ public partial class CompetitionViewModel : BaseViewModel
     [ObservableProperty]
     public partial Client? SelectedClient { get; set; }
 
+    [ObservableProperty]
+    public partial ObservableCollection<Client> SelectedClients { get; set; } = new();
 
     public ObservableCollection<Client> AvailableClients { get; }
 
@@ -234,13 +236,17 @@ public partial class CompetitionViewModel : BaseViewModel
 
     private async Task SendCompetitionEmailsAsync()
     {
+        List<Boat> competitionBoats = CompetitionItems.Select(x => x.Boat).ToList();
+        Dictionary<int, ObservableCollection<Client>> clientsByBoatId = CompetitionItems.ToDictionary(x => x.Boat.Id, x => x.SelectedClients);
+        Dictionary<int, string> teamNamesByBoatId = CompetitionItems.ToDictionary(x => x.Boat.Id, x => x.TeamName);
+
         CompetitionEmailContext context = new CompetitionEmailContext(
             CompetitionName,
             StartTimeWithPreparation,
             EndDateTime,
-            _clientsByBoatId,
-            _teamNameByBoatId,
-            CompetitionBoats
+            clientsByBoatId,
+            teamNamesByBoatId,
+            competitionBoats
         );
 
         await _competitionMailService.SendCompetitionConfirmationEmailsAsync(context);
@@ -262,7 +268,7 @@ public partial class CompetitionViewModel : BaseViewModel
             { "start", startDateTime },
             { "end", endDateTime }
         };
-        
+
         await Shell.Current.GoToAsync(nameof(BoatTypeSelectionCompetitionView), navigationParameter);
     }
 
