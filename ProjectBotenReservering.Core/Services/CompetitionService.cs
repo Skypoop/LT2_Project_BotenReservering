@@ -94,7 +94,7 @@ public class CompetitionService : ICompetitionService
         return _boatRepository.GetAllFromName(boat.Name) ?? new List<Boat>();
     }
 
-    public Competition? CreateCompetition(DateTime startDate, DateTime endDate, string competitionName)
+    public Competition? CreateCompetition(DateTime startDate, DateTime endDate, string competitionName, List<BoatCompetitionUiItem> competitionUiItems)
     {
         List<Reservation> reservations = new();
         Client? currentClient = _clientService.GetCurrentClient();
@@ -105,16 +105,16 @@ public class CompetitionService : ICompetitionService
             return null;
         }
 
-        foreach (Boat boat in _competitionBoatsList)
+        foreach (BoatCompetitionUiItem item in competitionUiItems)
         {
-            List<Client> clients = new(); // IMPLEMENT CLIENTS PER BOAT HERE
+            List<Client> clients = item.SelectedClients.ToList();
 
             Reservation res = _reservationService.CreateReservation(new Reservation(
                 DateTime.Now,
                 startDate,
                 endDate,
                 currentClient.Id,
-                boat.Id,
+                item.Boat.Id,
                 true), clients);
 
             reservations.Add(res);
