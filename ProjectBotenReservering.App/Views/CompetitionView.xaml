@@ -563,7 +563,7 @@
                 VerticalOptions="Start"
                 HorizontalOptions="End"
                 Margin="30"
-                WidthRequest="400">
+                WidthRequest="650">
             <HorizontalStackLayout Spacing="10"
                     VerticalOptions="Center"
                     HorizontalOptions="Center">
