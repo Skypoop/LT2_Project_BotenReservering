@@ -8,9 +8,10 @@
              BackgroundColor="White">
 
     <Grid>
-        <VerticalStackLayout Spacing="20"
-                Padding="30"
-                TranslationY="50">
+        <ScrollView>
+            <VerticalStackLayout Spacing="20"
+                    Padding="30"
+                    TranslationY="50">
 
             <!-- HEADER SECTION -->
             <Grid ColumnDefinitions="*, Auto">
@@ -27,18 +28,16 @@
                            TextColor="Gray"/>
                 </VerticalStackLayout>
 
-                <HorizontalStackLayout
-                    Grid.Row="0"
-                    Grid.Column="0"
-                    HorizontalOptions="Center"
-                    VerticalOptions="Center"
-                    Spacing="20">
+                <!-- HEADER SECTION - Naam -->
+                <VerticalStackLayout HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        Spacing="5">
 
                     <Label Text="Naam"
                            FontAttributes="Bold"
-                           FontSize="25"
+                           FontSize="18"
                            TextColor="Black"
-                           VerticalOptions="Center"/>
+                           HorizontalOptions="Center"/>
 
                     <Border Stroke="Gray"
                             StrokeThickness="1"
@@ -62,8 +61,7 @@
                                    TextColor="Gray"/>
                         </Grid>
                     </Border>
-
-                </HorizontalStackLayout>
+                </VerticalStackLayout>
             </Grid>
 
             <!-- DATE SECTION -->
@@ -195,29 +193,6 @@
 
             </Grid>
 
-            <!-- Weather Warning -->
-            <Border Stroke="#Ef5350"
-                    StrokeThickness="1"
-                    StrokeShape="RoundRectangle 8"
-                    BackgroundColor="#FFEbee"
-                    Padding="15"
-                    IsVisible="{Binding HasWeatherWarning}"
-                    HorizontalOptions="Center"
-                    WidthRequest="800">
-                <HorizontalStackLayout Spacing="10"
-                        VerticalOptions="Center"
-                        HorizontalOptions="Center">
-                    <Image Source="warning_icon.png"
-                            HeightRequest="24"
-                            WidthRequest="24"
-                            VerticalOptions="Center"/>
-                    <Label Text="{Binding WeatherWarningText}"
-                            TextColor="#C62828"
-                            VerticalOptions="Center"
-                            LineBreakMode="WordWrap"/>
-                </HorizontalStackLayout>
-            </Border>
-
             <!-- TEAMS COUNT SECTION -->
             <VerticalStackLayout HorizontalOptions="Center"
                     Spacing="10">
@@ -296,14 +271,15 @@
                     Padding="20,0"/>
             </VerticalStackLayout>
 
-            <!-- MAIN EDITOR BOX (rebuild: no overlap, full use of space) -->
+            <!-- MAIN EDITOR BOX -->
             <Border Stroke="Gray"
                     StrokeThickness="1"
                     StrokeShape="RoundRectangle 8"
                     MaximumWidthRequest="1200"
                     HeightRequest="{OnIdiom Desktop=350, Tablet=500, Phone=560}"
                     Padding="12"
-                    VerticalOptions="Start">
+                    VerticalOptions="Start"
+                    IsVisible="{Binding IsMainEditorVisible, Mode=OneWay}">
 
                 <Grid ColumnDefinitions="320, 16, *"
                       RowDefinitions="*"
@@ -379,10 +355,33 @@
 
                     <!-- RIGHT: Editor -->
                     <Grid Grid.Column="2"
-                          IsVisible="{Binding IsBoatSelected}"
-                          RowDefinitions="Auto,Auto,*,Auto"
-                          RowSpacing="12"
+                          Padding="20"
                           VerticalOptions="FillAndExpand">
+                          
+                        <!-- Placeholder -->
+                        <VerticalStackLayout IsVisible="{Binding IsBoatNotSelected, Mode=OneWay}" 
+                                             VerticalOptions="Center" 
+                                             HorizontalOptions="Center" 
+                                             Spacing="10">
+                            <Label Text="👈" 
+                                   FontSize="40" 
+                                   HorizontalOptions="Center" 
+                                   TextColor="Gray"/>
+                            <Label Text="Selecteer een boot uit de lijst" 
+                                   FontSize="18" 
+                                   TextColor="Gray" 
+                                   HorizontalOptions="Center"/>
+                            <Label Text="om de bemanning in te delen" 
+                                   FontSize="14" 
+                                   TextColor="Gray" 
+                                   HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+
+                        <!-- Editor Content -->
+                        <Grid IsVisible="{Binding IsBoatSelected, Mode=OneWay}"
+                              RowDefinitions="Auto,Auto,*,Auto"
+                              RowSpacing="12"
+                              VerticalOptions="FillAndExpand">
 
                         <!-- Header -->
                         <Grid Grid.Row="0"
@@ -547,21 +546,48 @@
                         </Border>
                     </Grid>
                 </Grid>
+            </Grid>
             </Border>
 
-            <Button
-                Text="wedstrijd aanmaken"
-                FontSize="18"
-                HorizontalOptions="End"
-                IsEnabled="{Binding SubmitButtonIsEnabled}"
-                CornerRadius="5"
-                Margin="0,0,0,20"
-                TranslationX="-50"
-                TranslationY="-70"
-                WidthRequest="200"
-                HeightRequest="50"
-                Command="{Binding CreateCompetitionCommand}"/>
+            </VerticalStackLayout>
+        </ScrollView>
 
-        </VerticalStackLayout>
+        <!-- Weather Warning Overlay -->
+        <Border Stroke="#Ef5350"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 8"
+                BackgroundColor="#FFEbee"
+                Padding="15"
+                IsVisible="{Binding HasWeatherWarning}"
+                VerticalOptions="Start"
+                HorizontalOptions="End"
+                Margin="30"
+                WidthRequest="400">
+            <HorizontalStackLayout Spacing="10"
+                    VerticalOptions="Center"
+                    HorizontalOptions="Center">
+                <Image Source="warning_icon.png"
+                        HeightRequest="24"
+                        WidthRequest="24"
+                        VerticalOptions="Center"/>
+                <Label Text="{Binding WeatherWarningText}"
+                        TextColor="#C62828"
+                        VerticalOptions="Center"
+                        LineBreakMode="WordWrap"/>
+            </HorizontalStackLayout>
+        </Border>
+
+        <!-- Create Button Fixed -->
+        <Button
+            Text="wedstrijd aanmaken"
+            FontSize="18"
+            HorizontalOptions="End"
+            VerticalOptions="End"
+            IsEnabled="{Binding SubmitButtonIsEnabled}"
+            CornerRadius="5"
+            Margin="30"
+            WidthRequest="200"
+            HeightRequest="50"
+            Command="{Binding CreateCompetitionCommand}"/>
     </Grid>
 </ContentView>

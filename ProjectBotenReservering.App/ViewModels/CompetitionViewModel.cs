@@ -49,7 +49,10 @@ public partial class CompetitionViewModel : BaseViewModel
     public partial bool SelectCompetitionBoatTypeIsEnable { get; set; } = false;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsMainEditorVisible))]
     public partial int CalculatedBoatCount { get; set; }
+
+    public bool IsMainEditorVisible => CalculatedBoatCount > 0;
 
     [ObservableProperty]
     public partial int CalculatedPersonCount { get; set; }
@@ -65,9 +68,11 @@ public partial class CompetitionViewModel : BaseViewModel
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsBoatSelected))]
+    [NotifyPropertyChangedFor(nameof(IsBoatNotSelected))]
     public partial BoatCompetitionUiItem? SelectedCompetitionItem { get; set; }
 
     public bool IsBoatSelected => SelectedCompetitionItem != null;
+    public bool IsBoatNotSelected => SelectedCompetitionItem == null;
 
     [ObservableProperty]
     public partial Client? SelectedClient { get; set; }
@@ -244,7 +249,7 @@ public partial class CompetitionViewModel : BaseViewModel
             { "start", startDateTime },
             { "end", endDateTime }
         };
-        
+
         await Shell.Current.GoToAsync(nameof(BoatTypeSelectionCompetitionView), navigationParameter);
     }
 
