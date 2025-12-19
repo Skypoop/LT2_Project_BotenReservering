@@ -13,10 +13,14 @@ public class CompetitionEmailService : ICompetitionEmailService
 
     public async Task SendPreparedEmailsAsync(List<(string Email, string Subject, string Body)> emails)
     {
+        List<Task> emailTasks = new List<Task>();
+
         foreach ((string Email, string Subject, string Body) emailData in emails)
         {
             List<string> receivers = new List<string> { emailData.Email };
-            await _smtpMailService.SendMailAsync(receivers, emailData.Subject, emailData.Body);
+            emailTasks.Add(_smtpMailService.SendMailAsync(receivers, emailData.Subject, emailData.Body));
         }
+
+        await Task.WhenAll(emailTasks);
     }
 }

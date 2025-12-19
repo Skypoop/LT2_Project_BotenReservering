@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Plugin.Maui.Calendar.Models;
 using ProjectBotenReservering.App.Helpers;
 using ProjectBotenReservering.Core.Constants;
-using ProjectBotenReservering.Core.Interfaces.Helpers;
+using ProjectBotenReservering.Core.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
@@ -20,7 +20,6 @@ public partial class ReservationFormViewModel : BaseViewModel
     private readonly IReservationService _reservationService;
     private readonly IBoatAuthorizationService _boatAuthorizationService;
     private readonly ISmtpMailService _mailService;
-    private readonly IResourceLoader _resourceLoader;
 
     public ReservationFormViewModel(
         IBoatTypeService boatTypeService,
@@ -28,8 +27,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         IClientRepository clientRepository,
         IReservationService reservationService,
         IBoatAuthorizationService boatReservationService,
-        ISmtpMailService mailservice,
-        IResourceLoader resourceLoader
+        ISmtpMailService mailservice
         )
     {
         _boatTypeService = boatTypeService;
@@ -38,7 +36,6 @@ public partial class ReservationFormViewModel : BaseViewModel
         _reservationService = reservationService;
         _boatAuthorizationService = boatReservationService;
         _mailService = mailservice;
-        _resourceLoader = resourceLoader;
 
         Title = "";
 
@@ -359,7 +356,7 @@ public partial class ReservationFormViewModel : BaseViewModel
 
     private async Task SendReservationEmailAsync()
     {
-        string rawBody = await _resourceLoader.LoadEmbeddedResourceAsync("ReservationConfirmation.html");
+        string rawBody = await ResourceLoaderHelper.LoadEmbeddedResourceAsync("ReservationConfirmation.html");
 
         if (string.IsNullOrEmpty(rawBody)) return;
 

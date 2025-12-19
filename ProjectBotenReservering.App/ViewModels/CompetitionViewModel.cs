@@ -226,7 +226,7 @@ public partial class CompetitionViewModel : BaseViewModel
     {
         _competitionService.CreateCompetition(startDateTime, endDateTime, CompetitionName);
 
-        await SendCompetitionEmailsAsync();
+        _ = SendCompetitionEmailsAsync();
 
         if (await ShowCompletionMessage())
             await MoveToTweetScreen();

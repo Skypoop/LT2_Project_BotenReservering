@@ -17,28 +17,38 @@ public class SmtpMailService : ISmtpMailService
 
     public async Task SendMailAsync(List<string> receivers, string subject, string body)
     {
+        List<Task> sendTasks = new List<Task>();
+
+        foreach (string receiver in receivers)
+        {
+            sendTasks.Add(SendSingleMailAsync(receiver, subject, body));
+        }
+
+        await Task.WhenAll(sendTasks);
+    }
+
+    private async Task SendSingleMailAsync(string receiver, string subject, string body)
+    {
         using SmtpClient smtp = new SmtpClient(_settings.Server);
         smtp.Port = _settings.Port;
         smtp.EnableSsl = true;
         smtp.Credentials = new NetworkCredential(_settings.Username, _settings.Password);
 
-        foreach (string receiver in receivers)
+        using MailMessage message = new MailMessage();
+        try
         {
-            using MailMessage message = new MailMessage();
-            try
-            {
-                message.From = new MailAddress(_settings.Username!);
-                message.To.Add(receiver);
-                message.Subject = subject;
-                message.Body = body;
-                message.IsBodyHtml = true;
-                await smtp.SendMailAsync(message);
-            }
-            catch (Exception e)
-            {
-                WarningException myEx = new WarningException($"Username not set or is incorrect. ensure this is done before sending mails. in {nameof(_settings)}" + e.Message);
-                Console.Write(myEx.ToString());
-            }
+            message.From = new MailAddress(_settings.Username!);
+            message.To.Add(receiver);
+            message.Subject = subject;
+            message.Body = body;
+            message.IsBodyHtml = true;
+
+            await smtp.SendMailAsync(message);
+        }
+        catch (Exception e)
+        {
+            WarningException myEx = new WarningException($"Username not set or is incorrect. ensure this is done before sending mails. in {nameof(_settings)}" + e.Message);
+            Console.Write(myEx.ToString());
         }
     }
 }
