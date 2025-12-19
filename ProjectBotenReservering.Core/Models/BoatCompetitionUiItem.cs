@@ -19,6 +19,7 @@ public class BoatCompetitionUiItem : INotifyPropertyChanged
                 _teamName = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(IsComplete));
+                OnPropertyChanged(nameof(DisplayIcon));
             }
         }
     }
@@ -29,7 +30,8 @@ public class BoatCompetitionUiItem : INotifyPropertyChanged
         !string.IsNullOrWhiteSpace(TeamName) &&
         SelectedClients.Count == Capacity &&
         Capacity > 0;
-
+    
+    public string DisplayIcon => (IsComplete ? "✔️" : "⚠️");
     public int Capacity => Boat.Seats + (Boat.SteeringWheel ? 1 : 0);
 
     public BoatCompetitionUiItem(Boat boat)
@@ -38,6 +40,7 @@ public class BoatCompetitionUiItem : INotifyPropertyChanged
 
         SelectedClients.CollectionChanged += (s, e) => {
             OnPropertyChanged(nameof(IsComplete));
+            OnPropertyChanged(nameof(DisplayIcon));
         };
     }
 
