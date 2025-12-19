@@ -15,7 +15,7 @@ public partial class CompetitionViewModel : BaseViewModel
     private readonly IClientService _clientService;
     private readonly IClientRepository _clientRepository;
     private readonly IBoatAuthorizationService _boatAuthorizationService;
-    private readonly ICompetitionMailService _competitionMailService;
+    private readonly ICompetitionEmailService _competitionMailService;
 
     [ObservableProperty]
     public partial string TeamCount { get; set; } = "0";
@@ -81,7 +81,7 @@ public partial class CompetitionViewModel : BaseViewModel
     public ObservableCollection<Client> AvailableClients { get; }
 
     public CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService, IClientService clientService,
-        IClientRepository clientRepository, IBoatAuthorizationService boatAuthorizationService, ICompetitionMailService competitionMailService)
+        IClientRepository clientRepository, IBoatAuthorizationService boatAuthorizationService, ICompetitionEmailService competitionMailService)
     {
         _reservationService = reservationService;
         _competitionService = competitionService;

@@ -68,6 +68,7 @@ namespace ProjectBotenReservering.App
 
             builder.Services.AddSingleton<IPromptHelper, PromptHelper>();
             builder.Services.AddSingleton<IResourceLoader, ResourceLoaderHelper>();
+            builder.Services.AddSingleton<IEmailTemplateHelper, EmailTemplateHelper>();
 
             builder.Services.AddSingleton<ISchemaInitializer, SqliteSchemaInitializer>();
             builder.Services.AddTransient<IDatabaseSeeder, BoatSeeder>();
@@ -148,7 +149,7 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<ILlmService, LlmService>();
             builder.Services.AddSingleton<ICompetitionService, CompetitionService>();
             builder.Services.AddSingleton<ITweetService, TweetService>();
-            builder.Services.AddTransient<ICompetitionMailService, CompetitionMailService>();
+            builder.Services.AddSingleton<ICompetitionEmailService, CompetitionEmailService>();
 
             builder.Services.AddSingleton<App>();
             builder.Services.AddSingleton<TabItemToViewHelper>();
