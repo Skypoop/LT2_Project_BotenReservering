@@ -147,6 +147,7 @@ namespace ProjectBotenReservering.App
             builder.Services.AddSingleton<ILlmService, LlmService>();
             builder.Services.AddSingleton<ICompetitionService, CompetitionService>();
             builder.Services.AddSingleton<ITweetService, TweetService>();
+            builder.Services.AddSingleton<ICompetitionEmailService, CompetitionEmailService>();
 
             builder.Services.AddSingleton<App>();
             builder.Services.AddSingleton<TabItemToViewHelper>();

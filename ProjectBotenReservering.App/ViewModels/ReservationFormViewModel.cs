@@ -356,8 +356,7 @@ public partial class ReservationFormViewModel : BaseViewModel
 
     private async Task SendReservationEmailAsync()
     {
-        string rawBody = await ResourceLoaderHelper
-            .LoadEmbeddedResourceAsync("ReservationConfirmation.html");
+        string rawBody = await ResourceLoaderHelper.LoadEmbeddedResourceAsync("ReservationConfirmation.html");
 
         if (string.IsNullOrEmpty(rawBody)) return;
 

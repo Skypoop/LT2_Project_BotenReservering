@@ -16,6 +16,7 @@ public partial class CompetitionViewModel : BaseViewModel
     private readonly IClientService _clientService;
     private readonly IClientRepository _clientRepository;
     private readonly IBoatAuthorizationService _boatAuthorizationService;
+    private readonly ICompetitionEmailService _competitionMailService;
 
     [ObservableProperty]
     public partial string TeamCount { get; set; } = "0";
@@ -24,10 +25,12 @@ public partial class CompetitionViewModel : BaseViewModel
     public partial string CompetitionName { get; set; } = string.Empty;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(StartDateTime))]
     [NotifyPropertyChangedFor(nameof(StartTimeWithPreparation))]
     public partial DateTime StartDate { get; set; } = DateTime.Today;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(StartDateTime))]
     [NotifyPropertyChangedFor(nameof(StartTimeWithPreparation))]
     public partial TimeSpan StartTime { get; set; } = TimeSpan.Zero;
 
@@ -39,9 +42,10 @@ public partial class CompetitionViewModel : BaseViewModel
     [NotifyPropertyChangedFor(nameof(EndDateTime))]
     public partial TimeSpan EndTime { get; set; } = TimeSpan.Zero;
 
-    public DateTime EndDateTime => EndDate.Date + EndTime;
     public DateTime StartDateTime => StartDate.Date + StartTime;
-    public DateTime StartTimeWithPreparation => (StartDate.Date + StartTime).AddMinutes(-30);
+    public DateTime EndDateTime => EndDate.Date + EndTime;
+    public DateTime StartTimeWithPreparation => StartDateTime.AddMinutes(-30);
+
 
     [ObservableProperty]
     public partial string TeamName { get; set; } = string.Empty;
@@ -77,18 +81,22 @@ public partial class CompetitionViewModel : BaseViewModel
     [ObservableProperty]
     public partial Client? SelectedClient { get; set; }
 
+    [ObservableProperty]
+    public partial ObservableCollection<Client> SelectedClients { get; set; } = new();
 
     public ObservableCollection<Client> AvailableClients { get; }
 
     public CompetitionViewModel(IReservationService reservationService, ICompetitionService competitionService, IClientService clientService,
-        IClientRepository clientRepository, IBoatAuthorizationService boatAuthorizationService)
+        IClientRepository clientRepository, IBoatAuthorizationService boatAuthorizationService, ICompetitionEmailService competitionMailService)
     {
         _reservationService = reservationService;
         _competitionService = competitionService;
         _clientService = clientService;
         _clientRepository = clientRepository;
         _boatAuthorizationService = boatAuthorizationService;
+        _competitionMailService = competitionMailService;
 
+        SelectedClients = new ObservableCollection<Client>();
         AvailableClients = new ObservableCollection<Client>();
         InitializeClients();
     }
@@ -140,8 +148,6 @@ public partial class CompetitionViewModel : BaseViewModel
     private void SetWeatherWarning(WeatherAuthorizationResultEnum weatherAuthorizationResult)
     {
         WeatherWarningText = MessageHelper.ConvertWeatherAuthorizationMessageToUi(weatherAuthorizationResult);
-
-        HasWeatherWarning = true;
     }
 
     [RelayCommand]
@@ -180,13 +186,11 @@ public partial class CompetitionViewModel : BaseViewModel
 
     private async Task MoveToTweetScreen()
     {
-        // Construct context string from user input for the tweet
         string contextString = $"Naam: {CompetitionName}, " +
                                $"Start: {StartDate:dd-MM-yyyy} om {StartTime:hh\\:mm}, " +
                                $"Einde: {EndDate:dd-MM-yyyy} om {EndTime:hh\\:mm}, " +
                                $"Aantal Teams: {TeamCount}";
-        // TO-DO: Add team names to context when implemented in UI
-        // Navigate to TweetCreationView and pass the context
+
         Dictionary<string, object> navigationParameter = new()
         {
             { "context", contextString }
@@ -212,7 +216,6 @@ public partial class CompetitionViewModel : BaseViewModel
 
     private async Task<bool> CompetitionIsValid(DateTime startDateTime, DateTime endDateTime)
     {
-
         List<Boat> boats = CompetitionItems.Select((BoatCompetitionUiItem x) => x.Boat).ToList();
 
         (bool isValid, string? errorMessage) = _competitionService.ValidateCompetition(startDateTime, endDateTime, boats);
@@ -227,10 +230,47 @@ public partial class CompetitionViewModel : BaseViewModel
     {
         _competitionService.CreateCompetition(startDateTime, endDateTime, CompetitionName, CompetitionItems.ToList());
 
+        _ = SendCompetitionEmailsAsync();
+
         if (await ShowCompletionMessage())
             await MoveToTweetScreen();
         else
             RefreshScreen();
+    }
+
+    private async Task SendCompetitionEmailsAsync()
+    {
+        List<Boat> competitionBoats = CompetitionItems.Select(x => x.Boat).ToList();
+        Dictionary<int, ObservableCollection<Client>> clientsByBoatId = CompetitionItems.ToDictionary(x => x.Boat.Id, x => x.SelectedClients);
+        Dictionary<int, string> teamNamesByBoatId = CompetitionItems.ToDictionary(x => x.Boat.Id, x => x.TeamName);
+
+        CompetitionEmailContext context = new CompetitionEmailContext(
+            CompetitionName,
+            StartTimeWithPreparation,
+            EndDateTime,
+            clientsByBoatId,
+            teamNamesByBoatId,
+            competitionBoats
+        );
+
+        List<(string Email, string Subject, string Body)> emailsToSend = new List<(string Email, string Subject, string Body)>();
+
+        foreach (BoatCompetitionUiItem item in CompetitionItems)
+        {
+            foreach (Client client in item.SelectedClients)
+            {
+                if (string.IsNullOrEmpty(client.Email)) continue;
+
+                (string Subject, string Body) result = await EmailTemplateHelper.RenderCompetitionConfirmationAsync(context, client, item.Boat.Id);
+
+                if (!string.IsNullOrEmpty(result.Body))
+                {
+                    emailsToSend.Add((client.Email, result.Subject, result.Body));
+                }
+            }
+        }
+
+        await _competitionMailService.SendPreparedEmailsAsync(emailsToSend);
     }
 
     private async Task<bool> ShowCompletionMessage()
