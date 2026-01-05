@@ -229,7 +229,6 @@ public partial class ReservationFormViewModel : BaseViewModel
                     HasTimeWarning = true;
                 }
             }
-        }
 
         SaveReservationCommand.NotifyCanExecuteChanged();
     }
