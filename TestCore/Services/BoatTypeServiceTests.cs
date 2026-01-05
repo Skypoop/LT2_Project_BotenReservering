@@ -1,13 +1,9 @@
-using Moq;
-using NUnit.Framework;
 using FluentAssertions;
-using ProjectBotenReservering.Core.Services;
-using ProjectBotenReservering.Core.Interfaces.Services;
+using Moq;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
+using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System;
+using ProjectBotenReservering.Core.Services;
 
 namespace TestCore.Services;
 
@@ -42,12 +38,12 @@ public class BoatTypeServiceTests
         };
 
         _mockBoatRepository.Setup(r => r.GetAll()).Returns(allBoats);
-        
+
         // Setup FilterAuthorized to return the authorized list
         _mockBoatAuthorizationService
             .Setup(s => s.FilterAuthorized(
-                It.IsAny<IEnumerable<Boat>>(), 
-                It.IsAny<Func<Boat, BoatType>>(), 
+                It.IsAny<IEnumerable<Boat>>(),
+                It.IsAny<Func<Boat, BoatType>>(),
                 It.IsAny<Func<Boat, int>>()))
             .Returns(authorizedBoats);
 
@@ -57,11 +53,11 @@ public class BoatTypeServiceTests
         // Assert
         result.Should().HaveCount(1);
         result.First().Name.Should().Be("Boat1");
-        
+
         _mockBoatRepository.Verify(r => r.GetAll(), Times.Once);
         _mockBoatAuthorizationService.Verify(s => s.FilterAuthorized(
-            It.IsAny<IEnumerable<Boat>>(), 
-            It.IsAny<Func<Boat, BoatType>>(), 
+            It.IsAny<IEnumerable<Boat>>(),
+            It.IsAny<Func<Boat, BoatType>>(),
             It.IsAny<Func<Boat, int>>()), Times.Once);
     }
 }

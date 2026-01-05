@@ -1,18 +1,21 @@
+using System.Data;
+using ProjectBotenReservering.Core.Interfaces.Mappers;
+using ProjectBotenReservering.Core.Interfaces.Database;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
+using ProjectBotenReservering.Core.Data.Helpers;
 using ProjectBotenReservering.Core.Models;
-using Microsoft.Data.Sqlite;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
 {
-    public class DamageReportPhotoRepository : DatabaseConnection, IDamageReportPhotoRepository
+    public class DamageReportPhotoRepository : IDamageReportPhotoRepository
     {
-        public DamageReportPhotoRepository()
+        private readonly IDbConnectionFactory _connectionFactory;
+        private readonly IMapper<DamageReportPhoto> _mapper;
+
+        public DamageReportPhotoRepository(IDbConnectionFactory connectionFactory, IMapper<DamageReportPhoto> mapper)
         {
-            CreateTable(@"CREATE TABLE IF NOT EXISTS DamageReportPhotos (
-                            [Id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                            [DamageReport_Id] INT NOT NULL,
-                            [Url] VARCHAR NOT NULL,
-                            FOREIGN KEY (DamageReport_Id) REFERENCES DamageReport(Id))");
+            _connectionFactory = connectionFactory;
+            _mapper = mapper;
         }
 
         public DamageReportPhoto Add(DamageReportPhoto item)
@@ -20,14 +23,18 @@ namespace ProjectBotenReservering.Core.Data.Repositories
             string insertQuery = @"INSERT INTO DamageReportPhotos(DamageReport_Id, Url) 
                                    VALUES(@DamageReportId, @Url);
                                    SELECT last_insert_rowid();";
-            OpenConnection();
-            using (SqliteCommand command = new(insertQuery, Connection))
+
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@DamageReportId", item.DamageReportId);
-                command.Parameters.AddWithValue("@Url", item.Url);
-                item.Id = Convert.ToInt32(command.ExecuteScalar());
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = insertQuery;
+                    command.AddParameter("@DamageReportId", item.DamageReportId);
+                    command.AddParameter("@Url", item.Url);
+                    item.Id = Convert.ToInt32(command.ExecuteScalar());
+                }
             }
-            CloseConnection();
             return item;
         }
 
@@ -35,67 +42,64 @@ namespace ProjectBotenReservering.Core.Data.Repositories
         {
             DamageReportPhoto? photo = null;
             string selectQuery = "SELECT Id, DamageReport_Id, Url FROM DamageReportPhotos WHERE Id = @Id";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@Id", id);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
                 {
-                    if (reader.Read())
+                    command.CommandText = selectQuery;
+                    command.AddParameter("@Id", id);
+                    using (IDataReader reader = command.ExecuteReader())
                     {
-                        photo = new DamageReportPhoto(
-                            reader.GetInt32(0),
-                            reader.GetInt32(1),
-                            reader.GetString(2)
-                        );
+                        if (reader.Read())
+                        {
+                            photo = _mapper.Map(reader);
+                        }
                     }
                 }
             }
-
-            CloseConnection();
             return photo;
         }
 
         public List<DamageReportPhoto> GetByDamageReportId(int damageReportId)
         {
-            var list = new List<DamageReportPhoto>();
+            List<DamageReportPhoto> list = new List<DamageReportPhoto>();
             string selectQuery = "SELECT Id, DamageReport_Id, Url FROM DamageReportPhotos WHERE DamageReport_Id = @DamageReportId";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@DamageReportId", damageReportId);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
                 {
-                    while (reader.Read())
+                    command.CommandText = selectQuery;
+                    command.AddParameter("@DamageReportId", damageReportId);
+                    using (IDataReader reader = command.ExecuteReader())
                     {
-                        list.Add(new DamageReportPhoto(
-                            reader.GetInt32(0),
-                            reader.GetInt32(1),
-                            reader.GetString(2)
-                        ));
+                        while (reader.Read())
+                        {
+                            list.Add(_mapper.Map(reader));
+                        }
                     }
                 }
             }
-
-            CloseConnection();
             return list;
         }
 
         public void Delete(int id)
         {
             string deleteQuery = "DELETE FROM DamageReportPhotos WHERE Id = @Id";
-            OpenConnection();
 
-            using (SqliteCommand command = new(deleteQuery, Connection))
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@Id", id);
-                command.ExecuteNonQuery();
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = deleteQuery;
+                    command.AddParameter("@Id", id);
+                    command.ExecuteNonQuery();
+                }
             }
-
-            CloseConnection();
         }
     }
 }
-

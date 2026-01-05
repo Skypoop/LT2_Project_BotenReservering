@@ -2,7 +2,7 @@
 
 namespace ProjectBotenReservering.Core.Helpers;
 
-public static class ValidationHelper
+public static class RegistrationValidationHelper
 {
     public static bool IsValidName(string name)
     {
@@ -21,7 +21,7 @@ public static class ValidationHelper
     {
         string trimmedEmail = email?.Trim() ?? string.Empty;
         Regex regex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
-        
+
         if (string.IsNullOrWhiteSpace(trimmedEmail) || !regex.IsMatch(trimmedEmail))
         {
             return false;
@@ -35,7 +35,7 @@ public static class ValidationHelper
         {
             return true;
         }
-        
+
         bool isInt = int.TryParse(level, out int val);
         if (!isInt || val < 0 || val > 3)
         {

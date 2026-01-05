@@ -39,12 +39,17 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiAsset Remove="Resources\Raw\CompetitionConfirmation.html" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Maui" Version="9.1.1" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.120" />
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.120" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
 		<PackageReference Include="Plugin.Maui.Calendar" Version="2.0.0" />
+		<PackageReference Include="TweetinviAPI" Version="5.0.4" />
 	</ItemGroup>
 	
 
@@ -61,6 +66,7 @@
 
     <ItemGroup>
         <EmbeddedResource Include="Resources/Raw/ReservationConfirmation.html" />
+        <EmbeddedResource Include="Resources\Raw\CompetitionConfirmation.html" />
     </ItemGroup>
 
 	<ItemGroup>

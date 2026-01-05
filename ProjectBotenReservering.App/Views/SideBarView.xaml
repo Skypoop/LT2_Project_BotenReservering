@@ -5,7 +5,8 @@
              xmlns:models="clr-namespace:ProjectBotenReservering.Core.Models;assembly=ProjectBotenReservering.Core"
              xmlns:helpers="clr-namespace:ProjectBotenReservering.App.Helpers"
              x:Class="ProjectBotenReservering.App.Views.SideBarView"
-             x:DataType="vm:SideBarViewModel">
+             x:DataType="vm:SideBarViewModel"
+             Shell.NavBarIsVisible="False">
 
     <ContentPage.Resources>
         <helpers:TabItemToViewHelper x:Key="TabConverter" />

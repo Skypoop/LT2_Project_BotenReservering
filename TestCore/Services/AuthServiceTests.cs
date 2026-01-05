@@ -1,11 +1,9 @@
-﻿using Moq;
-using NUnit.Framework;
-using FluentAssertions;
-using ProjectBotenReservering.Core.Services;
+﻿using FluentAssertions;
+using Moq;
+using ProjectBotenReservering.Core.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Models;
-using ProjectBotenReservering.Core.Helpers;
-using System.Collections.Generic;
+using ProjectBotenReservering.Core.Services;
 
 namespace TestCore.Services;
 
@@ -15,6 +13,8 @@ public class AuthServiceTests
     private Mock<IClientRepository> _mockClientRepo;
     private Mock<IClientRoleRepository> _mockClientRoleRepo;
     private Mock<IRoleRepository> _mockRoleRepo;
+    private Mock<IRoleManagementTaskRepository> _mockRoleManagementTaskRepo;
+    
     private AuthService _service;
 
     [SetUp]
@@ -23,11 +23,13 @@ public class AuthServiceTests
         _mockClientRepo = new Mock<IClientRepository>();
         _mockClientRoleRepo = new Mock<IClientRoleRepository>();
         _mockRoleRepo = new Mock<IRoleRepository>();
+        _mockRoleManagementTaskRepo = new Mock<IRoleManagementTaskRepository>();
 
         _service = new AuthService(
             _mockClientRepo.Object,
             _mockClientRoleRepo.Object,
-            _mockRoleRepo.Object
+            _mockRoleRepo.Object,
+            _mockRoleManagementTaskRepo.Object
         );
     }
 
@@ -104,33 +106,47 @@ public class AuthServiceTests
     }
 
     [Test]
-    public void GetUserRole_ClientHasRole_ReturnsCorrectRole()
+    public void GetUserRoles_ClientHasRoles_ReturnsCorrectRoles()
     {
         int clientId = 1;
-        string expectedRole = "Lid";
+        ClientRole memberRole = new ClientRole("Lid", clientId);
+        ClientRole competitionCommissionerRole = new ClientRole("Wedstrijdcommissaris", clientId);
+        List<ClientRole> expectedRoles = new List<ClientRole>
+        {
+            memberRole,
+            competitionCommissionerRole
+        };
         List<ClientRole> clientRoles = new List<ClientRole>
         {
-            new ClientRole(expectedRole, clientId)
+            memberRole,
+            competitionCommissionerRole
         };
 
         _mockClientRoleRepo.Setup(repo => repo.GetByClientId(clientId)).Returns(clientRoles);
 
-        string result = _service.GetUserRole(clientId);
+        ClientRole[] result = _service.GetClientRoles(clientId);
 
-        result.Should().Be(expectedRole);
+        result.Should().Equal(expectedRoles);
     }
 
     [Test]
-    public void GetUserRole_ClientHasNoRole_ReturnsEmptyString()
+    public void GetUserRole_ClientHasNoRole_ReturnsEmptyArray()
     {
         int clientId = 1;
+        ClientRole memberRole = new ClientRole("Lid", clientId);
+        ClientRole competitionCommissionerRole = new ClientRole("Wedstrijdcommissaris", clientId);
+        List<ClientRole> expectedRoles = new List<ClientRole>
+        {
+            memberRole,
+            competitionCommissionerRole
+        };
         List<ClientRole> emptyRoles = new List<ClientRole>();
 
         _mockClientRoleRepo.Setup(repo => repo.GetByClientId(clientId)).Returns(emptyRoles);
 
-        string result = _service.GetUserRole(clientId);
+        ClientRole[] result = _service.GetClientRoles(clientId);
 
-        result.Should().Be(string.Empty);
+        result.Should().HaveCount(0);
     }
 
     [Test]

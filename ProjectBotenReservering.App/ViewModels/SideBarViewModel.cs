@@ -1,11 +1,15 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using ProjectBotenReservering.App.Views;
-using ProjectBotenReservering.Core.Models; 
+using ProjectBotenReservering.Core.Interfaces.Services;
+using ProjectBotenReservering.Core.Models;
 namespace ProjectBotenReservering.App.ViewModels;
 
 public partial class SideBarViewModel : BaseViewModel
 {
+    private readonly IClientService _clientService;
+    private readonly IAuthService _authService;
+    
     public ObservableCollection<TabItem> Tabs { get; }
 
     private TabItem? _selectedTab;
@@ -17,12 +21,24 @@ public partial class SideBarViewModel : BaseViewModel
 
     public ICommand SelectTabCommand { get; }
 
-    public SideBarViewModel()
+    public SideBarViewModel(IClientService clientService, IAuthService authService)
     {
-        Tabs = new ObservableCollection<TabItem>
+        _clientService = clientService;
+        _authService = authService;
+        
+        Client? currentClient = _clientService.GetCurrentClient();
+        if (currentClient == null)
+            throw new Exception("No client found");
+        
+        ClientRole[] roles = _authService.GetClientRoles(currentClient.Id);
+
+        TabItem[] tabItems =       
         {
-            new TabItem("calendar_regular_full.png", typeof(BoatTypesView))
+            new ("boat_image.png", typeof(BoatTypesView)),
+            new ("competition_image.png", typeof(CompetitionView)),
         };
+        
+        Tabs = new ObservableCollection<TabItem>(_authService.GetAuthorisedTabs(currentClient.Id, tabItems));
 
         SelectedTab = Tabs[0];
 

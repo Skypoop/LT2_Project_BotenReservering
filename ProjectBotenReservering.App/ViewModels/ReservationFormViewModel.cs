@@ -1,12 +1,13 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using ProjectBotenReservering.Core.Models;
+using Plugin.Maui.Calendar.Models;
 using ProjectBotenReservering.App.Helpers;
+using ProjectBotenReservering.Core.Constants;
+using ProjectBotenReservering.Core.Helpers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
-using Plugin.Maui.Calendar.Models;
-using ProjectBotenReservering.Core.Constants;
-using System.Collections.ObjectModel;
+using ProjectBotenReservering.Core.Models;
 
 namespace ProjectBotenReservering.App.ViewModels;
 
@@ -18,6 +19,7 @@ public partial class ReservationFormViewModel : BaseViewModel
     private readonly IClientRepository _clientRepository;
     private readonly IReservationService _reservationService;
     private readonly IBoatAuthorizationService _boatAuthorizationService;
+    private readonly ISmtpMailService _mailService;
 
     public ReservationFormViewModel(
         IBoatTypeService boatTypeService,
@@ -28,13 +30,12 @@ public partial class ReservationFormViewModel : BaseViewModel
         ISmtpMailService mailservice
         )
     {
-        _mailService = mailservice;
         _boatTypeService = boatTypeService;
-        _clientRepository = clientRepository;
-
         _clientService = clientService;
+        _clientRepository = clientRepository;
         _reservationService = reservationService;
         _boatAuthorizationService = boatReservationService;
+        _mailService = mailservice;
 
         Title = "";
 
@@ -44,7 +45,7 @@ public partial class ReservationFormViewModel : BaseViewModel
 
         SelectedClients = new ObservableCollection<Client>();
         AvailableClients = new ObservableCollection<Client>();
-        
+
         MinDate = DateTime.Today;
     }
 
@@ -56,11 +57,11 @@ public partial class ReservationFormViewModel : BaseViewModel
         {
             _minimumDate = value;
             OnPropertyChanged();
-            
+
         }
     }
 
-    private ObservableCollection<Reservation> reservationList { get; set; } = new ObservableCollection<Reservation>();
+    private ObservableCollection<Reservation> ReservationList { get; set; } = new ObservableCollection<Reservation>();
 
     [ObservableProperty]
     public partial BoatTypeUiItem? CurrentBoatType { get; set; }
@@ -81,20 +82,19 @@ public partial class ReservationFormViewModel : BaseViewModel
     [ObservableProperty]
     public partial bool HasTimeWarning { get; set; }
 
-    private readonly ISmtpMailService _mailService;
     public ObservableCollection<Client> SelectedClients { get; }
     public ObservableCollection<Client> AvailableClients { get; }
 
     public ObservableCollection<Reservation> Reservations { get; } = new ObservableCollection<Reservation>();
 
     public EventCollection Events { get; set; } = new EventCollection();
-    
+
     public bool IsMacCatalyst { get; } = DeviceInfo.Current.Platform == DevicePlatform.MacCatalyst;
     public bool IsPickerSupported => !IsMacCatalyst;
 
     [ObservableProperty]
     public partial Client? SelectedClientToAdd { get; set; }
-    
+
     [ObservableProperty]
     public partial string? SeatStatusText { get; set; } = "";
 
@@ -113,7 +113,7 @@ public partial class ReservationFormViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private async Task LoadBoatData(int id)
+    private Task LoadBoatData(int id)
     {
         BoatTypeUiItem boatType = _boatTypeService.GetBoatTypeById(id);
         CurrentBoatType = boatType;
@@ -122,32 +122,37 @@ public partial class ReservationFormViewModel : BaseViewModel
         InitializeClients();
         UpdateSeatStatus();
         UpdateQualificationFlags();
+
+        return Task.CompletedTask;
     }
-    
+
     [RelayCommand]
-    public async Task LoadReservationsAsync()
+    public Task LoadReservationsAsync()
     {
-        List<Reservation> reservations = await _reservationService.GetAll();
-        foreach (Reservation res in reservations) reservationList.Add(res);
+        List<Reservation> reservations = _reservationService.GetAll();
+        foreach (Reservation res in reservations)
+            ReservationList.Add(res);
+
         InitializeEvents();
+
+        return Task.CompletedTask;
     }
 
     public void InitializeEvents()
     {
-        foreach (var res in reservationList)
+        foreach (Reservation res in ReservationList)
         {
             DateTime dayOfReservation = res.StartTime;
-            // Due to the events only allowing one entry per day, we only add the first reservation found for that day. It only uses these events to show the dots on the calendar.
             if (Events.ContainsKey(dayOfReservation)) continue;
-            
-            Events.Add(dayOfReservation, new List<object>{res});
+
+            Events.Add(dayOfReservation, new List<object> { res });
         }
     }
 
     public Task RefreshReservationListAsync(DateTime value)
     {
         Reservations.Clear();
-        foreach (Reservation res in reservationList)
+        foreach (Reservation res in ReservationList)
         {
             if (res.StartTime.Date == value.Date)
             {
@@ -170,7 +175,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         }
 
         List<Client> allClients = _clientRepository.GetAll();
-        foreach (var client in allClients)
+        foreach (Client client in allClients)
         {
             if (currentUser != null && client.Id == currentUser.Id) continue;
 
@@ -195,7 +200,7 @@ public partial class ReservationFormViewModel : BaseViewModel
         HasTimeWarning = false;
         TimeWarningText = string.Empty;
         HasWeatherWarning = false;
-        
+
         DateTime startDateTime = SelectedDate.Date + StartTime;
         DateTime endDateTime = SelectedDate.Date + EndTime;
 
@@ -207,28 +212,25 @@ public partial class ReservationFormViewModel : BaseViewModel
         }
         else if (_reservationService.IsBookingWithinAllowedReservationTime(startDateTime) && BoatId != 0)
         {
+            WeatherAuthorizationResultEnum weatherResult = await _boatAuthorizationService.WeatherAuthorized(BoatId, startDateTime, endDateTime);
+
+            if (weatherResult != WeatherAuthorizationResultEnum.Authorized)
             {
-                bool weatherAllowed = await _boatAuthorizationService.WeatherAuthorized(BoatId, startDateTime, endDateTime);
+                DateWarningText = MessageHelper.ConvertWeatherAuthorizationMessageToUi(weatherResult);
 
-                if (!weatherAllowed)
-                {
-                    DateWarningText = "LET OP: Voor deze datum en tijd is het weer heftig voor deze boot type!";
-                    HasWeatherWarning = true;
-                }
+                HasWeatherWarning = true;
             }
-
 
             if (EndTime > StartTime)
             {
                 if (!_reservationService.IsValidReservationLength(startDateTime, endDateTime))
                 {
-                    TimeWarningText = "De reservering duurt te lang. max 2 uur lang";
+                    TimeWarningText = "De reservering duurt te lang. max 2 uur";
                     HasTimeWarning = true;
                 }
             }
-
         }
-        
+
         SaveReservationCommand.NotifyCanExecuteChanged();
     }
 
@@ -287,7 +289,6 @@ public partial class ReservationFormViewModel : BaseViewModel
         {
             SelectedClients.Remove(client);
 
-            // Add back to available list if not there
             if (!AvailableClients.Any(c => c.Id == client.Id))
             {
                 AvailableClients.Add(client);
@@ -355,8 +356,7 @@ public partial class ReservationFormViewModel : BaseViewModel
 
     private async Task SendReservationEmailAsync()
     {
-        string rawBody = await ResourceLoaderHelper
-            .LoadEmbeddedResourceAsync("ReservationConfirmation.html");
+        string rawBody = await ResourceLoaderHelper.LoadEmbeddedResourceAsync("ReservationConfirmation.html");
 
         if (string.IsNullOrEmpty(rawBody)) return;
 
@@ -391,13 +391,14 @@ public partial class ReservationFormViewModel : BaseViewModel
     private async Task SaveReservation()
     {
         DateTime startDateTime = SelectedDate.Date.Add(StartTime);
-        DateTime endDateTime   = SelectedDate.Date.Add(EndTime);
+        DateTime endDateTime = SelectedDate.Date.Add(EndTime);
         if (EndTime <= StartTime)
         {
             await Shell.Current.DisplayAlert("Error", "Eindtijd moet na starttijd zijn.", "OK");
             return;
         }
-        if (_reservationService.IsReservationTimeBlocked(Reservations, startDateTime, endDateTime, CurrentBoatType)) {
+        if (_reservationService.IsReservationTimeBlocked(Reservations, startDateTime, endDateTime, CurrentBoatType))
+        {
             await Shell.Current.DisplayAlert("Error", $"Er zijn geen boten meer beschikbaar van dit type boot op deze tijd", "OK");
             return;
         }
@@ -410,7 +411,6 @@ public partial class ReservationFormViewModel : BaseViewModel
             BoatId,
             true);
 
-        // Use the service to create the reservation, which handles approval logic
         _reservationService.CreateReservation(currentReservation, SelectedClients.ToList());
 
         if (!currentReservation.Approved)

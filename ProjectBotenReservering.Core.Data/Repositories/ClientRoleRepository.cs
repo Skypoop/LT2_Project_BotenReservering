@@ -1,94 +1,105 @@
+using System.Data;
+using ProjectBotenReservering.Core.Interfaces.Database;
+using ProjectBotenReservering.Core.Interfaces.Mappers;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Models;
-using Microsoft.Data.Sqlite;
+using ProjectBotenReservering.Core.Data.Helpers;
 
 namespace ProjectBotenReservering.Core.Data.Repositories
 {
-    public class ClientRoleRepository : DatabaseConnection, IClientRoleRepository
+    public class ClientRoleRepository : IClientRoleRepository
     {
-        public ClientRoleRepository()
+        private readonly IDbConnectionFactory _connectionFactory;
+        private readonly IMapper<ClientRole> _mapper;
+
+        public ClientRoleRepository(IDbConnectionFactory connectionFactory, IMapper<ClientRole> mapper)
         {
-            CreateTable(@"CREATE TABLE IF NOT EXISTS Client_Role (
-                            [Role_Name] VARCHAR(50) NOT NULL,
-                            [Client_Id] INT NOT NULL,
-                            PRIMARY KEY (Role_Name, Client_Id),
-                            FOREIGN KEY (Role_Name) REFERENCES Role(Name),
-                            FOREIGN KEY (Client_Id) REFERENCES Client(Id))");
+            _connectionFactory = connectionFactory;
+            _mapper = mapper;
         }
 
         public ClientRole Add(ClientRole item)
         {
             string insertQuery = @"INSERT INTO Client_Role(Role_Name, Client_Id) 
                                    VALUES(@RoleName, @ClientId)";
-            OpenConnection();
-            using (SqliteCommand command = new(insertQuery, Connection))
+
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@RoleName", item.RoleName);
-                command.Parameters.AddWithValue("@ClientId", item.ClientId);
-                command.ExecuteNonQuery();
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = insertQuery;
+                    command.AddParameter("@RoleName", item.RoleName);
+                    command.AddParameter("@ClientId", item.ClientId);
+                    command.ExecuteNonQuery();
+                }
             }
-            CloseConnection();
             return item;
         }
 
         public List<ClientRole> GetByClientId(int clientId)
         {
-            var list = new List<ClientRole>();
+            List<ClientRole> list = new List<ClientRole>();
             string selectQuery = "SELECT Role_Name, Client_Id FROM Client_Role WHERE Client_Id = @ClientId";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@ClientId", clientId);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
                 {
-                    while (reader.Read())
+                    command.CommandText = selectQuery;
+                    command.AddParameter("@ClientId", clientId);
+                    using (IDataReader reader = command.ExecuteReader())
                     {
-                        list.Add(new ClientRole(reader.GetString(0), reader.GetInt32(1)));
+                        while (reader.Read())
+                        {
+                            list.Add(_mapper.Map(reader));
+                        }
                     }
                 }
             }
-
-            CloseConnection();
             return list;
         }
 
         public List<ClientRole> GetByRoleName(string roleName)
         {
-            var list = new List<ClientRole>();
+            List<ClientRole> list = new List<ClientRole>();
             string selectQuery = "SELECT Role_Name, Client_Id FROM Client_Role WHERE Role_Name = @RoleName";
-            OpenConnection();
 
-            using (SqliteCommand command = new(selectQuery, Connection))
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@RoleName", roleName);
-                using (SqliteDataReader reader = command.ExecuteReader())
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
                 {
-                    while (reader.Read())
+                    command.CommandText = selectQuery;
+                    command.AddParameter("@RoleName", roleName);
+                    using (IDataReader reader = command.ExecuteReader())
                     {
-                        list.Add(new ClientRole(reader.GetString(0), reader.GetInt32(1)));
+                        while (reader.Read())
+                        {
+                            list.Add(_mapper.Map(reader));
+                        }
                     }
                 }
             }
-
-            CloseConnection();
             return list;
         }
 
         public void Delete(string roleName, int clientId)
         {
             string deleteQuery = "DELETE FROM Client_Role WHERE Role_Name = @RoleName AND Client_Id = @ClientId";
-            OpenConnection();
 
-            using (SqliteCommand command = new(deleteQuery, Connection))
+            using (IDbConnection connection = _connectionFactory.CreateConnection())
             {
-                command.Parameters.AddWithValue("@RoleName", roleName);
-                command.Parameters.AddWithValue("@ClientId", clientId);
-                command.ExecuteNonQuery();
+                connection.Open();
+                using (IDbCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = deleteQuery;
+                    command.AddParameter("@RoleName", roleName);
+                    command.AddParameter("@ClientId", clientId);
+                    command.ExecuteNonQuery();
+                }
             }
-
-            CloseConnection();
         }
     }
 }
-

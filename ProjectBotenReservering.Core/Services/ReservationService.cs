@@ -1,3 +1,4 @@
+using ProjectBotenReservering.Core.Constants;
 using ProjectBotenReservering.Core.Interfaces.Repositories;
 using ProjectBotenReservering.Core.Interfaces.Services;
 using ProjectBotenReservering.Core.Models;
@@ -6,7 +7,7 @@ using ProjectBotenReservering.Core.Constants;
 
 namespace ProjectBotenReservering.Core.Services;
 
-public class ReservationService: IReservationService
+public class ReservationService : IReservationService
 {
     private readonly IReservationRepository _reservationRepository;
     private readonly IBoatAuthorizationService _boatAuthorizationService;
@@ -47,16 +48,16 @@ public class ReservationService: IReservationService
         AddClientsToReservation(reservation, clients);
         return reservation;
     }
-    
+
     public Reservation? Get(int id)
     {
         return _reservationRepository.Get(id);
     }
-    
+
     public bool IsBookingWithinAllowedReservationTime(DateTime startTime)
     {
         DateTime today = DateTime.Today;
-        TimeSpan daysFromNow =  startTime.Subtract(today);
+        TimeSpan daysFromNow = startTime.Subtract(today);
         if (daysFromNow.Days > ReservationRules.MaxDaysBeforeReservation)
         {
             return false;
@@ -74,11 +75,11 @@ public class ReservationService: IReservationService
         return true;
     }
 
-    public async Task<List<Reservation>> GetAll()
+    public List<Reservation> GetAll()
     {
         return _reservationRepository.GetAll();
     }
-    
+
     public bool IsReservationTimeBlocked(IEnumerable<Reservation> reservations, DateTime startTime, DateTime endTime, BoatTypeUiItem boatType)
     {
         List<int> matchingBoatIds = _boatRepository
@@ -109,8 +110,43 @@ public class ReservationService: IReservationService
         foreach (Client client in clients)
         {
             ClientReservation clientReservation = new(client.Id, reservation.Id);
-    
+
             _clientReservationRepository.Add(clientReservation);
         }
+    }
+
+    public void CancelOverlappingReservations(List<Reservation> overlappingReservations)
+    {
+        _reservationRepository.CancelReservationsByIds(overlappingReservations.Select(r => r.Id).ToList());
+    }
+
+    public List<Reservation> FindOverlappingReservations(DateTime startDate, DateTime endDate, List<int> boatIds)
+    {
+        List<Reservation> reservations = _reservationRepository.GetAll();
+
+        return reservations.Where(r => r.Active 
+                                       && ((r.StartTime < endDate && r.StartTime > startDate) 
+                                       || (r.EndTime < endDate && r.EndTime > startDate) 
+                                       || (r.StartTime == startDate && r.EndTime == endDate))
+                                       && boatIds.Contains(r.BoatId)).ToList();
+    }
+    
+    public Dictionary<Boat, int> CountOverlappingActiveReservations(List<Boat> boats, DateTime startDate, DateTime endDate)
+    {
+        List<Reservation> reservations = _reservationRepository.GetAll();
+
+        Dictionary<Boat, int> boatReservationCounts = new Dictionary<Boat, int>();
+
+        foreach (Boat boat in boats)
+        {
+            int count = reservations.Count(r => r.Active 
+                                                && ((r.StartTime < endDate && r.StartTime > startDate) 
+                                                || (r.EndTime < endDate && r.EndTime > startDate)
+                                                || (r.StartTime == startDate && r.EndTime == endDate)) 
+                                                && r.BoatId == boat.Id);
+            boatReservationCounts.Add(boat, count);
+        }
+
+        return boatReservationCounts;
     }
 }
