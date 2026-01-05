@@ -115,7 +115,7 @@ public partial class CompetitionViewModel : BaseViewModel
 
         if (result != WeatherAuthorizationResultEnum.Authorized)
         {
-            SetWeatherWarning();
+            SetWeatherWarning(result);
         }
     }
 
@@ -140,10 +140,9 @@ public partial class CompetitionViewModel : BaseViewModel
         WeatherWarningText = string.Empty;
     }
 
-    private void SetWeatherWarning()
+    private void SetWeatherWarning(WeatherAuthorizationResultEnum weatherAuthorizationResult)
     {
-        WeatherWarningText = "LET OP: Voor deze datum en tijd is het weer heftig voor een of meerdere geselecteerde boten!";
-        HasWeatherWarning = true;
+        WeatherWarningText = MessageHelper.ConvertWeatherAuthorizationMessageToUi(weatherAuthorizationResult);
     }
 
     [RelayCommand]
