@@ -100,10 +100,6 @@ namespace TestCore.Services
             result.Item2.Should().Be("Er zijn geen boten geselecteerd.");
         }
 
-        #endregion
-
-        #region FR2 + FR9 - Checking enough boats and cancelling overlapping reservations
-
         [Test]
         public void HasEnoughBoats_WhenEnoughBoatsAvailable_ReturnsTrue()
         {
@@ -274,9 +270,7 @@ namespace TestCore.Services
             selectedBoats[1].Id.Should().Be(3);
         }
 
-        #endregion
 
-        #region FR12 - Authorization checks for participants
 
         [Test]
         public void CreateCompetition_WhenClientNotAuthorized_SetsReservationApprovedToFalse()
@@ -374,10 +368,6 @@ namespace TestCore.Services
             // Assert
             result.Should().BeFalse();
         }
-
-        #endregion
-
-        #region FR13 - Block competition confirmation with insufficient participants
 
         [Test]
         public void IsCompetitionItemComplete_WhenTeamNameAndCapacityFilled_ReturnsTrue()
@@ -533,15 +523,9 @@ namespace TestCore.Services
             result.Should().BeTrue();
         }
 
-        #endregion
-
-        #region Helper Methods
-
         private static Boat CreateBoat(string name, int id, int level = 1, BoatType type = BoatType.S)
         {
             return new Boat(name, false, 1, level, type, 45, true, "Club", id);
         }
-
-        #endregion
     }
 }
